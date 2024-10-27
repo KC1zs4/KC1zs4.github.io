@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="起源来自hitcon 2017 babyfirst-revenge和babyfirst-revengev2中关于转义\处理的问题，折腾我一个晚上(生气) -&gt; 最后感谢v1nd大哥  跳转目录 跳转目录 Ref Linux下的命令执行 Windows下的命令执行 Sytem Execution Func in different lang PHP Java Python   Dive in">
+    <meta name="description" content="起源来自hitcon 2017 babyfirst-revenge和babyfirst-revengev2中关于转义\处理的问题，折腾我一个晚上(生气) -&gt; 最后感谢v1nd大哥  Ref php命令执行底层原理 其实看这篇就好了，只是自己总结一下，没有太考虑阅读感受(比较精简) 命令执行成因小注 知乎安全客，像是第一篇的转载    Linux下的命令执行 分为自身终端封装的指令(内置)">
 <meta property="og:type" content="article">
 <meta property="og:title" content="php命令执行底层原理的小记">
 <meta property="og:url" content="https://kc1zs4.github.io/2024/10/26/php%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E7%9A%84%E5%B0%8F%E8%AE%B0/index.html">
 <meta property="og:site_name" content="KC1zs4&#39;s Blog">
-<meta property="og:description" content="起源来自hitcon 2017 babyfirst-revenge和babyfirst-revengev2中关于转义\处理的问题，折腾我一个晚上(生气) -&gt; 最后感谢v1nd大哥  跳转目录 跳转目录 Ref Linux下的命令执行 Windows下的命令执行 Sytem Execution Func in different lang PHP Java Python   Dive in">
+<meta property="og:description" content="起源来自hitcon 2017 babyfirst-revenge和babyfirst-revengev2中关于转义\处理的问题，折腾我一个晚上(生气) -&gt; 最后感谢v1nd大哥  Ref php命令执行底层原理 其实看这篇就好了，只是自己总结一下，没有太考虑阅读感受(比较精简) 命令执行成因小注 知乎安全客，像是第一篇的转载    Linux下的命令执行 分为自身终端封装的指令(内置)">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-10-26T06:36:14.713Z">
-<meta property="article:modified_time" content="2024-10-26T08:44:33.169Z">
+<meta property="article:modified_time" content="2024-10-27T01:53:10.346Z">
 <meta name="twitter:card" content="summary">
     
     
@@ -80,8 +80,10 @@
     <span id="actions">
       <ul>
         
+        <li><a class="icon" aria-label="Previous post" href="/2024/10/26/%E8%AF%AD%E8%A8%80%E8%87%AA%E5%AD%A6%E6%8C%87%E5%8D%97/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
-        <li><a class="icon" aria-label="Next post" href="/2024/10/25/Ctf3r%E7%9A%84%E7%AC%AC%E4%B8%80%E5%8F%B0vps/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/10/25/ctf3r%E7%9A%84%E7%AC%AC%E4%B8%80%E5%8F%B0vps/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -111,7 +113,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B7%B3%E8%BD%AC%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">跳转目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">2.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">Linux下的命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Windows%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">4.</span> <span class="toc-text">Windows下的命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sytem-Execution-Func-in-different-lang"><span class="toc-number">5.</span> <span class="toc-text">Sytem Execution Func in different lang</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP"><span class="toc-number">5.1.</span> <span class="toc-text">PHP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java"><span class="toc-number">5.2.</span> <span class="toc-text">Java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Python"><span class="toc-number">5.3.</span> <span class="toc-text">Python</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dive-into-PHP"><span class="toc-number">6.</span> <span class="toc-text">Dive into PHP</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">2.</span> <span class="toc-text">Linux下的命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Windows%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">Windows下的命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sytem-Execution-Func-in-different-lang"><span class="toc-number">4.</span> <span class="toc-text">Sytem Execution Func in different lang</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP"><span class="toc-number">4.1.</span> <span class="toc-text">PHP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java"><span class="toc-number">4.2.</span> <span class="toc-text">Java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Python"><span class="toc-number">4.3.</span> <span class="toc-text">Python</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dive-into-PHP"><span class="toc-number">5.</span> <span class="toc-text">Dive into PHP</span></a></li></ol>
       </div>
     
   </span>
@@ -154,23 +156,13 @@
     <blockquote>
 <p>起源来自hitcon 2017 babyfirst-revenge和babyfirst-revengev2中关于转义\处理的问题，折腾我一个晚上(生气) -&gt; 最后感谢v1nd大哥</p>
 </blockquote>
-<h2 id="跳转目录"><a href="#跳转目录" class="headerlink" title="跳转目录"></a>跳转目录</h2><ul>
-<li><a href="#%E8%B7%B3%E8%BD%AC%E7%9B%AE%E5%BD%95">跳转目录</a></li>
-<li><a href="#ref">Ref</a></li>
-<li><a href="#linux%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C">Linux下的命令执行</a></li>
-<li><a href="#windows%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C">Windows下的命令执行</a></li>
-<li><a href="#sytem-execution-func-in-different-lang">Sytem Execution Func in different lang</a><ul>
-<li><a href="#php">PHP</a></li>
-<li><a href="#java">Java</a></li>
-<li><a href="#python">Python</a></li>
-</ul>
-</li>
-<li><a href="#dive-into-php">Dive into PHP</a></li>
-</ul>
 <h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
-<li><a target="_blank" rel="noopener" href="https://qftm.github.io/2020/12/01/command-execution-research-php/">其实大家看这篇就好了，我只是自己总结一下，没有太考虑阅读感受(比较精简)</a></li>
+<li>php命令执行底层原理<ol>
+<li><a target="_blank" rel="noopener" href="https://qftm.github.io/2020/12/01/command-execution-research-php/">其实看这篇就好了，只是自己总结一下，没有太考虑阅读感受(比较精简)</a></li>
 <li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6542?time__1311=n4+xnD0Dg7G=74xBkbDyDmrEDuGDBlOcGOYrYD">命令执行成因小注</a></li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/339071601">知乎安全客，像是第一篇的转载</a></li>
+</ol>
+</li>
 </ol>
 <h2 id="Linux下的命令执行"><a href="#Linux下的命令执行" class="headerlink" title="Linux下的命令执行"></a>Linux下的命令执行</h2><ol>
 <li>分为自身终端封装的指令(内置)和终端下调用其它目录下的可执行程序(外部)共两种<ol>
@@ -214,6 +206,7 @@
 </ol>
 </li>
 <li>在<code>system</code>的实验下都只是调用了一个子进程<code>/bin/sh</code></li>
+<li>Shell 执行：PHP 中的shell_exec 、 exec和system等函数调用系统的 shell（通常为&#x2F;bin&#x2F;sh或&#x2F;bin&#x2F;bash ）来执行命令。这意味着他们启动一个新的 shell 进程来解释您提供的命令字符串</li>
 </ol>
 <h3 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 与php不同的模型</span></span><br><span class="line">Java - 底层不调用系统终端，自己启动传入的可执行程序    Mode =&gt; Window：Command || Linux：Command</span><br></pre></td></tr></table></figure>
 
@@ -223,6 +216,7 @@
 </ol>
 </li>
 <li>window中也一样</li>
+<li>无 Shell 开销：由于 Java 默认情况下不通过 shell，因此您可以更直接地控制命令的执行，但这也意味着您可能需要自己处理环境变量、命令行解析和输出重定向（如果需要）</li>
 </ol>
 <h3 id="Python"><a href="#Python" class="headerlink" title="Python"></a>Python</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 和php一样</span></span><br><span class="line">Python - 底层调用系统终端，执行命令     Mode =&gt; Window：cmd.exe /c Command || Linux：sh -c Command</span><br></pre></td></tr></table></figure>
 
@@ -276,7 +270,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B7%B3%E8%BD%AC%E7%9B%AE%E5%BD%95"><span class="toc-number">1.</span> <span class="toc-text">跳转目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">2.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">Linux下的命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Windows%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">4.</span> <span class="toc-text">Windows下的命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sytem-Execution-Func-in-different-lang"><span class="toc-number">5.</span> <span class="toc-text">Sytem Execution Func in different lang</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP"><span class="toc-number">5.1.</span> <span class="toc-text">PHP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java"><span class="toc-number">5.2.</span> <span class="toc-text">Java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Python"><span class="toc-number">5.3.</span> <span class="toc-text">Python</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dive-into-PHP"><span class="toc-number">6.</span> <span class="toc-text">Dive into PHP</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">2.</span> <span class="toc-text">Linux下的命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Windows%E4%B8%8B%E7%9A%84%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">Windows下的命令执行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sytem-Execution-Func-in-different-lang"><span class="toc-number">4.</span> <span class="toc-text">Sytem Execution Func in different lang</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP"><span class="toc-number">4.1.</span> <span class="toc-text">PHP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java"><span class="toc-number">4.2.</span> <span class="toc-text">Java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Python"><span class="toc-number">4.3.</span> <span class="toc-text">Python</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Dive-into-PHP"><span class="toc-number">5.</span> <span class="toc-text">Dive into PHP</span></a></li></ol>
       </div>
     
 

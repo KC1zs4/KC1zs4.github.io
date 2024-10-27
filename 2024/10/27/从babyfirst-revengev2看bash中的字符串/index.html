@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Ref bash转义与换行问题 阮一峰 挺好的教程   其他参考资料见小部分中的如无引用变量的拓展  php如何处理用户输入的字符串 当处理用户输入的字符串(比如$_GET)并将其传递给系统命令时，PHP 本身不会自动为这些字符串添加引号，只是直接进行添加(什么样就放什么进去)，只有字面量才需要进行(单引号和双引号的考虑)  1234&lt;?php$input &#x3D; $_GET[&#x27;cmd">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从babyfirst-revengev2看bash中的字符串">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="Ref bash转义与换行问题 阮一峰 挺好的教程   其他参考资料见小部分中的如无引用变量的拓展  php如何处理用户输入的字符串 当处理用户输入的字符串(比如$_GET)并将其传递给系统命令时，PHP 本身不会自动为这些字符串添加引号，只是直接进行添加(什么样就放什么进去)，只有字面量才需要进行(单引号和双引号的考虑)  1234&lt;?php$input &#x3D; $_GET[&#x27;cmd">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E5%8D%95%E5%BC%95%E5%8F%B7%E4%B8%8E%E5%8F%8C%E5%BC%95%E5%8F%B7%E7%9A%84%E8%BD%AC%E4%B9%89%E5%8C%BA%E5%88%AB.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E5%8F%8C%E5%BC%95%E5%8F%B7%E4%BF%9D%E6%8C%81%E6%A0%BC%E5%BC%8F.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%BC%95%E5%8F%B7%E7%9A%84echo.png">
+<meta property="article:published_time" content="2024-10-27T01:51:13.585Z">
+<meta property="article:modified_time" content="2024-10-27T04:52:43.645Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E5%8D%95%E5%BC%95%E5%8F%B7%E4%B8%8E%E5%8F%8C%E5%BC%95%E5%8F%B7%E7%9A%84%E8%BD%AC%E4%B9%89%E5%8C%BA%E5%88%AB.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>从babyfirst-revengev2看bash中的字符串</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/10/26/%E8%AF%AD%E8%A8%80%E8%87%AA%E5%AD%A6%E6%8C%87%E5%8D%97/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&text=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&is_video=false&description=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=从babyfirst-revengev2看bash中的字符串&body=Check out this article: https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&name=从babyfirst-revengev2看bash中的字符串&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&t=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%94%A8%E6%88%B7%E8%BE%93%E5%85%A5%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">2.</span> <span class="toc-text">php如何处理用户输入的字符串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bash%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E8%BD%AC%E4%B9%89-%E6%97%A0%E5%BC%95%E5%8F%B7%E5%92%8C%E5%8D%95%E5%BC%95%E5%8F%B7%E4%B8%8E%E5%8F%8C%E5%BC%95%E5%8F%B7"><span class="toc-number">3.</span> <span class="toc-text">bash中字符串的转义(无引号和单引号与双引号)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bash%E4%B8%AD%E7%9A%84%E5%A4%9A%E8%A1%8C%E5%91%BD%E4%BB%A4-%E9%83%A8%E5%88%86"><span class="toc-number">4.</span> <span class="toc-text">bash中的多行命令(部分)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Back-to-babyfirst-revengev2"><span class="toc-number">5.</span> <span class="toc-text">Back to babyfirst-revengev2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%91%E7%9A%84%E5%9B%B0%E6%83%91"><span class="toc-number">5.1.</span> <span class="toc-text">我的困惑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E5%BC%95%E7%94%A8%E5%8F%98%E9%87%8F%E7%9A%84%E6%8B%93%E5%B1%95"><span class="toc-number">5.2.</span> <span class="toc-text">*无引用变量的拓展</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8bash-POSIX-shell%E4%B8%AD%E5%BF%98%E8%AE%B0%E5%BC%95%E7%94%A8%E5%8F%98%E9%87%8F%E7%9A%84%E5%AE%89%E5%85%A8%E6%80%A7%E5%BD%B1%E5%93%8D"><span class="toc-number">5.3.</span> <span class="toc-text">***在bash&#x2F;POSIX shell中忘记引用变量的安全性影响</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        从babyfirst-revengev2看bash中的字符串
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-10-27T01:51:13.585Z" class="dt-published" itemprop="datePublished">2024-10-27</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>bash转义与换行问题<ol>
+<li><a target="_blank" rel="noopener" href="https://www.bookstack.cn/read/bash-tutorial/docs-quotation.md">阮一峰 挺好的教程</a></li>
+</ol>
+</li>
+<li>其他参考资料见小部分中的如<code>无引用变量的拓展</code></li>
+</ol>
+<h2 id="php如何处理用户输入的字符串"><a href="#php如何处理用户输入的字符串" class="headerlink" title="php如何处理用户输入的字符串"></a>php如何处理用户输入的字符串</h2><ol>
+<li><p>当处理用户输入的字符串(比如<code>$_GET</code>)并将其传递给系统命令时，PHP 本身不会自动为这些字符串添加引号，只是直接进行添加(什么样就放什么进去)，只有字面量才需要进行(单引号和双引号的考虑)</p>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$input</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>];</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$input</span>);</span><br><span class="line"><span class="comment">// 输入?cmd=\&#x27;\&quot;&#x27;&quot;都可以正常输出</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对用户输入进行处理</p>
+<ol>
+<li><code>escapeshellarg()</code> 会确保 $user_input 被正确转义并用单引号包裹</li>
+<li>需要转义整个命令字符串而不是单独的参数，可以使用 <code>escapeshellcmd()</code>。这个函数会转义可能被 shell 特别解释的字符，但不会添加引号</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$user_input</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;command&#x27;</span>];</span><br><span class="line"><span class="variable">$safe_command</span> = <span class="title function_ invoke__">escapeshellcmd</span>(<span class="variable">$user_input</span>);</span><br><span class="line"><span class="variable">$output</span> = <span class="title function_ invoke__">shell_exec</span>(<span class="variable">$safe_command</span>);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="bash中字符串的转义-无引号和单引号与双引号"><a href="#bash中字符串的转义-无引号和单引号与双引号" class="headerlink" title="bash中字符串的转义(无引号和单引号与双引号)"></a>bash中字符串的转义(无引号和单引号与双引号)</h2><ol>
+<li><img src="/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E5%8D%95%E5%BC%95%E5%8F%B7%E4%B8%8E%E5%8F%8C%E5%BC%95%E5%8F%B7%E7%9A%84%E8%BD%AC%E4%B9%89%E5%8C%BA%E5%88%AB.png" alt="先上图"><ol>
+<li>Bash 只有一种数据类型，就是字符串。不管用户输入什么数据，Bash 都视为字符串</li>
+<li><em><strong>单引号只有一个意外，那就是&#39;</strong></em>: 单引号用于保留字符的字面含义，各种特殊字符在单引号里面，都会变为普通字符，比如星号（*）、美元符号（$）、反斜杠（\）等</li>
+<li><em><strong>双引号</strong></em>: 双引号比单引号宽松，可以保留大部分特殊字符的本来含义，但是三个字符除外：美元符号（$）、反引号（&#96; ）和反斜杠（\）。也就是说，这三个字符在双引号之中，会被 Bash 自动扩展<ol>
+<li>*号等通配符会原样进行输出</li>
+<li>灵活性主要用于变量替换</li>
+<li><strong>可以保持原有格式输出 -&gt; 不加双引号再echo中会丢失，在echo配合重定向中会出事(</strong><img src="/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E5%8F%8C%E5%BC%95%E5%8F%B7%E4%BF%9D%E6%8C%81%E6%A0%BC%E5%BC%8F.png" alt="bash中双引号保持格式"></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><em><strong>不使用引号的字符串</strong></em> –&gt; 更加详细要去到<strong>无引用变量的拓展</strong>这个标题处<ol>
+<li>以<code>echo hello world</code>为例<ol>
+<li>先上图<img src="/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%BC%95%E5%8F%B7%E7%9A%84echo.png" alt="echo字符串图"></li>
+<li>无引号：当你不使用引号时，echo 命令会将每个单词视为一个单独的参数</li>
+<li>双引号：当你使用双引号时，整个字符串被当作一个单一的参数传递给 echo</li>
+</ol>
+</li>
+<li><strong>总结</strong>: 无引号字符串：Bash 会将字符串中的空格作为分隔符，并且会解释特殊字符和通配符 –&gt; 与双引号不同的是<code>cat *.txt</code>会进行通配符匹配，即会解析*</li>
+<li>示例解读</li>
+</ol>
+</li>
+</ol>
+<h2 id="bash中的多行命令-部分"><a href="#bash中的多行命令-部分" class="headerlink" title="bash中的多行命令(部分)"></a>bash中的多行命令(部分)</h2><ol>
+<li><em><strong>引号</strong></em>: 单双引号中的字符串字面量本身就可以多行输入和显示 -&gt; 不需要使用\来进行换行了<ol>
+<li>本质: 换行符变成了普通字符而不能发挥作用</li>
+</ol>
+</li>
+<li><em><strong>反斜杠\</strong></em>: 规则如下<ol>
+<li><p>反斜杠 \ 放在一行的末尾，表示该行的结束不是命令的结束，而是继续到下一行</p>
+<ol>
+<li><strong>要搭配换行符使用才行</strong>: 最后一个反斜杠：如果一行以反斜杠 \ 结束，并且后面没有任何字符（包括空格），那么这个反斜杠会被视为普通字符，而不是续行符；后续有字符但是不是换行符也不会有换行作用</li>
+</ol>
+<blockquote>
+<p>接下来这两个不太确定，ai说的但是实践出来不是<br>反斜杠 \ <strong>后面的所有空格都会被忽略</strong>。这意味着你可以使用多个空格或制表符来格式化代码，而不会影响命令的实际内容<br>如果反斜杠 \ 后面跟着的是注释符号 #，那么<strong>注释部分会被忽略</strong>，但反斜杠仍然会作为续行符</p>
+</blockquote>
+</li>
+<li><p>当使用<code>bash -c</code>执行命令时，反斜杠 \ 也可以作为续行符在脚本文件中，反斜杠 \ 也可以用来将长命令拆分成多行</p>
+</li>
+<li><p>在脚本文件中，反斜杠 \ 也可以用来将长命令拆分多行</p>
+</li>
+</ol>
+</li>
+<li>还有here string和here doc的等其他篇吧，不要跑题太多了</li>
+</ol>
+<h2 id="Back-to-babyfirst-revengev2"><a href="#Back-to-babyfirst-revengev2" class="headerlink" title="Back to babyfirst-revengev2"></a>Back to babyfirst-revengev2</h2><h3 id="我的困惑"><a href="#我的困惑" class="headerlink" title="我的困惑"></a>我的困惑</h3><ol>
+<li>Q: php命令执行会按照传入的command的引号吗，还是在bash层面进行处理</li>
+<li>A: 已知php中底层的执行函数为<code>/bin/sh -c $command</code>(详见<code>phpm命令执行底层原理小记</code>)，<strong>调用链从近到远进行入手</strong><ol>
+<li>Q: 此时与传入的<code>$command</code>有很大的关系，&#x2F;bin&#x2F;sh如何解释无引号字符?</li>
+<li>A: slpit+glob</li>
+<li><code>$command</code>是php传入的，php从用户的输入<code>$_GET[&#39;cmd&#39;]</code>处获取信息<ol>
+<li>Q: php中判断是单引号还是双引号字符串<ol>
+<li>从$_GET[]</li>
+<li>用户输入获取的呢</li>
+</ol>
+</li>
+<li>A: 直接作为输入，不管单双引号</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>理解<ol>
+<li>!!! Notice 其实双引号和单引号是<strong>解析字符串的方式</strong>，存储在内部是不管引号的，去想象实际的字符</li>
+<li>包括glob拓展后的列表</li>
+</ol>
+</li>
+</ol>
+<h3 id="无引用变量的拓展"><a href="#无引用变量的拓展" class="headerlink" title="*无引用变量的拓展"></a>*无引用变量的拓展</h3><ol>
+<li>split and glob的概念<ol>
+<li>ref<ol>
+<li><a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/108963/expansion-of-a-shell-variable-and-effect-of-glob-and-split-on-it">stack exchange ref</a> –&gt; 有例子有概念，很不错</li>
+<li><a target="_blank" rel="noopener" href="https://www.gnu.org/software/bash/manual/bash.html#Shell-Parameter-Expansion">gnu 官方文档</a><ol>
+<li><a target="_blank" rel="noopener" href="http://www.gnu.org/software/bash/manual/bash.html#Filename-Expansion">拓展</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.gnu.org/software/bash/manual/bash.html#Word-Splitting">split</a></li>
+</ol>
+</li>
+<li><em><strong>利用此特性的漏洞利用</strong></em><a target="_blank" rel="noopener" href="https://medium.com/@bouss3id.abdelkader/unquoted-bash-variable-security-implications-bypassing-if-condition-in-bash-ctf-write-up-79648dc4e910">利用此特性的漏洞利用</a></li>
+</ol>
+</li>
+<li>split: 在每个空格序列处将值拆分为单独的单词。(根据$IFS，可以更改为在非空格的字符处拆分。)因此，结果不再是一个字符串，而是一个<strong>字符串列表</strong>。如果值只包含空格，则此列表可以为空</li>
+<li>glob: 将列表中的每个元素视为一个文件名模式，即一个glob。如果模式与某些文件匹配，则将其替换为匹配文件名的列表，否则将其保留 –&gt; 会进行glob匹配</li>
+</ol>
+</li>
+<li>无引用变量<ol>
+<li><p><code>cmd $var</code> -&gt; <code>cmd(glob(split($var)))</code>后面是一个列表</p>
+</li>
+<li><p><code>/bin/sh -c $cmd</code>也是按照上述的方式，<code>$IFS</code>中的值很重要</p>
+<ol>
+<li><strong>output $IFS in readable way</strong>: IFS的默认值是由空格、制表符和换行符组成的三个字符串，<code>echo &quot;$IFS&quot; | cat -et</code>(这里需要加上双引号)才会正常，直接$IFS不太行</li>
+</ol>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$test</span>=<span class="built_in">echo</span>\ <span class="built_in">test</span></span><br><span class="line">/bin/sh -c <span class="variable">$test</span>    <span class="comment"># 无法正常运行</span></span><br><span class="line"><span class="variable">$IFS</span>= <span class="comment"># 这里是空格</span></span><br><span class="line">/bin/sh -c <span class="variable">$test</span>    <span class="comment"># 可以正常运行，输出test</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h3 id="在bash-POSIX-shell中忘记引用变量的安全性影响"><a href="#在bash-POSIX-shell中忘记引用变量的安全性影响" class="headerlink" title="***在bash&#x2F;POSIX shell中忘记引用变量的安全性影响"></a>***在bash&#x2F;POSIX shell中忘记引用变量的安全性影响</h3><ol>
+<li>Stack Exchange高关注议题<a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/171346/security-implications-of-forgetting-to-quote-a-variable-in-bash-posix-shells">Security implications of forgetting to quote a variable in bash&#x2F;POSIX shells</a></li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E7%94%A8%E6%88%B7%E8%BE%93%E5%85%A5%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">2.</span> <span class="toc-text">php如何处理用户输入的字符串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bash%E4%B8%AD%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%9A%84%E8%BD%AC%E4%B9%89-%E6%97%A0%E5%BC%95%E5%8F%B7%E5%92%8C%E5%8D%95%E5%BC%95%E5%8F%B7%E4%B8%8E%E5%8F%8C%E5%BC%95%E5%8F%B7"><span class="toc-number">3.</span> <span class="toc-text">bash中字符串的转义(无引号和单引号与双引号)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bash%E4%B8%AD%E7%9A%84%E5%A4%9A%E8%A1%8C%E5%91%BD%E4%BB%A4-%E9%83%A8%E5%88%86"><span class="toc-number">4.</span> <span class="toc-text">bash中的多行命令(部分)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Back-to-babyfirst-revengev2"><span class="toc-number">5.</span> <span class="toc-text">Back to babyfirst-revengev2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%91%E7%9A%84%E5%9B%B0%E6%83%91"><span class="toc-number">5.1.</span> <span class="toc-text">我的困惑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E5%BC%95%E7%94%A8%E5%8F%98%E9%87%8F%E7%9A%84%E6%8B%93%E5%B1%95"><span class="toc-number">5.2.</span> <span class="toc-text">*无引用变量的拓展</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9C%A8bash-POSIX-shell%E4%B8%AD%E5%BF%98%E8%AE%B0%E5%BC%95%E7%94%A8%E5%8F%98%E9%87%8F%E7%9A%84%E5%AE%89%E5%85%A8%E6%80%A7%E5%BD%B1%E5%93%8D"><span class="toc-number">5.3.</span> <span class="toc-text">***在bash&#x2F;POSIX shell中忘记引用变量的安全性影响</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&text=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&is_video=false&description=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=从babyfirst-revengev2看bash中的字符串&body=Check out this article: https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&title=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&name=从babyfirst-revengev2看bash中的字符串&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/&t=从babyfirst-revengev2看bash中的字符串"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
