@@ -7,12 +7,12 @@
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
     <meta property="og:type" content="website">
-<meta property="og:title" content="search">
-<meta property="og:url" content="https://kc1zs4.github.io/search/index.html">
+<meta property="og:title" content="categories">
+<meta property="og:url" content="https://kc1zs4.github.io/categories/index.html">
 <meta property="og:site_name" content="KC1zs4&#39;s Blog">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-10-11T12:16:29.000Z">
-<meta property="article:modified_time" content="2024-10-29T15:39:12.694Z">
+<meta property="article:published_time" content="2024-10-29T15:09:35.000Z">
+<meta property="article:modified_time" content="2024-10-29T15:21:32.407Z">
 <meta name="twitter:card" content="summary">
     
     
@@ -33,7 +33,7 @@
       
     
     <!-- title -->
-    <title>search</title>
+    <title>categories</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
@@ -97,15 +97,21 @@
 
   <div class="content" itemprop="articleBody">
       
-        <section id="search">
-  <form>
-    <input type="text" class="search-input" id="search-input" placeholder="Search...">
-  </form>
-  <div id="search-result"></div>
-  <p class="search-no-result">No results found.</p>
-</section>
-
-      
+          <div id="categories">
+            <div class="category-list-title">
+                
+                
+                  
+                    
+                  
+                
+                
+            </div>
+            <div class="category-list">
+              <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/CTF/">CTF</a><span class="category-list-count">3</span></li></ul>
+            </div>
+          </div>
+        
   </div>
 </article>
 
@@ -160,45 +166,6 @@
 <script src="/js/main.js"></script>
 
 <!-- search -->
-
-  
-<script src="/js/search.js"></script>
-
-  <script type="text/javascript">
-  $(function() {
-
-    var $inputArea = $("input#search-input");
-    var $resultArea = document.querySelector("div#search-result");
-
-    $inputArea.focus(function() {
-      var search_path = "search.xml";
-      if (search_path.length == 0) {
-        search_path = "search.xml";
-      }
-      var path = "/" + search_path;
-      searchFunc(path, 'search-input', 'search-result');
-    });
-
-    $inputArea.keydown(function(e) {
-      if (e.which == 13) {
-        e.preventDefault();
-      }
-    });
-
-    var observer = new MutationObserver(function(mutationsList, observer) {
-      if (mutationsList.length == 1) {
-        if (mutationsList[0].addedNodes.length) {
-          $(".search-no-result").hide();
-        } else if (mutationsList[0].removedNodes.length) {
-          $(".search-no-result").show(200);
-        }
-      }
-    });
-
-    observer.observe($resultArea, { childList: true });
-
-  });
-  </script>
 
 <!-- Baidu Analytics -->
 

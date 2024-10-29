@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Q&amp;A1. DONE: Js中函数也是对象啊，他们的原型链怎么办? 对于构造函数，更加准确是使用new调用时，func.prototype才能发挥他特有的作用，否则只是一个普通的属性 Constructor.prototype 仅在构造实例时有用。它与 Constructor.[[Prototype]] 无关，后者是构造函数的自有原型，即 Function.prototype。也就是说，O">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JS原型链污染速通">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="Q&amp;A1. DONE: Js中函数也是对象啊，他们的原型链怎么办? 对于构造函数，更加准确是使用new调用时，func.prototype才能发挥他特有的作用，否则只是一个普通的属性 Constructor.prototype 仅在构造实例时有用。它与 Constructor.[[Prototype]] 无关，后者是构造函数的自有原型，即 Function.prototype。也就是说，O">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/%E5%87%BD%E6%95%B0%E8%BD%AC%E6%8D%A2.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/JSONparse%E4%B8%AD%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93.png">
+<meta property="article:published_time" content="2024-10-28T00:47:47.190Z">
+<meta property="article:modified_time" content="2024-10-29T15:00:32.865Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/%E5%87%BD%E6%95%B0%E8%BD%AC%E6%8D%A2.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>JS原型链污染速通</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/10/29/%E4%BB%8E24%E7%BD%91%E9%BC%8E%E5%88%9D%E8%B5%9Bweb02%E7%9C%8B%E5%B8%A6%E5%A4%96/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/10/27/ctfshow_jwt/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&text=JS原型链污染速通"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&is_video=false&description=JS原型链污染速通"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JS原型链污染速通&body=Check out this article: https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&name=JS原型链污染速通&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&t=JS原型链污染速通"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Q-A"><span class="toc-number">1.</span> <span class="toc-text">Q&amp;A</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-DONE-Js%E4%B8%AD%E5%87%BD%E6%95%B0%E4%B9%9F%E6%98%AF%E5%AF%B9%E8%B1%A1%E5%95%8A%EF%BC%8C%E4%BB%96%E4%BB%AC%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="toc-number">1.1.</span> <span class="toc-text">1. DONE: Js中函数也是对象啊，他们的原型链怎么办?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-DONE-%E5%86%85%E7%BD%AE%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%98%AF%E6%8C%87%E5%AE%9A%E7%9A%84%E5%90%97%EF%BC%8C%E5%A4%96%E7%BD%AE%E5%AF%B9%E8%B1%A1%E6%80%BB%E6%98%AF%E9%BB%98%E8%AE%A4%E6%9F%90%E4%B8%80%E4%B8%AA%E5%90%97%EF%BC%8CObject%E5%8F%88%E6%98%AF%E6%80%8E%E4%B9%88%E4%B8%80%E5%9B%9E%E4%BA%8B"><span class="toc-number">1.2.</span> <span class="toc-text">*2. DONE: 内置对象的原型链是指定的吗，外置对象总是默认某一个吗，Object又是怎么一回事?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-DONE-%E5%8E%9F%E5%9E%8B%E6%8C%87%E5%90%91%E7%9A%84%E5%AF%B9%E8%B1%A1%E5%AF%B9%E4%BA%8E%E6%AF%8F%E4%B8%80%E4%B8%AA%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AF%B9%E8%B1%A1%E9%83%BD%E6%98%AF%E4%B8%8D%E5%90%8C%E7%9A%84%E5%90%97"><span class="toc-number">1.3.</span> <span class="toc-text">*3. DONE: 原型指向的对象对于每一个自定义对象都是不同的吗?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E5%9F%BA%E7%A1%80"><span class="toc-number">2.</span> <span class="toc-text">Js原型链基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">2.1.</span> <span class="toc-text">什么是原型链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E6%98%AF%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E8%AF%AD%E6%B3%95%E7%B3%96"><span class="toc-number">2.2.</span> <span class="toc-text">类是构造函数语法糖</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">3.</span> <span class="toc-text">Js原型链污染</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9Eref"><span class="toc-number">3.1.</span> <span class="toc-text">漏洞ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E%E9%97%AE%E9%A2%983%E8%BF%9B%E8%A1%8C%E5%8C%BA%E5%88%86%E4%B8%8E%E5%8E%9F%E7%90%86%E8%A7%A3%E9%87%8A"><span class="toc-number">3.2.</span> <span class="toc-text">*与问题3进行区分与原理解释</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%99%AE%E9%80%9A%E5%8F%AF%E6%8E%A7%E8%BE%93%E5%85%A5%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">3.3.</span> <span class="toc-text">1. 普通可控输入的原型链污染</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Merge%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">3.4.</span> <span class="toc-text">2. Merge类型的原型链污染</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        JS原型链污染速通
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-10-28T00:47:47.190Z" class="dt-published" itemprop="datePublished">2024-10-28</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Q-A"><a href="#Q-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h2><h3 id="1-DONE-Js中函数也是对象啊，他们的原型链怎么办"><a href="#1-DONE-Js中函数也是对象啊，他们的原型链怎么办" class="headerlink" title="1. DONE: Js中函数也是对象啊，他们的原型链怎么办?"></a>1. DONE: Js中函数也是对象啊，他们的原型链怎么办?</h3><ol>
+<li>对于构造函数，更加准确是使用new调用时，func.prototype才能发挥他特有的作用，否则只是一个普通的属性</li>
+<li><code>Constructor.prototype</code> 仅在构造实例时有用。它与 <code>Constructor.[[Prototype]]</code> 无关，后者是构造函数的自有原型，即 Function.prototype。也就是说，Object.getPrototypeOf(Constructor) &#x3D;&#x3D;&#x3D; Function.prototype</li>
+</ol>
+<h3 id="2-DONE-内置对象的原型链是指定的吗，外置对象总是默认某一个吗，Object又是怎么一回事"><a href="#2-DONE-内置对象的原型链是指定的吗，外置对象总是默认某一个吗，Object又是怎么一回事" class="headerlink" title="*2. DONE: 内置对象的原型链是指定的吗，外置对象总是默认某一个吗，Object又是怎么一回事?"></a>*2. DONE: 内置对象的原型链是指定的吗，外置对象总是默认某一个吗，Object又是怎么一回事?</h3><ol>
+<li><p>默认情况下，构造函数的 prototype 是一个普通的对象，它的<code>[[Prototype]]</code>指向 Object.prototype</p>
+<ol>
+<li>普通对象的 <code>[[Prototype]]</code> 指向 Object.prototype。这是 JavaScript 中原型链机制的一个基本特性。每个通过<em><strong>对象字面量</strong></em>或***new Object()***创建的对象，默认情况下其内部 <code>[[Prototype]]</code>链接（即 <code>__proto__</code>）指向 Object.prototype</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 默认的调用链</span></span><br><span class="line">obj ---&gt; <span class="title class_">Constructor</span>.<span class="property"><span class="keyword">prototype</span></span> ---&gt; <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span> ---&gt; <span class="literal">null</span></span><br><span class="line"><span class="comment">// 可以通过调用链进行解决</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>内置构造函数</p>
+<ol>
+<li>一些内置构造函数的 prototype 属性本身就是其自身的实例。例如，Number.prototype 是数字 0，Array.prototype 是一个空数组，RegExp.prototype 是 <code>/(?:)/</code></li>
+<li>唯一的例外是 Object.prototype 本身，它的 <code>[[Prototype]]</code> 是 null</li>
+</ol>
+</li>
+</ol>
+<h3 id="3-DONE-原型指向的对象对于每一个自定义对象都是不同的吗"><a href="#3-DONE-原型指向的对象对于每一个自定义对象都是不同的吗" class="headerlink" title="*3. DONE: 原型指向的对象对于每一个自定义对象都是不同的吗?"></a>*3. DONE: 原型指向的对象对于每一个自定义对象都是不同的吗?</h3><ol>
+<li>构造函数中prototype总是会默认有一个同对象，当你改变构造函数的 prototype 属性后，之前创建的实例和之后创建的实例将有不同的 <code>[[Prototype]]</code>。这是因为每个实例对象的 <code>[[Prototype]]</code> 在创建时就已经被设置，并且不会随着构造函数 prototype 属性的变化而变化</li>
+<li>通过同一个构造函数构造的对象的 <code>[[Prototype]]</code> 是同一个对象。所有通过同一个构造函数创建的实例共享同一个原型对象，但是修改(这里的修改不是说添加而是指向另一个对象，<strong>地址不同</strong>)不是“同步”进行的，指向了不同的对象 -&gt; 原来的对象还可以访问，垃圾收集器不会处理</li>
+</ol>
+<h2 id="Js原型链基础"><a href="#Js原型链基础" class="headerlink" title="Js原型链基础"></a>Js原型链基础</h2><h3 id="什么是原型链"><a href="#什么是原型链" class="headerlink" title="什么是原型链"></a>什么是原型链</h3><ol>
+<li>getter和setter<ol>
+<li>一种语法：通过调用属性的方法来隐式调用一组函数</li>
+<li>详见<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Guide/Working_with_objects#%E5%AE%9A%E4%B9%89_getter_%E4%B8%8E_setter">mdn getter和setter</a></li>
+</ol>
+</li>
+<li>js原型链<ol>
+<li>详见<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain#%E5%9F%BA%E4%BA%8E%E5%8E%9F%E5%9E%8B%E9%93%BE%E7%9A%84%E7%BB%A7%E6%89%BF">还是mdn，绝了，web手必备</a></li>
+<li>!!! Notice 流程详见<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain#%E6%A3%80%E6%9F%A5%E5%8E%9F%E5%9E%8B%EF%BC%9A%E6%9B%B4%E6%B7%B1%E5%85%A5%E7%9A%84%E7%A0%94%E7%A9%B6">有创建一个原型的详细流程</a></li>
+<li>核心思想：基于对象的链而非类的链；对象方法基于this；<strong>动态实时改变的</strong></li>
+<li>第一次看的时候被混淆的几个点<ol>
+<li><code>someObject.[[Prototype]]</code> 用于标识 someObject 的原型 -&gt; 可以通过 Object.getPrototypeOf() 和 Object.setPrototypeOf() 函数来访问</li>
+<li><strong>设置<code>[[Prototype]]</code></strong>: <code>&#123; __proto__: ... &#125;</code> 语法与 <code>obj.__proto__</code> 访问器不同：前者是标准且未被弃用，后者则是被许多js引擎实现的原型setter和getter(非标准并逐步弃用)<ol>
+<li><code>&#123; __proto__: ... &#125;</code> 是一种对象字面量语法，允许你在创建对象时指定其原型(这里不是getter和setter)。这是 ES5 引入的一个非标准特性，后来在 ES6 中被标准化为一个正式的语言特性</li>
+</ol>
+</li>
+<li><strong>构造函数的.prototype属性</strong>: 构造函数可以**指定(自定义)**一个有特殊含义的属性prototype -&gt; 当你定义一个构造函数时，JavaScript 会自动为这个构造函数创建一个 prototype 对象。这个原型对象默认有一个 constructor 属性，指向构造函数本身<code>Person.prototype.constructor===Person</code><ol>
+<li>有什么用呢？通过构造函数创建的每一个实例都会自动将构造函数的 prototype 属性作为其 <code>[[Prototype]]</code> -&gt; 是自动通过this实现的，特殊情况：如果构造函数返回非原始值而是一个新对象时，则该值将成为 new 表达式的结果。在这种情况下，<code>[[Prototype]]</code> 可能无法正确绑定——但在实践中应该很少发生</li>
+<li><code>obj.constructor</code>:(会通过原型链寻找)的作用在于追踪到构造函数，一些内置操作也会读取 constructor 属性，如果没有设置，它们可能无法按预期工作</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="类是构造函数语法糖"><a href="#类是构造函数语法糖" class="headerlink" title="类是构造函数语法糖"></a>类是构造函数语法糖</h3><ol>
+<li>js中的类<ol>
+<li>简单了解：可以暂时理解为类是构造函数的语法糖，这意味着你仍然可以修改 Box.prototype 来改变所有实例的行为</li>
+</ol>
+</li>
+<li>Dive into<ol>
+<li><code>alert(typeof Classname)</code>显示为function</li>
+<li>函数转换示例<img src="/pic/Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/%E5%87%BD%E6%95%B0%E8%BD%AC%E6%8D%A2.png" alt="理解"><ol>
+<li>转换为对于Classname()函数prototype属性的内容，<code>User.prototype.constrcutor===User</code></li>
+</ol>
+</li>
+<li><a target="_blank" rel="noopener" href="https://zh.javascript.info/class">see more in 现代js教程</a></li>
+</ol>
+</li>
+</ol>
+<h2 id="Js原型链污染"><a href="#Js原型链污染" class="headerlink" title="Js原型链污染"></a>Js原型链污染</h2><h3 id="漏洞ref"><a href="#漏洞ref" class="headerlink" title="漏洞ref"></a>漏洞ref</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/javascript-prototype-pollution-attack.html">离别歌yyds</a></li>
+</ol>
+<h3 id="与问题3进行区分与原理解释"><a href="#与问题3进行区分与原理解释" class="headerlink" title="*与问题3进行区分与原理解释"></a>*与问题3进行区分与原理解释</h3><ol>
+<li><p>在js中对象是通过地址进行区分的，里面的修改是指指向另一个新的对象(新的地址)，而原来的地址已经定下来而且没有被垃圾回收</p>
+</li>
+<li><p>原型链污染可以是建立在指向同一个原型的情况下<strong>添加属性&#x2F;函数</strong>进行污染</p>
+</li>
+<li><p>原型链污染示例</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 此例子无法进行原型链污染，只能修改对象的__proto__</span></span><br><span class="line"><span class="keyword">let</span> o1 = &#123;<span class="string">&quot;__proto__&quot;</span>: &#123;<span class="attr">a</span>:<span class="number">1</span>&#125;&#125;</span><br><span class="line">   <span class="comment">// 建立后的__proto__指向是本身的[[Prototype]]，改变了[[Prototype]]的指向</span></span><br><span class="line"><span class="keyword">let</span> o2 = &#123;&#125;</span><br><span class="line">o2.<span class="property">a</span>  <span class="comment">// 显示undefined</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 如果是在merge中，则可以通过对原有对象添加属性，直接修改所有prototype那个对象而不是替换指向</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// !!!总的来说，就是只能添加内容，不能整体替换指向</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="1-普通可控输入的原型链污染"><a href="#1-普通可控输入的原型链污染" class="headerlink" title="1. 普通可控输入的原型链污染"></a>1. 普通可控输入的原型链污染</h3><ol>
+<li><p>示例代码</p>
+<ol>
+<li>污染的深度这里会受到限制，所以漏洞可否利用还要看<strong>原型是否一样</strong></li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">matrix[client.<span class="property">input1</span>][client.<span class="property">input2</span>]   </span><br><span class="line"><span class="comment">// 可以传入input1=&quot;__proto__&quot;来实现污染</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="2-Merge类型的原型链污染"><a href="#2-Merge类型的原型链污染" class="headerlink" title="2. Merge类型的原型链污染"></a>2. Merge类型的原型链污染</h3><ol>
+<li><p>示例代码与前提</p>
+<ol>
+<li>json.parse()的递归不安全merge</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">merge</span>(<span class="params">target, source</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (key <span class="keyword">in</span> source &amp;&amp; key <span class="keyword">in</span> target) &#123;</span><br><span class="line">            <span class="title function_">merge</span>(target[key], source[key])</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            target[key] = source[key]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><em><strong>为什么要json.parse()?</strong></em>: 在JavaScript中，JSON.parse()函数在处理JSON字符串时，会将JSON对象中的任何键视为任意字符串，包括<code>__proto__</code></p>
+<ol>
+<li>这里的<code>__proto__</code>并非是指向原型的属性，而是一个普通的自有属性(字符串)，可以被<code>getOwnProperties(&quot;__proto__&quot;)</code>和<code>hasOwnProperties(&quot;__proto__&quot;)</code>识别</li>
+<li>过程：<code>__proto__</code> 属性仅仅是一个普通的自有属性，对象在查找属性时会在真正的原型上进行查找，但在执行 clone 函数的过程中，由于该属性名字的特殊性，触发了新对象的原型的修改，最终导致了 prototype pollution</li>
+<li>如果是<em><strong>直接<code>let o2 = &#123;a: 1, &quot;__proto__&quot;: &#123;b: 2&#125;&#125;</code>的话</strong></em>，__proto__已经代表o2的原型了，此时遍历o2的所有键名，你拿到的是[a, b]，__proto__并不是一个key，自然也不会修改Object的原型</li>
+<li>JSON.parse中的原型链污染<img src="/pic/Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/JSONparse%E4%B8%AD%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93.png" alt="Json.parse"></li>
+<li>详见权威报告，离别歌引用文章中有和<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2802?time__1311=n4+xni0=G=DQtAK0QD/8WpjrYDOboKbDBnhoD">先知社区</a></li>
+</ol>
+</li>
+<li><p>预防</p>
+<ol>
+<li>只需要在merge中加上小小的一段检验后跳过即可</li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Q-A"><span class="toc-number">1.</span> <span class="toc-text">Q&amp;A</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-DONE-Js%E4%B8%AD%E5%87%BD%E6%95%B0%E4%B9%9F%E6%98%AF%E5%AF%B9%E8%B1%A1%E5%95%8A%EF%BC%8C%E4%BB%96%E4%BB%AC%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="toc-number">1.1.</span> <span class="toc-text">1. DONE: Js中函数也是对象啊，他们的原型链怎么办?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-DONE-%E5%86%85%E7%BD%AE%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%98%AF%E6%8C%87%E5%AE%9A%E7%9A%84%E5%90%97%EF%BC%8C%E5%A4%96%E7%BD%AE%E5%AF%B9%E8%B1%A1%E6%80%BB%E6%98%AF%E9%BB%98%E8%AE%A4%E6%9F%90%E4%B8%80%E4%B8%AA%E5%90%97%EF%BC%8CObject%E5%8F%88%E6%98%AF%E6%80%8E%E4%B9%88%E4%B8%80%E5%9B%9E%E4%BA%8B"><span class="toc-number">1.2.</span> <span class="toc-text">*2. DONE: 内置对象的原型链是指定的吗，外置对象总是默认某一个吗，Object又是怎么一回事?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-DONE-%E5%8E%9F%E5%9E%8B%E6%8C%87%E5%90%91%E7%9A%84%E5%AF%B9%E8%B1%A1%E5%AF%B9%E4%BA%8E%E6%AF%8F%E4%B8%80%E4%B8%AA%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AF%B9%E8%B1%A1%E9%83%BD%E6%98%AF%E4%B8%8D%E5%90%8C%E7%9A%84%E5%90%97"><span class="toc-number">1.3.</span> <span class="toc-text">*3. DONE: 原型指向的对象对于每一个自定义对象都是不同的吗?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E5%9F%BA%E7%A1%80"><span class="toc-number">2.</span> <span class="toc-text">Js原型链基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">2.1.</span> <span class="toc-text">什么是原型链</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E6%98%AF%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E8%AF%AD%E6%B3%95%E7%B3%96"><span class="toc-number">2.2.</span> <span class="toc-text">类是构造函数语法糖</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">3.</span> <span class="toc-text">Js原型链污染</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9Eref"><span class="toc-number">3.1.</span> <span class="toc-text">漏洞ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E%E9%97%AE%E9%A2%983%E8%BF%9B%E8%A1%8C%E5%8C%BA%E5%88%86%E4%B8%8E%E5%8E%9F%E7%90%86%E8%A7%A3%E9%87%8A"><span class="toc-number">3.2.</span> <span class="toc-text">*与问题3进行区分与原理解释</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%99%AE%E9%80%9A%E5%8F%AF%E6%8E%A7%E8%BE%93%E5%85%A5%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">3.3.</span> <span class="toc-text">1. 普通可控输入的原型链污染</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-Merge%E7%B1%BB%E5%9E%8B%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">3.4.</span> <span class="toc-text">2. Merge类型的原型链污染</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&text=JS原型链污染速通"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&is_video=false&description=JS原型链污染速通"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JS原型链污染速通&body=Check out this article: https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&title=JS原型链污染速通"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&name=JS原型链污染速通&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/&t=JS原型链污染速通"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
