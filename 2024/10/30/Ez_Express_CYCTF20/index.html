@@ -14,9 +14,9 @@
 <meta property="og:description" content="复现平台: buuoj  分析 抓包看源码，发现www.zip，阅读发现关键文件index.js 用户数据存储在req.session.user中 流程 导航到&#x2F;未登录重定向到&#x2F;login页面，通过res来进行渲染 结合1要登录admin用户会检查req.session.user的信息是否匹配，又无法获取admin的密码 -&gt; 但是有一个可能，覆盖？通过注册实现，但是有">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-10-30T00:57:46.857Z">
-<meta property="article:modified_time" content="2024-11-01T10:52:00.564Z">
+<meta property="article:modified_time" content="2024-11-02T03:54:26.494Z">
 <meta property="article:tag" content="recurrence">
-<meta property="article:tag" content="proto pollution">
+<meta property="article:tag" content="node pp">
 <meta name="twitter:card" content="summary">
     
     
@@ -89,7 +89,7 @@
         <li><a class="icon" aria-label="Previous post" href="/2024/10/30/ctfshow_nodejs/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
-        <li><a class="icon" aria-label="Next post" href="/2024/10/30/notes_wangding20/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Next post" href="/2024/10/30/notes_%E7%BD%91%E9%BC%8E20/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -160,7 +160,7 @@
       
     <div class="article-tag">
         <i class="fa-solid fa-tag"></i>
-        <a class="p-category" href="/tags/proto-pollution/" rel="tag">proto pollution</a>, <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+        <a class="p-category" href="/tags/node-pp/" rel="tag">node pp</a>, <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
     </div>
 
 

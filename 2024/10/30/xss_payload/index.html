@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="执行代码window[&#39;eval&#39;](atob(data)) 绕过安全检查：有些网站或应用可能会禁用或重写 eval 函数以防止潜在的安全风险。通过使用 window[&#39;eval&#39;]，攻击者可以尝试绕过这种检查 使用atob(data)进行base64解码">
+    <meta name="description" content="Ref xss进阶原理  T00ls常见思路 带外，一般不行不出网 cookie，需要cookie不是httponly 写入载体  关键词黑名单 执行代码window[&#39;eval&#39;](atob(data))  绕过安全检查：有些网站或应用可能会禁用或重写 eval 函数以防止潜在的安全风险。通过使用 window[&#39;eval&#39;]，攻击者可以尝试绕过这种检查 使用at">
 <meta property="og:type" content="article">
 <meta property="og:title" content="xss_payload">
 <meta property="og:url" content="https://kc1zs4.github.io/2024/10/30/xss_payload/index.html">
 <meta property="og:site_name" content="KC1zs4&#39;s Blog">
-<meta property="og:description" content="执行代码window[&#39;eval&#39;](atob(data)) 绕过安全检查：有些网站或应用可能会禁用或重写 eval 函数以防止潜在的安全风险。通过使用 window[&#39;eval&#39;]，攻击者可以尝试绕过这种检查 使用atob(data)进行base64解码">
+<meta property="og:description" content="Ref xss进阶原理  T00ls常见思路 带外，一般不行不出网 cookie，需要cookie不是httponly 写入载体  关键词黑名单 执行代码window[&#39;eval&#39;](atob(data))  绕过安全检查：有些网站或应用可能会禁用或重写 eval 函数以防止潜在的安全风险。通过使用 window[&#39;eval&#39;]，攻击者可以尝试绕过这种检查 使用at">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-10-29T16:05:21.483Z">
-<meta property="article:modified_time" content="2024-10-30T03:07:27.009Z">
+<meta property="article:modified_time" content="2024-11-04T12:33:01.012Z">
 <meta property="article:tag" content="payload">
 <meta name="twitter:card" content="summary">
     
@@ -85,10 +85,10 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="Previous post" href="/2024/10/30/notes_wangding20/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Previous post" href="/2024/10/30/notes_%E7%BD%91%E9%BC%8E20/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
-        <li><a class="icon" aria-label="Next post" href="/2024/10/29/web02_wangding24/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Next post" href="/2024/10/29/web02_%E7%BD%91%E9%BC%8E24/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -116,6 +116,10 @@
 
     </div>
     
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#T00ls"><span class="toc-number">2.</span> <span class="toc-text">T00ls</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%80%9D%E8%B7%AF"><span class="toc-number">3.</span> <span class="toc-text">常见思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%AF%8D%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-number">4.</span> <span class="toc-text">关键词黑名单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E7%BB%95%E8%BF%87%E5%8E%9F%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">一些绕过原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#html%E8%A7%A3%E7%A0%81%E5%92%8Cjs%E8%A7%A3%E7%A0%81"><span class="toc-number">5.1.</span> <span class="toc-text">html解码和js解码</span></a></li></ol></li></ol>
+      </div>
     
   </span>
 </div>
@@ -164,10 +168,64 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    <ol>
-<li>执行代码<code>window[&#39;eval&#39;](atob(data))</code><ol>
+    <h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/12890?time__1311=GqGxuDc7iQGQitD/Y2PBKq2UiA+2AEbD">xss进阶原理</a></li>
+</ol>
+<h2 id="T00ls"><a href="#T00ls" class="headerlink" title="T00ls"></a>T00ls</h2><h2 id="常见思路"><a href="#常见思路" class="headerlink" title="常见思路"></a>常见思路</h2><ol>
+<li>带外，一般不行不出网</li>
+<li>cookie，需要cookie不是httponly</li>
+<li><strong>写入载体</strong></li>
+</ol>
+<h2 id="关键词黑名单"><a href="#关键词黑名单" class="headerlink" title="关键词黑名单"></a>关键词黑名单</h2><ol>
+<li><p>执行代码<code>window[&#39;eval&#39;](atob(data))</code></p>
+<ol>
 <li>绕过安全检查：有些网站或应用可能会禁用或重写 eval 函数以防止潜在的安全风险。通过使用 <code>window[&#39;eval&#39;]</code>，攻击者可以尝试绕过这种检查</li>
 <li>使用<code>atob(data)</code>进行base64解码</li>
+</ol>
+</li>
+<li><p>实体编码绕过</p>
+<ol>
+<li>可以识别出是<code>data:text/javascript;base64,</code>，有条件还是本地多试试</li>
+<li>详见绕过原理中的<code>html解码和js解码</code></li>
+</ol>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;<span class="symbol">&amp;#x64;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x74;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x3a;</span><span class="symbol">&amp;#x74;</span><span class="symbol">&amp;#x65;</span><span class="symbol">&amp;#x78;</span><span class="symbol">&amp;#x74;</span><span class="symbol">&amp;#x2f;</span><span class="symbol">&amp;#x6a;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x76;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x73;</span><span class="symbol">&amp;#x63;</span><span class="symbol">&amp;#x72;</span><span class="symbol">&amp;#x69;</span><span class="symbol">&amp;#x70;</span><span class="symbol">&amp;#x74;</span><span class="symbol">&amp;#x3b;</span><span class="symbol">&amp;#x62;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x73;</span><span class="symbol">&amp;#x65;</span><span class="symbol">&amp;#x36;</span><span class="symbol">&amp;#x34;</span><span class="symbol">&amp;#x2c;</span>YWxlcnQoKQ==&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>自动闭合特性：可以用于绕过一些正则表达式</p>
+</li>
+</ol>
+<h2 id="一些绕过原理"><a href="#一些绕过原理" class="headerlink" title="一些绕过原理"></a>一些绕过原理</h2><h3 id="html解码和js解码"><a href="#html解码和js解码" class="headerlink" title="html解码和js解码"></a>html解码和js解码</h3><ol>
+<li>解码顺序<ol>
+<li>一般情况下，解码顺序是按照HTML实体化解码–&gt;JavaScript解码进行的</li>
+</ol>
+</li>
+<li>HTML实体化解码<ol>
+<li>如果服务器与客户端之间要传输某个特殊字符，像是<code>&lt;&gt;，&#39;</code>等这类会被当做标签或者属性值等来解析的字符，为了避免歧义就需要使用到HTML实体化编码来进行编码了。</li>
+<li>HTML编码的几种方式<ol>
+<li>别名形式：因为比较多可以见(w3school.com.cn)</li>
+<li>十六进制：像<code>&lt;div&gt;</code>就会被编码为<code>&amp;#x003c;&amp;#x0064;&amp;#x0069;&amp;#x0076;&amp;#x003e;</code></li>
+<li>十进制：上述标签在十进制会被编码为<code>&amp;#60;&amp;#100;&amp;#105;&amp;#118;&amp;#62;</code></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>为什么需要JavaScript解码？<ol>
+<li>通过JavaScript编码，可以对特殊字符进行转义，防止数据在传输过程中产生语法错误或安全漏洞。例如，对于包含特殊字符（如引号、尖括号等）的数据，可以使用转义字符进行编码，以确保数据的完整性和安全性。</li>
+</ol>
+</li>
+<li><em><strong>明明有了HTML实体化编码为什么是还需要JavaScript编码</strong></em><ol>
+<li><p>在HTML进行解析的时候，遇到了<code>&lt;script&gt;</code>标签或者事件属性或者URL协议时就会使用到JS编码来对JS代码当中的特殊字符如<code>：&#39;，&quot;</code>进行编码操作。</p>
+</li>
+<li><p>JS编码有哪些方式？</p>
+<ol>
+<li>以\uxxxx，\UXXXXXXXX，\xXX都是JavaScript编码</li>
+<li>但是注意：某些特殊字符不能够进行JavaScript编码，否则浏览器无法进行解析，如<code>&lt; &gt; &#39; &quot; ( )</code><ol>
+<li>特别的：<code>&lt;svg&gt;</code>当中包裹的标签将特殊字符进行编码时可以进行解析</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=# onerror=<span class="title function_">alert</span>(<span class="number">1</span>)&gt;</span><br><span class="line"><span class="comment">// js编码后</span></span><br><span class="line">&lt;img src=# onerror=\u0061\u006C\u0065\u0072\u0074(\u0031)&gt;</span><br><span class="line">// 因为()要进行保留，所以不是以下</span><br><span class="line">&lt;img src=# onerror=\u0061\u006C\u0065\u0072\u0074\u0031&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 解码脚本如下</span></span><br><span class="line"><span class="comment"># 原始字符串</span></span><br><span class="line">encoded_string = <span class="string">&#x27;&lt;img src=# onerror=\\u0061\\u006C\\u0065\\u0072\\u0074(\\u0031)&gt;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 解码 Unicode 转义序列</span></span><br><span class="line">decoded_string = encoded_string.encode().decode(<span class="string">&#x27;unicode-escape&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(decoded_string)</span><br></pre></td></tr></table></figure></li>
 </ol>
 </li>
 </ol>
@@ -201,6 +259,10 @@
 
     
     
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#T00ls"><span class="toc-number">2.</span> <span class="toc-text">T00ls</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%80%9D%E8%B7%AF"><span class="toc-number">3.</span> <span class="toc-text">常见思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%AF%8D%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-number">4.</span> <span class="toc-text">关键词黑名单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E7%BB%95%E8%BF%87%E5%8E%9F%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">一些绕过原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#html%E8%A7%A3%E7%A0%81%E5%92%8Cjs%E8%A7%A3%E7%A0%81"><span class="toc-number">5.1.</span> <span class="toc-text">html解码和js解码</span></a></li></ol></li></ol>
+      </div>
+    
 
     <div id="share-footer" style="display: none">
       <ul>
@@ -221,6 +283,8 @@
 
     <div id="actions-footer">
         <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
         
         <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
         <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>

@@ -14,9 +14,9 @@
 <meta property="og:description" content="黑盒原型链污染，原型链污染绕过身份验证  分析与尝试 DONE 注意到服务端使用node express框架，可以故意报错搞点信息，比如多谢一个段等  先看看node这边的漏洞试试，现在就是要登录为admin用户，猜测flag在admin中，有两个思路  获取admin的账号与密码 node相关的可能是原型链污染？服务端 admin直接登录，服务端一般会保存一个存有用户信息的对象，这里如果对于普">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-11-01T07:54:59.548Z">
-<meta property="article:modified_time" content="2024-11-01T10:52:22.162Z">
+<meta property="article:modified_time" content="2024-11-02T03:52:47.239Z">
 <meta property="article:tag" content="recurrence">
-<meta property="article:tag" content="proto pollution">
+<meta property="article:tag" content="node pp">
 <meta name="twitter:card" content="summary">
     
     
@@ -89,7 +89,7 @@
         <li><a class="icon" aria-label="Previous post" href="/2024/11/01/SycServer2_SCTF24/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
-        <li><a class="icon" aria-label="Next post" href="/2024/10/30/Nodejs%E5%AE%89%E5%85%A8/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Next post" href="/2024/10/30/NodejsS3c/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -160,7 +160,7 @@
       
     <div class="article-tag">
         <i class="fa-solid fa-tag"></i>
-        <a class="p-category" href="/tags/proto-pollution/" rel="tag">proto pollution</a>, <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+        <a class="p-category" href="/tags/node-pp/" rel="tag">node pp</a>, <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
     </div>
 
 

