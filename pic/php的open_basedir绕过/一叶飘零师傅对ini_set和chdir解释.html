@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="从PHP底层看open_basedir bypass · sky’s blog苟有恒，何必三更眠五更起。 有国外的大佬近日公开了一个php open_basedir bypass的poc，正好最近在看php底层，于是打算分析一下。 poc测试首先测试一下：我们用如上源码进行测试，首先设置open_basedir目录为&#x2F;tmp目录，再尝试用ini_set设置open_basedir则无效果">
+<meta property="og:type" content="website">
+<meta property="og:title" content="KC1zs4&#39;s Blog">
+<meta property="og:url" content="https://kc1zs4.github.io/pic/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/%E4%B8%80%E5%8F%B6%E9%A3%98%E9%9B%B6%E5%B8%88%E5%82%85%E5%AF%B9ini_set%E5%92%8Cchdir%E8%A7%A3%E9%87%8A.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="从PHP底层看open_basedir bypass · sky’s blog苟有恒，何必三更眠五更起。 有国外的大佬近日公开了一个php open_basedir bypass的poc，正好最近在看php底层，于是打算分析一下。 poc测试首先测试一下：我们用如上源码进行测试，首先设置open_basedir目录为&#x2F;tmp目录，再尝试用ini_set设置open_basedir则无效果">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-08T13:10:08.071Z">
+<meta property="article:modified_time" content="2024-11-08T13:10:08.071Z">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>KC1zs4&#39;s Blog</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+    <div class="content index py4 ">
+        
+          <header id="header">
+  <a class="u-url u-uid" href="/">
+  
+    
+      <img id="logo" alt class="u-logo" src="/images/logo.png" />
+    
+  
+    <div id="title">
+      <h1 class="p-name">KC1zs4&#39;s Blog</h1>
+    </div>
+  </a>
+  <div id="nav">
+    <ul>
+      <li class="icon">
+        <a href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-2x"></i></a>
+      </li>
+      <!--
+     --><li><a href="/">Home</a></li><!--
+   --><!--
+     --><li><a href="/about/">About</a></li><!--
+   --><!--
+     --><li><a href="/archives/">Writing</a></li><!--
+   --><!--
+     --><li><a href="/tags/">Tag</a></li><!--
+   --><!--
+     --><li><a href="/categories/">Category</a></li><!--
+   --><!--
+     --><li><a href="/search/">Search</a></li><!--
+   -->
+    </ul>
+  </div>
+</header>
+
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  
+
+  <div class="content" itemprop="articleBody">
+      
+          <h1 id="从PHP底层看open-basedir-bypass-·-sky’s-blog"><a href="#从PHP底层看open-basedir-bypass-·-sky’s-blog" class="headerlink" title="从PHP底层看open_basedir bypass · sky’s blog"></a>从PHP底层看open_basedir bypass · sky’s blog</h1><p>苟有恒，何必三更眠五更起。</p>
+<p>有国外的大佬近日公开了一个php open_basedir bypass的poc，正好最近在看php底层，于是打算分析一下。</p>
+<h2 id="poc测试"><a href="#poc测试" class="headerlink" title="poc测试"></a>poc测试</h2><p>首先测试一下：<br>我们用如上源码进行测试，首先设置open_basedir目录为&#x2F;tmp目录，再尝试用ini_set设置open_basedir则无效果，我们对根目录进行列目录，发现无效，返回bool(false)。<br>我们再尝试一下该国外大佬的poc<br>发现可以成功列举根目录，bypass open_basedir。<br>那么为什么一系列操作后，就可以重设open_basedir了呢？我们一步一步从头探索。</p>
+<h2 id="ini-set覆盖问题探索"><a href="#ini-set覆盖问题探索" class="headerlink" title="ini_set覆盖问题探索"></a>ini_set覆盖问题探索</h2><p>为什么连续使用ini_set不会对open_basedir进行覆盖呢？我们以如下代码为例：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">ini_get</span>(<span class="string">&#x27;open_basedir&#x27;</span>));</span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>, <span class="string">&#x27;/tmp&#x27;</span>);</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">ini_get</span>(<span class="string">&#x27;open_basedir&#x27;</span>));</span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>, <span class="string">&#x27;/&#x27;</span>);</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">ini_get</span>(<span class="string">&#x27;open_basedir&#x27;</span>));</span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>, <span class="string">&#x27;..&#x27;</span>);</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">ini_get</span>(<span class="string">&#x27;open_basedir&#x27;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>运行后结果如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">string</span>(<span class="number">0</span>) <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">string</span>(<span class="number">4</span>) <span class="string">&quot;/tmp&quot;</span></span><br><span class="line"><span class="keyword">string</span>(<span class="number">4</span>) <span class="string">&quot;/tmp&quot;</span></span><br><span class="line"><span class="keyword">string</span>(<span class="number">4</span>) <span class="string">&quot;/tmp&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>默认的open_basedir值本来是空，第一次设置成&#x2F;tmp后，以为设置将不会覆盖。</p>
+<h2 id="php-check-open-basedir-ex"><a href="#php-check-open-basedir-ex" class="headerlink" title="php_check_open_basedir_ex"></a>php_check_open_basedir_ex</h2><p>找到切入点后，后面就是进行分析，看如何bypass php_check_open_basedir_ex我们源码跟进这个函数。expand_filepath()我们跟进至：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">PHPAPI <span class="type">char</span> *<span class="title function_">expand_filepath</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *filepath, <span class="type">char</span> *real_path)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> expand_filepath_ex(filepath, real_path, <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>所以最后的bypass poc也变得非常清楚：<br>首先需要构造一个相对可上跳的open_basedir</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">mkdir</span>(<span class="string">&#x27;sky&#x27;</span>);</span><br><span class="line"><span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;sky&#x27;</span>);</span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>,<span class="string">&#x27;..&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这也是为什么要先创文件夹的原因，就是为了在当前目录构造可以..的ini_set<br>然后每次目录操作</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>都会进行一次open_basedir的比对，即php_check_open_basedir_ex。由于相对路径的问题，每次open_basedir的补全都会上跳。</p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>这个poc还是很巧妙的，重点在于构造出相对路径的open_basedir，再触发其进行上跳！</p>
+
+        
+  </div>
+</article>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

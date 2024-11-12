@@ -6,14 +6,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta property="og:type" content="article">
+    <meta name="description" content="分析和尝试(DONE) 是一个go的http服务器，目标是&#x2F;v1&#x2F;readflag  发现proxy.conf中&#x2F;v1是403，那就需要绕过了，重定向？  这里的nginx是反向代理，进行转发，除了403不用管  ai一下代码进行分析(go还没学)，思路  要是abs并FollowRedirects，返回nil则可以重定向 这根本就没有限制啊，直接构造发送  1234">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Proxy_强网24">
 <meta property="og:url" content="https://kc1zs4.github.io/2024/11/03/Proxy_%E5%BC%BA%E7%BD%9124/index.html">
 <meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="分析和尝试(DONE) 是一个go的http服务器，目标是&#x2F;v1&#x2F;readflag  发现proxy.conf中&#x2F;v1是403，那就需要绕过了，重定向？  这里的nginx是反向代理，进行转发，除了403不用管  ai一下代码进行分析(go还没学)，思路  要是abs并FollowRedirects，返回nil则可以重定向 这根本就没有限制啊，直接构造发送  1234">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-11-03T14:35:44.885Z">
-<meta property="article:modified_time" content="2024-11-04T04:42:43.694Z">
+<meta property="article:modified_time" content="2024-11-06T01:36:32.723Z">
 <meta property="article:tag" content="recurrence">
+<meta property="article:tag" content="nginx">
 <meta name="twitter:card" content="summary">
     
     
@@ -115,6 +118,10 @@
     </div>
     
     
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E5%92%8C%E5%B0%9D%E8%AF%95-DONE"><span class="toc-number">1.</span> <span class="toc-text">分析和尝试(DONE)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">2.</span> <span class="toc-text">*其他注意点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">源码</span></a></li></ol>
+      </div>
+    
   </span>
 </div>
 
@@ -153,7 +160,7 @@
       
     <div class="article-tag">
         <i class="fa-solid fa-tag"></i>
-        <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+        <a class="p-category" href="/tags/nginx/" rel="tag">nginx</a>, <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
     </div>
 
 
@@ -162,7 +169,33 @@
   
 
   <div class="content e-content" itemprop="articleBody">
-    
+    <h2 id="分析和尝试-DONE"><a href="#分析和尝试-DONE" class="headerlink" title="分析和尝试(DONE)"></a>分析和尝试(DONE)</h2><ol>
+<li><p>是一个go的http服务器，目标是&#x2F;v1&#x2F;readflag</p>
+</li>
+<li><p>发现proxy.conf中&#x2F;v1是403，那就需要绕过了，重定向？</p>
+</li>
+<li><p>这里的nginx是反向代理，进行转发，除了403不用管</p>
+</li>
+<li><p>ai一下代码进行分析(go还没学)，思路</p>
+<ol>
+<li>要是abs并FollowRedirects，返回nil则可以重定向</li>
+<li>这根本就没有限制啊，直接构造发送</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将下述这个包发送到/v2/路由即可</span></span><br><span class="line"> &#123;</span><br><span class="line">     <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://target/v1/api/flag&quot;</span>,</span><br><span class="line">     <span class="string">&quot;method&quot;</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">     <span class="string">&quot;headers&quot;</span>: &#123;</span><br><span class="line">         <span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/json&quot;</span>,</span><br><span class="line">     &#125;,</span><br><span class="line">     <span class="string">&quot;follow_redirects&quot;</span>: <span class="literal">true</span></span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">// 看来wp发现最简单的包是</span></span><br><span class="line"> &#123;<span class="string">&quot;URL&quot;</span>:<span class="string">&quot;http://127.0.0.1:8769/v1/api/flag&quot;</span>,<span class="string">&quot;Method&quot;</span>:<span class="string">&quot;POST&quot;</span>,<span class="string">&quot;Body&quot;</span>:<span class="string">&quot;&quot;</span>&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="其他注意点"><a href="#其他注意点" class="headerlink" title="*其他注意点"></a>*其他注意点</h2><ol>
+<li><code>.ShouldBindJSON(&amp;proxyRequest)</code>：将客户端发来的 JSON 请求体解析到 proxyRequest 结构体中。这里可以不用header这里，有点理解错了，但是问题不大</li>
+<li><em><strong>nginx反向代理</strong></em>，见proxy.conf<ol>
+<li>反向代理就是在服务端的代理，统一收包再分流，再nginx中配置如proxy.conf</li>
+<li>配置保存到 Nginx 的配置文件中，通常是 &#x2F;etc&#x2F;nginx&#x2F;nginx.conf 或 &#x2F;etc&#x2F;nginx&#x2F;conf.d&#x2F;your_config_file.conf</li>
+</ol>
+</li>
+</ol>
+<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><ol>
+<li>main.go见src目录，感觉没什么好讲的，多chat就对了</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment"># proxy.conf</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen 8000;</span><br><span class="line"></span><br><span class="line">    location ~ /v1 &#123;</span><br><span class="line">        <span class="built_in">return</span> 403; <span class="comment"># location ~ /v1：使用正则表达式匹配以 /v1 开头的请求</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location ~ /v2 &#123;</span><br><span class="line">        proxy_pass http://localhost:8769;   <span class="comment"># 将匹配的请求代理到本地的 8769 端口，即你的后端服务</span></span><br><span class="line">        proxy_http_version 1.1;</span><br><span class="line">        proxy_set_header Host <span class="variable">$host</span>;    <span class="comment"># 设置 Host 头为原始请求的 Host，确保后端服务知道原始请求的主机名</span></span><br><span class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;    <span class="comment"># 设置 X-Real-IP 头为客户端的真实 IP 地址，后端服务可以使用这个头来获取客户端的 IP</span></span><br><span class="line">        proxy_set_header Upgrade <span class="variable">$http_upgrade</span>;</span><br><span class="line">        proxy_set_header Connection <span class="variable">$connection_upgrade</span>;</span><br><span class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>; <span class="comment"># 设置 X-Forwarded-For 头，包含客户端的真实 IP 地址，后端服务可以使用这个头来获取客户端的 IP</span></span><br><span class="line">        <span class="comment"># 因为经过了再一次转发，所以一般会传递一些请求头</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
   </div>
 </article>
 
@@ -192,6 +225,10 @@
 
     
     
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90%E5%92%8C%E5%B0%9D%E8%AF%95-DONE"><span class="toc-number">1.</span> <span class="toc-text">分析和尝试(DONE)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">2.</span> <span class="toc-text">*其他注意点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">源码</span></a></li></ol>
+      </div>
+    
 
     <div id="share-footer" style="display: none">
       <ul>
@@ -212,6 +249,8 @@
 
     <div id="actions-footer">
         <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
         
         <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
         <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="UNDONE phar反序列化中关键标识绕过可以任意zip等吗？ phar出发函数支持通配符吗？ phar是可以没有 [https:&#x2F;&#x2F;blog.csdn.net&#x2F;MrWangisgoodboy&#x2F;article&#x2F;details&#x2F;130146658]中phar签名问题 session上传中无需进行闭合吗？其实要闭合也不难的，也是origin和target这样，往target凑即可  POP链常用魔术">
+<meta property="og:type" content="article">
+<meta property="og:title" content="php反序列化利用">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="UNDONE phar反序列化中关键标识绕过可以任意zip等吗？ phar出发函数支持通配符吗？ phar是可以没有 [https:&#x2F;&#x2F;blog.csdn.net&#x2F;MrWangisgoodboy&#x2F;article&#x2F;details&#x2F;130146658]中phar签名问题 session上传中无需进行闭合吗？其实要闭合也不难的，也是origin和target这样，往target凑即可  POP链常用魔术">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/phar_affectedfunc.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/session_workflow.png!small">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/session_uploadprogress.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/session_upload_progress_name.png">
+<meta property="article:published_time" content="2024-11-07T08:50:02.960Z">
+<meta property="article:modified_time" content="2024-11-08T07:33:06.971Z">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="all in one">
+<meta property="article:tag" content="php serialize">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/phar_affectedfunc.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>php反序列化利用</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/08/ctfshow_%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&text=php反序列化利用"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&is_video=false&description=php反序列化利用"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php反序列化利用&body=Check out this article: https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&name=php反序列化利用&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&t=php反序列化利用"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UNDONE"><span class="toc-number">1.</span> <span class="toc-text">UNDONE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POP%E9%93%BE"><span class="toc-number">2.</span> <span class="toc-text">POP链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95"><span class="toc-number">2.1.</span> <span class="toc-text">常用魔术方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E7%94%9F%E7%B1%BB%E5%88%A9%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">原生类利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#php%E5%8F%AF%E5%88%A9%E7%94%A8%E5%8E%9F%E7%94%9F%E7%B1%BB"><span class="toc-number">3.1.</span> <span class="toc-text">php可利用原生类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E6%93%8D%E4%BD%9C"><span class="toc-number">3.2.</span> <span class="toc-text">目录操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="toc-number">3.3.</span> <span class="toc-text">文件操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phar%E5%88%A9%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">Phar利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Phar-Ref"><span class="toc-number">4.1.</span> <span class="toc-text">Phar Ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#what-why"><span class="toc-number">4.2.</span> <span class="toc-text">what&amp;&amp;why</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4"><span class="toc-number">4.3.</span> <span class="toc-text">攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Phar%E7%BB%95%E8%BF%87%E6%8A%80%E5%B7%A7"><span class="toc-number">4.4.</span> <span class="toc-text">Phar绕过技巧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Phar%E4%BE%8B%E9%A2%98"><span class="toc-number">4.5.</span> <span class="toc-text">Phar例题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Phar%E4%BE%8B1-CISCN2019-%E5%8D%8E%E5%8C%97%E8%B5%9B%E5%8C%BA-Day1-Web1-Dropbox"><span class="toc-number">4.5.1.</span> <span class="toc-text">*Phar例1:[CISCN2019 华北赛区 Day1 Web1]Dropbox</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Dropbox-Ref"><span class="toc-number">4.5.1.1.</span> <span class="toc-text">Dropbox Ref</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Phar%E4%BE%8B1%E6%80%9D%E8%80%83%E4%B8%8E%E5%B0%9D%E8%AF%95-Failed"><span class="toc-number">4.5.1.2.</span> <span class="toc-text">Phar例1思考与尝试(Failed)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Phar%E4%BE%8B1fix"><span class="toc-number">4.5.1.3.</span> <span class="toc-text">*Phar例1fix</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Phar%E4%BE%8B1%E6%80%BB%E7%BB%93"><span class="toc-number">4.5.1.4.</span> <span class="toc-text">*Phar例1总结</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Phar%E4%BE%8B2-CTFshow-web-phar-%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89"><span class="toc-number">4.5.2.</span> <span class="toc-text">Phar例2:[CTFshow web]phar+条件竞争</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SESSION%E5%88%A9%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">SESSION利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION-ref"><span class="toc-number">5.1.</span> <span class="toc-text">SESSION ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP%E4%B8%AD%E7%9A%84session%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">5.2.</span> <span class="toc-text">PHP中的session工作流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION%E4%BF%A1%E6%81%AF%E5%AD%98%E5%82%A8%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="toc-number">5.3.</span> <span class="toc-text">_SESSION信息存储与配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">5.4.</span> <span class="toc-text">_SESSION序列化与反序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION-exp"><span class="toc-number">5.5.</span> <span class="toc-text">SESSION exp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION-%E4%BE%8B%E9%A2%98"><span class="toc-number">5.6.</span> <span class="toc-text">SESSION 例题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%BA%E7%BD%91%E6%9D%AF24-platform"><span class="toc-number">5.6.1.</span> <span class="toc-text">[强网杯24]platform</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22019-LOL"><span class="toc-number">5.6.2.</span> <span class="toc-text">[巅峰极客2019]LOL</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        php反序列化利用
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-07T08:50:02.960Z" class="dt-published" itemprop="datePublished">2024-11-07</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>, <a class="p-category" href="/tags/php/" rel="tag">php</a>, <a class="p-category" href="/tags/php-serialize/" rel="tag">php serialize</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="UNDONE"><a href="#UNDONE" class="headerlink" title="UNDONE"></a>UNDONE</h2><ol>
+<li>phar反序列化中关键标识绕过可以任意zip等吗？</li>
+<li>phar出发函数支持通配符吗？</li>
+<li>phar是可以没有</li>
+<li>[<a target="_blank" rel="noopener" href="https://blog.csdn.net/MrWangisgoodboy/article/details/130146658]%E4%B8%ADphar%E7%AD%BE%E5%90%8D%E9%97%AE%E9%A2%98">https://blog.csdn.net/MrWangisgoodboy/article/details/130146658]中phar签名问题</a></li>
+<li>session上传中无需进行闭合吗？其实要闭合也不难的，也是origin和target这样，往target凑即可</li>
+</ol>
+<h2 id="POP链"><a href="#POP链" class="headerlink" title="POP链"></a>POP链</h2><h3 id="常用魔术方法"><a href="#常用魔术方法" class="headerlink" title="常用魔术方法"></a>常用魔术方法</h3><h2 id="原生类利用"><a href="#原生类利用" class="headerlink" title="原生类利用"></a>原生类利用</h2><h3 id="php可利用原生类"><a href="#php可利用原生类" class="headerlink" title="php可利用原生类"></a>php可利用原生类</h3><blockquote>
+<p>SPL php标准库[<a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/book.spl.php]">https://www.php.net/manual/zh/book.spl.php]</a></p>
+</blockquote>
+<ol>
+<li><p>常见的原生类</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 报错</span></span><br><span class="line"><span class="built_in">Error</span></span><br><span class="line"><span class="built_in">Exception</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 网络</span></span><br><span class="line">SoapClient</span><br><span class="line">SimpleXMLElement</span><br><span class="line"></span><br><span class="line"><span class="comment">// 文件系统</span></span><br><span class="line"><span class="built_in">DirectoryIterator</span></span><br><span class="line"><span class="built_in">FilesystemIterator</span></span><br><span class="line"><span class="built_in">SplFileObject</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><em><strong>脚本筛选</strong></em></p>
+<ol>
+<li>可以用来获取存在给定方法的原生类</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$classes</span> = <span class="title function_ invoke__">get_declared_classes</span>();</span><br><span class="line"><span class="keyword">foreach</span> (<span class="variable">$classes</span> <span class="keyword">as</span> <span class="variable">$class</span>) &#123;</span><br><span class="line">    <span class="variable">$methods</span> = <span class="title function_ invoke__">get_class_methods</span>(<span class="variable">$class</span>);</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$methods</span> <span class="keyword">as</span> <span class="variable">$method</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">in_array</span>(<span class="variable">$method</span>, <span class="keyword">array</span>(</span><br><span class="line">            <span class="string">&#x27;__destruct&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__toString&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__wakeup&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__call&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__callStatic&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__get&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__set&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__isset&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__unset&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__invoke&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;__set_state&#x27;</span></span><br><span class="line">            // 可以根据题目环境将指定的方法添加进来, 来遍历存在指定方法的原生类</span><br><span class="line">        ))) &#123;</span><br><span class="line">            <span class="keyword">print</span> <span class="variable">$class</span> . <span class="string">&#x27;::&#x27;</span> . <span class="variable">$method</span> . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;/br&gt;&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="目录操作"><a href="#目录操作" class="headerlink" title="目录操作"></a>目录操作</h3><blockquote>
+<p>有三个类: DirectoryIterator, FilesystemIterator, GlobIterator</p>
+</blockquote>
+<h3 id="文件操作"><a href="#文件操作" class="headerlink" title="文件操作"></a>文件操作</h3><blockquote>
+<p>SplFileObject: [<a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/class.splfileobject.php]">https://www.php.net/manual/zh/class.splfileobject.php]</a></p>
+</blockquote>
+<h2 id="Phar利用"><a href="#Phar利用" class="headerlink" title="Phar利用"></a>Phar利用</h2><blockquote>
+<p>目的与特性：在没有<code>unserialize()</code>函数的情况下通过文件系统调用</p>
+</blockquote>
+<h3 id="Phar-Ref"><a href="#Phar-Ref" class="headerlink" title="Phar Ref"></a>Phar Ref</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://i.blackhat.com/us-18/Thu-August-9/us-18-Thomas-Its-A-PHP-Unserialization-Vulnerability-Jim-But-Not-As-We-Know-It-wp.pdf">blackhat祖师爷</a></li>
+<li><a target="_blank" rel="noopener" href="https://paper.seebug.org/680/">知道创宇简要介绍</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/291992.html">绕过技巧</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/240007#h2-5"><em><strong>为什么非phar文件也可以进行反序列化?</strong></em></a><ol>
+<li><a target="_blank" rel="noopener" href="https://guokeya.github.io/post/uxwHLckwx/">生成脚本，但是不详细</a></li>
+</ol>
+</li>
+</ol>
+<h3 id="what-why"><a href="#what-why" class="headerlink" title="what&amp;&amp;why"></a>what&amp;&amp;why</h3><ol>
+<li>PHAR（PHP归档）文件是一种打包格式，通过将许多PHP代码文件和其他资源（例如图像，样式表等）捆绑到一个归档文件中来实现应用程序和库的分发</li>
+<li><em><strong>文件格式</strong></em><ol>
+<li>stub是一个文件标志，格式为: <code>xxx&lt;?php xxx;__HALT_COMPILER();?&gt;</code>，这里的xxx可以是任何内容，但是一定要有后面的<code>&lt;?...?&gt;</code>部分</li>
+<li>manifest是被压缩的文件的属性等放在这里，这部分是以序列化存储的，是主要的攻击点</li>
+<li>contents是被压缩的内容</li>
+<li>signature签名，放在文件末尾</li>
+</ol>
+</li>
+<li><em><strong>漏洞利用</strong></em><ol>
+<li><em><strong>利用原理</strong></em>: 有序列化数据必然会有反序列化操作，php一大部分的文件系统函数在通过phar:&#x2F;&#x2F;伪协议解析phar文件时，都会将meta-data进行<strong>反序列化并完成对象的生命周期并销毁</strong> –&gt; 受影响函数如下<img src="/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/phar_affectedfunc.png" alt="受影响函数"></li>
+<li>它有一个特性就是phar文件会以序列化的形式储存用户自定义的meta-data -&gt; <strong>配合phar:&#x2F;&#x2F;伪协议进行漏洞攻击</strong></li>
+<li><em><strong>利用条件</strong></em><ol>
+<li>Phar需要 PHP &gt;&#x3D; 5.2</li>
+<li>phar可以上传到服务器端(存在文件上传)</li>
+<li>如file_exists()，fopen()，file_get_contents()，file()等文件操作的函数后类中要有可用的方法&#x2F;魔术方法作为”跳板”。</li>
+<li>文件操作函数的参数可控，且:、&#x2F;、phar等特殊字符没有被过滤</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="攻击步骤"><a href="#攻击步骤" class="headerlink" title="攻击步骤"></a>攻击步骤</h3><ol>
+<li>S1: 生成phar文件<ol>
+<li>需要在生成phar文件需要修改php.ini中的配置，将phar.readonly设置为Off</li>
+<li><code>__HALT_COMPILER();</code>必须大写，小写不会被识别出来。导致无法进行反序列化操作。</li>
+<li>上传时将test.phar修改文件扩展名为jpg也可以进行反序列化，不会影响解析，<strong>但是生成时需要使用phar后缀</strong>，魔术头可以随便加</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">targetClass</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 这里的targetClass一般是攻击文件中含有的类，存在数据的利用点</span></span><br><span class="line">    <span class="variable">$someProperty</span> = <span class="string">&quot;phpinfo();&quot;</span>;   <span class="comment">// 传到目标类的sink里</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;whateveryouwant&quot;</span>.<span class="string">&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line"><span class="variable">$obj</span> = <span class="keyword">new</span> <span class="title function_ invoke__">targetClass</span>();</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="variable">$obj</span>); <span class="comment">//将自定义的meta-data存入manifest，这一步注入攻击</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;flag.txt&quot;</span>, <span class="string">&quot;flag&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line"><span class="comment">//签名自动计算</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Phar绕过技巧"><a href="#Phar绕过技巧" class="headerlink" title="Phar绕过技巧"></a>Phar绕过技巧</h3><ol>
+<li><p>文件尾phar关键字绕过</p>
+<ol>
+<li>Solution: 由于php识别phar文件是通过其文件头的stub，更确切一点来说是<code>__HALT_COMPILER();</code>这段代码，对前面的内容或者后缀名是没有要求的。那么我们就可以通过添加任意的文件头+修改后缀名的方式将phar文件伪装成其他格式的文件</li>
+<li>还可以加上魔术头在<code>$phar-&gt;setStub(&quot;GIF89a&quot;.&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;);</code></li>
+</ol>
+</li>
+<li><p>伪协议phar过滤绕过</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 注意到这里只是开头</span></span><br><span class="line"><span class="keyword">if</span> (preg_match(<span class="string">&quot;/^php|^file|^gopher|^http|^https|^ftp|^data|^phar|^smtp|^dict|^zip/i&quot;</span>,$filename)&#123;</span><br><span class="line">    die();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. Solution</span></span><br><span class="line">    <span class="comment"># Bzip / Gzip</span></span><br><span class="line">    <span class="comment"># 当环境限制了phar不能出现在前面的字符里。可以使用compress.bzip2://和compress.zlib://绕过</span></span><br><span class="line">    compress.bzip://phar:///test.phar/test.txt</span><br><span class="line">    compress.bzip2://phar:///home/sx/test.phar/test.txt</span><br><span class="line">    compress.zlib://phar:///home/sx/test.phar/test.txt</span><br><span class="line"></span><br><span class="line">    php://<span class="built_in">filter</span>/resource=phar:///test.phar/test.txt</span><br><span class="line">    <span class="comment"># 还可以使用伪协议的方法绕过</span></span><br><span class="line">    php://<span class="built_in">filter</span>/read=convert.base64-encode/resource=phar://phar.phar</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>绕过<code>__HALT_COMPILER</code>特征检测</p>
+<ol>
+<li><p>因为phar中的a stub字段必须以<code>__HALT_COMPILER();</code>字符串来结尾，否则phar扩展将无法识别这个文件为phar文件，所以这段字符串不能省略，只能绕过</p>
+  <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/&lt;/?|php|HALT_COMPILER/i&quot;</span>,<span class="variable">$filename</span>)&#123;</span><br><span class="line">    <span class="keyword">die</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><em><strong>Solution1: Gzip</strong></em></p>
+<ol>
+<li>首先将 phar 文件使用 gzip 命令进行压缩，可以看到压缩之后的文件中就没有了__HALT_COMPILER()，将 phar.gz 后缀改为 png（png文件可以上传），<em><strong>target:</strong></em> <code>?filename=phar://pic/phar.phar.gz/phar.phar</code> –&gt; 直接通过phar协议即可</li>
+</ol>
+</li>
+<li><p><em><strong>Solution2: zip</strong></em></p>
+<ol>
+<li>将phar的内容写进压缩包注释中，也同样能够反序列化成功，压缩为zip也会绕过该正则</li>
+</ol>
+  <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$phar_file</span> = <span class="title function_ invoke__">serialize</span>(<span class="variable">$exp</span>);   <span class="comment">// 你的攻击点对象，$exp是可以利用的类</span></span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$phar_file</span>;</span><br><span class="line"><span class="variable">$zip</span> = <span class="keyword">new</span> <span class="title class_">ZipArchive</span>();</span><br><span class="line"><span class="variable">$res</span> = <span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">open</span>(<span class="string">&#x27;1.zip&#x27;</span>,<span class="title class_">ZipArchive</span>::<span class="variable constant_">CREATE</span>); </span><br><span class="line"><span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&#x27;crispr.txt&#x27;</span>, <span class="string">&#x27;file content goes here&#x27;</span>);    <span class="comment">// 不重要</span></span><br><span class="line"><span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">setArchiveComment</span>(<span class="variable">$phar_file</span>);</span><br><span class="line"><span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">close</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 传入?file=phar://phar.zip//phar.phar</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><em><strong>Solutions</strong></em></p>
+<ol>
+<li>前文说到，将phar包压缩成gzip仍然能够触发反序列化，并且将phar写入到zip注释中也同样能达到如上的效果,其实并不只有这些，将Phar压缩成tar、gzip、bzip2后均能够触发反序列化</li>
+<li>具体原因见ref中的链接，你看得到的</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="Phar例题"><a href="#Phar例题" class="headerlink" title="Phar例题"></a>Phar例题</h3><h4 id="Phar例1-CISCN2019-华北赛区-Day1-Web1-Dropbox"><a href="#Phar例1-CISCN2019-华北赛区-Day1-Web1-Dropbox" class="headerlink" title="*Phar例1:[CISCN2019 华北赛区 Day1 Web1]Dropbox"></a>*Phar例1:[CISCN2019 华北赛区 Day1 Web1]Dropbox</h4><h5 id="Dropbox-Ref"><a href="#Dropbox-Ref" class="headerlink" title="Dropbox Ref"></a>Dropbox Ref</h5><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/xxy605/article/details/120172274">很不错的题解</a></li>
+</ol>
+<h5 id="Phar例1思考与尝试-Failed"><a href="#Phar例1思考与尝试-Failed" class="headerlink" title="Phar例1思考与尝试(Failed)"></a>Phar例1思考与尝试(Failed)</h5><ol>
+<li>扫目录没有，目录遍历试试：filename&#x3D;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd，可读</li>
+<li>读源码审计阶段<ol>
+<li>Class.php<ol>
+<li>User类大部分依赖mysqli，预处理，不考虑sql注入，这里是以<strong>root权限</strong>进行连接的</li>
+<li>这一道题注重于文件操作？与文件操作有关？<ol>
+<li>File通过open设置指向的filename，并通过其他函数获取信息，close()时读取文件内容</li>
+<li>FileList中files数组中存放着当前目录下的文件<ol>
+<li>当尝试调用一个未定义或不可访问的方法时，<code>__call()</code>会被自动调用</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Upload.php<ol>
+<li>会将文件进行移动</li>
+<li>filename长度进行了限制</li>
+</ol>
+</li>
+<li>login.php和register.php一起的<ol>
+<li>直接知道沙箱的路径</li>
+</ol>
+</li>
+<li>download.php<ol>
+<li>对&#x2F;flag进行了过滤</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>这里应该是要进行rce，找找可控输入，download.php中的filename连接到了class.php中file的get_file_contents()，敏锐phar反序列化，<ol>
+<li>get_file_contents中使用，下面略<ol>
+<li>没有问题的，download中有include class.php，可以实现直接调用并在<code>__destruct()</code>函数输出result的结果，现在的重点在于调用想要的函数</li>
+</ol>
+</li>
+<li>应为flag给我们过滤了，额日期额设置了open_basedir，需要是在新进程中<ol>
+<li>一个新的File对象，filename是flag，然后通过调用close进行读取flag内容</li>
+<li>上传的名称是自定义的，上传一个&#x2F;flag的文件？，通过FileList的<code>__construct</code>创建对象？不行，需要wakeup，只能同故宫<code>__destruct</code>了</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>没想出来，感觉有遗漏的点，看看题解先，看完题解，还得练，已经在进步了 –&gt; 要不是太困可能还真想得出来，但是这里跑偏了</li>
+</ol>
+<h5 id="Phar例1fix"><a href="#Phar例1fix" class="headerlink" title="*Phar例1fix"></a>*Phar例1fix</h5><blockquote>
+<p>上面思路方向是对，但是偏的有点严重了，重新来一下</p>
+</blockquote>
+<ol>
+<li><em><strong>这里应该从宏观出发</strong></em></li>
+<li>最终是要获取&#x2F;flag.php或者&#x2F;flag.txt这样，这里没有自定义函数，应该是到不了rce的地步，直接读文件的话</li>
+<li>寻找<em><strong>可控输入点</strong></em><ol>
+<li>download.php中的filename</li>
+<li>delete.php中的filename</li>
+</ol>
+</li>
+<li>这里因为download中有ini_set的open_basedir，所以似乎读不了，会被限制住，在include的class.php中也有，根本无法读</li>
+<li>先从文件出发吧，有download.php的get_file_contents不行的话，就只有File的close方法了，这里要求有一个File对象的filename是&#x2F;flag.txt这样还需要调用close方法？<ol>
+<li>phar get_file_contents中反序列化自定义，有open_basedir不行</li>
+<li>phar unlink中也可以反序列化自定义 –&gt; <em><strong>phar出发函数不知一个</strong></em></li>
+</ol>
+</li>
+<li>观察到另一个close的话是User里的了，通过设置User的对应属性是一个File对象可以吗，可以的，调用close方法，只有返回没有输出，还有FileList类啊，有<code>__destruct</code>可以输出通过FileList调用的File函数的返回内容 –&gt; User -&gt; FileList: <code>close</code> -&gt; File: <code>close</code> -&gt; FileList: <code>__destruct</code></li>
+<li>最终payload见src&#x2F;Dropbox&#x2F;payload.php</li>
+</ol>
+<h5 id="Phar例1总结"><a href="#Phar例1总结" class="headerlink" title="*Phar例1总结"></a>*Phar例1总结</h5><ol>
+<li><em><strong>思路上</strong></em><ol>
+<li>这里从读&#x2F;flag为<strong>目标导向</strong>逆向推理比较容易出思路</li>
+<li>遇到不行的就不要硬啃绕，<strong>改改方向</strong>，不要被openbasedir绕晕了，可能可行说明思路正确，可以找找有没有其他切入口</li>
+<li>确定反序列化后先找<strong>利用链</strong>，这里就是你的目标</li>
+</ol>
+</li>
+</ol>
+<h4 id="Phar例2-CTFshow-web-phar-条件竞争"><a href="#Phar例2-CTFshow-web-phar-条件竞争" class="headerlink" title="Phar例2:[CTFshow web]phar+条件竞争"></a>Phar例2:[CTFshow web]phar+条件竞争</h4><h2 id="SESSION利用"><a href="#SESSION利用" class="headerlink" title="SESSION利用"></a>SESSION利用</h2><h3 id="SESSION-ref"><a href="#SESSION-ref" class="headerlink" title="SESSION ref"></a>SESSION ref</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/324519.html">原理解释文章，不错</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/H3rmesk1t/Security-Learning/blob/main/PHPSec/PHP%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/PHP%E5%AE%89%E5%85%A8%E5%AD%A6%E4%B9%A0%E2%80%94%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E.md">手法文章</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9545?u_atoken=fa62980e2dfa7fc7b58663cfdf79c129&u_asig=1a0c399a17310284686373678e00cd">手法和上文一样，但是又例题</a></li>
+</ol>
+<h3 id="PHP中的session工作流程"><a href="#PHP中的session工作流程" class="headerlink" title="PHP中的session工作流程"></a>PHP中的session工作流程</h3><p><img src="/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/session_workflow.png!small" alt="工作流程"></p>
+<ol>
+<li>S1: PHP脚本使用 session_start()时开启session会话，会自动检测PHPSESSID，初始化超全局变量$_SESSION为一个空数组<ol>
+<li>如果Cookie中存在，获取PHPSESSID</li>
+<li>如果Cookie中不存在，创建一个PHPSESSID，并通过响应头以Cookie形式保存到浏览器</li>
+<li>有时候浏览器用户设置会禁止 cookie，当在客户端cookie被禁用的情况下，php也可以自动将session id添加到url参数中以及form的hidden字段中，但这需要将php.ini中的session.use_trans_sid设为开启，也可以在运行时调用ini_set来设置这个配置项</li>
+</ol>
+</li>
+<li>S2: PHP通过PHPSESSID去指定位置（PHPSESSID文件存储位置）匹配对应的文件<ol>
+<li>存在该文件：读取文件内容（通过反序列化方式），将数据存储到$_SESSION中</li>
+<li>不存在该文件： session_start()创建一个PHPSESSID命名文件</li>
+</ol>
+</li>
+<li>S3: 程序执行结束，将$_SESSION中保存的所有数据序列化存储到PHPSESSID对应的文件中</li>
+<li><em><strong>seesion_start()</strong></em><ol>
+<li>当会话自动开始或者通过 session_start() 手动开始的时候， PHP 内部会依据客户端传来的PHPSESSID来获取现有的对应的会话数据（即session文件）， PHP 会自动反序列化session文件的内容，并将之填充到 $_SESSION 超级全局变量中。</li>
+<li>如果不存在对应的会话数据，则创建名为sess_PHPSESSID(客户端传来的)的文件。如果客户端未发送PHPSESSID，则创建一个由32个字母组成的PHPSESSID，并返回set-cookie。</li>
+</ol>
+</li>
+</ol>
+<h3 id="SESSION信息存储与配置"><a href="#SESSION信息存储与配置" class="headerlink" title="_SESSION信息存储与配置"></a>_SESSION信息存储与配置</h3><ol>
+<li><p>常见的php-session存放位置有：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1、/var/lib/php5/sess_PHPSESSID</span><br><span class="line">2、/var/lib/php7/sess_PHPSESSID</span><br><span class="line">3、/var/lib/php/sess_PHPSESSID</span><br><span class="line">4、/tmp/sess_PHPSESSID 5 /tmp/sessions/sess_PHPSESSED</span><br><span class="line">5、phpstudy集成环境下在php.ini里查找session.save_path，也可以在这里更改路径</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>php_ini中</p>
+<ol>
+<li>比较重要的几个<ol>
+<li><code>session.save_path=&quot;/tmp&quot;</code></li>
+<li><code>session.serialize_handler=php</code>，这个一共有三个选项，见下</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">session.save_path=<span class="string">&quot;/tmp&quot;</span>      --设置session文件的存储位置，读取_SESSIOIN的时候进行加载</span><br><span class="line">session.save_handler=files    --设定用户自定义存储函数，如果想使用PHP内置session存储机制之外的可以使用这个函数</span><br><span class="line">session.auto_start= <span class="number">0</span>          --指定会话模块是否在请求开始时启动一个会话，默认值为 <span class="number">0</span>，不启动</span><br><span class="line">session.serialize_handler= php --定义用来序列化/反序列化的处理器名字，默认使用php</span><br><span class="line">session.upload_progress.enabled= On --启用上传进度跟踪，并填充$ _SESSION变量，默认启用</span><br><span class="line">session.upload_progress.cleanup= oN --读取所有POST数据（即完成上传）后立即清理进度信息，默认启用</span><br></pre></td></tr></table></figure>
+
+<h3 id="SESSION序列化与反序列化"><a href="#SESSION序列化与反序列化" class="headerlink" title="_SESSION序列化与反序列化"></a>_SESSION序列化与反序列化</h3><ol>
+<li>$_SESSION中保存的所有数据序列化存储到PHPSESSID对应的文件中，使用的三种不同的处理格式，即session.serialize_handler定义的三种引擎<ol>
+<li><em><strong>默认值问题</strong></em><ol>
+<li>PHP 5.5.4 之前：默认值是 php，即使用<code>|</code>进行分隔</li>
+<li>PHP 5.5.4 及之后：引入了php_serialize，但是默认值还是 php，官方文档</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><em><strong>注意点</strong></em><ol>
+<li>在重新访问时，如果存在PHPSESSID，则会读取sess_{PHPSESSID}文件中保存的序列化_SESSION，按照格式进行反序列化</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<p>php_serialize就是普通直接进行seriablize()的形式，其他两种不太一样<br>php_binary中的#时长度的ascii字符</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>处理器</th>
+<th>存储格式</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>php</td>
+<td>键名 + 竖线 + 经过 serialize() 函数反序列处理的值</td>
+<td>username|s:11:”whatcanisay”;passwd|s:6:”114514”;</td>
+</tr>
+<tr>
+<td>php_serialize (php&gt;&#x3D;5.5.4)</td>
+<td>经过 serialize() 函数反序列处理的数组</td>
+<td>a:1:{s:7:”session”;s:7:”xianzhi”;}</td>
+</tr>
+<tr>
+<td>php_binary</td>
+<td>键名的长度对应的 ASCII 字符 + 键名 + 经过 serialize() 函数反序列处理的值</td>
+<td>#sessionsessionsessionsessionsessions:7:”xianzhi”;</td>
+</tr>
+</tbody></table>
+<h3 id="SESSION-exp"><a href="#SESSION-exp" class="headerlink" title="SESSION exp"></a>SESSION exp</h3><ol>
+<li><em><strong>前提</strong></em><ol>
+<li><strong>大前提</strong>：还是需要php给定targetClass的利用函数，像是魔术方法这些的调用链</li>
+<li>利用场景<ol>
+<li><em><strong>不同引擎解析注入</strong></em>: 写入时使用php serialize方式，注入|分隔，读取时使用php方式，可以反序列化我们想要的任意对象<ol>
+<li>在php方式中，|前面都会认为时键名</li>
+</ol>
+</li>
+<li><em><strong>当没有可以控制的键值对时: session.upload_progress</strong></em>: 自控键值对<ol>
+<li><strong>利用条件</strong><ol>
+<li>upload_progress是php&gt;&#x3D;5.4后开始添加的一个特性</li>
+</ol>
+</li>
+<li>注意到<code>session.upload_progress.enabled</code>，启用上传进度跟踪，并填充$ _SESSION变量，默认启用，注意到还有<code>session.upload_progress.cleanup</code>读取所有POST数据（即完成上传）后，立即清理进度信息，默认启用；还有默认情况下，<code>session.use_strict_mode</code>值是0，此时用户是可以自己定义Session ID的，这里无伤大雅，只是注意<strong>可以自定义sess文件名</strong></li>
+<li><img src="/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/session_uploadprogress.png" alt="php官方文档"><ol>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/session.upload-progress.php">详细信息如键值对上链接</a></li>
+</ol>
+</li>
+<li><strong>手法</strong>: ，利用PHP_SESSION_UPLOAD_PROGRESS上传文件，其中利用文件名可控，从而构造恶意序列化语句并写入session文件，这里由于<code>session.upload_progress.cleanup</code>默认开启，需要竞争<ol>
+<li>PHPSESSID必须要有，因为要竞争同一个文件</li>
+<li>filename可控，但是在值的最前面加上|,因为最终目的是利用session的反序列化，PHP_SESSION_UPLOAD_PROGRESS只是个跳板；其次把字符串中的双引号转义，以防止与最外层的双引号冲突</li>
+<li>上传的文件要大些，否则很难竞争成功；写入f &#x3D; io.BytesIO(b’a’ * 1024 10241)</li>
+<li><img src="/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/session_upload_progress_name.png" alt="手法"></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><em><strong>文件包含 session.upload_progress</strong></em><ol>
+<li>原理和上述类似，这里直接手法：恶意语句写入文件然后竞争包含即可，这里的session文件其实只是做载体</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="SESSION-例题"><a href="#SESSION-例题" class="headerlink" title="SESSION 例题"></a>SESSION 例题</h3><h4 id="强网杯24-platform"><a href="#强网杯24-platform" class="headerlink" title="[强网杯24]platform"></a>[强网杯24]platform</h4><ol>
+<li>具体内容见单独的题解ctrl+f，有另写一篇博客</li>
+</ol>
+<h4 id="巅峰极客2019-LOL"><a href="#巅峰极客2019-LOL" class="headerlink" title="[巅峰极客2019]LOL"></a>[巅峰极客2019]LOL</h4>
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UNDONE"><span class="toc-number">1.</span> <span class="toc-text">UNDONE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POP%E9%93%BE"><span class="toc-number">2.</span> <span class="toc-text">POP链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95"><span class="toc-number">2.1.</span> <span class="toc-text">常用魔术方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E7%94%9F%E7%B1%BB%E5%88%A9%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">原生类利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#php%E5%8F%AF%E5%88%A9%E7%94%A8%E5%8E%9F%E7%94%9F%E7%B1%BB"><span class="toc-number">3.1.</span> <span class="toc-text">php可利用原生类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E6%93%8D%E4%BD%9C"><span class="toc-number">3.2.</span> <span class="toc-text">目录操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="toc-number">3.3.</span> <span class="toc-text">文件操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Phar%E5%88%A9%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">Phar利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Phar-Ref"><span class="toc-number">4.1.</span> <span class="toc-text">Phar Ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#what-why"><span class="toc-number">4.2.</span> <span class="toc-text">what&amp;&amp;why</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%AD%A5%E9%AA%A4"><span class="toc-number">4.3.</span> <span class="toc-text">攻击步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Phar%E7%BB%95%E8%BF%87%E6%8A%80%E5%B7%A7"><span class="toc-number">4.4.</span> <span class="toc-text">Phar绕过技巧</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Phar%E4%BE%8B%E9%A2%98"><span class="toc-number">4.5.</span> <span class="toc-text">Phar例题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Phar%E4%BE%8B1-CISCN2019-%E5%8D%8E%E5%8C%97%E8%B5%9B%E5%8C%BA-Day1-Web1-Dropbox"><span class="toc-number">4.5.1.</span> <span class="toc-text">*Phar例1:[CISCN2019 华北赛区 Day1 Web1]Dropbox</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#Dropbox-Ref"><span class="toc-number">4.5.1.1.</span> <span class="toc-text">Dropbox Ref</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Phar%E4%BE%8B1%E6%80%9D%E8%80%83%E4%B8%8E%E5%B0%9D%E8%AF%95-Failed"><span class="toc-number">4.5.1.2.</span> <span class="toc-text">Phar例1思考与尝试(Failed)</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Phar%E4%BE%8B1fix"><span class="toc-number">4.5.1.3.</span> <span class="toc-text">*Phar例1fix</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#Phar%E4%BE%8B1%E6%80%BB%E7%BB%93"><span class="toc-number">4.5.1.4.</span> <span class="toc-text">*Phar例1总结</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Phar%E4%BE%8B2-CTFshow-web-phar-%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89"><span class="toc-number">4.5.2.</span> <span class="toc-text">Phar例2:[CTFshow web]phar+条件竞争</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SESSION%E5%88%A9%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">SESSION利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION-ref"><span class="toc-number">5.1.</span> <span class="toc-text">SESSION ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP%E4%B8%AD%E7%9A%84session%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">5.2.</span> <span class="toc-text">PHP中的session工作流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION%E4%BF%A1%E6%81%AF%E5%AD%98%E5%82%A8%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="toc-number">5.3.</span> <span class="toc-text">_SESSION信息存储与配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">5.4.</span> <span class="toc-text">_SESSION序列化与反序列化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION-exp"><span class="toc-number">5.5.</span> <span class="toc-text">SESSION exp</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SESSION-%E4%BE%8B%E9%A2%98"><span class="toc-number">5.6.</span> <span class="toc-text">SESSION 例题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%BA%E7%BD%91%E6%9D%AF24-platform"><span class="toc-number">5.6.1.</span> <span class="toc-text">[强网杯24]platform</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%85%E5%B3%B0%E6%9E%81%E5%AE%A22019-LOL"><span class="toc-number">5.6.2.</span> <span class="toc-text">[巅峰极客2019]LOL</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&text=php反序列化利用"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&is_video=false&description=php反序列化利用"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php反序列化利用&body=Check out this article: https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&title=php反序列化利用"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&name=php反序列化利用&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/07/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/&t=php反序列化利用"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

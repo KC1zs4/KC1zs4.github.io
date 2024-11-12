@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="纳尼？python还有原型链？ 接触python以来一直以为就是类的模型，直到24的强网拟态中的见到后才直到，其实也是热门考点了  Python中的对象模型实例对象与类对象 对象 (Object) 一切皆对象。每个对象都有一个类型（或类）、一个值和一个标识。 对象的标识是对象的唯一标识符，可以通过 id() 函数获取。 对象的类型是对象所属的类，可以通过 type() 函数获取。 对象的值是对象的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python原型链污染">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="纳尼？python还有原型链？ 接触python以来一直以为就是类的模型，直到24的强网拟态中的见到后才直到，其实也是热门考点了  Python中的对象模型实例对象与类对象 对象 (Object) 一切皆对象。每个对象都有一个类型（或类）、一个值和一个标识。 对象的标识是对象的唯一标识符，可以通过 id() 函数获取。 对象的类型是对象所属的类，可以通过 type() 函数获取。 对象的值是对象的">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-11T07:25:23.140Z">
+<meta property="article:modified_time" content="2024-11-12T15:37:01.549Z">
+<meta property="article:tag" content="all in one">
+<meta property="article:tag" content="python pp">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Python原型链污染</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/12/%E4%BB%8E%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3flask%E7%9A%84ssti/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/11/Flask_ssti/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&text=Python原型链污染"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&is_video=false&description=Python原型链污染"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Python原型链污染&body=Check out this article: https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&name=Python原型链污染&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&t=Python原型链污染"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%B3%E5%B0%BC%EF%BC%9Fpython%E8%BF%98%E6%9C%89%E5%8E%9F%E5%9E%8B%E9%93%BE%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">纳尼？python还有原型链？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Python%E4%B8%AD%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">Python中的对象模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%E5%AF%B9%E8%B1%A1%E4%B8%8E%E7%B1%BB%E5%AF%B9%E8%B1%A1"><span class="toc-number">1.1.1.</span> <span class="toc-text">实例对象与类对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getattr-setattr-and-delattr"><span class="toc-number">1.1.2.</span> <span class="toc-text">getattr, setattr and delattr</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E7%9A%84%E6%9D%A5%E6%BA%90"><span class="toc-number">1.2.</span> <span class="toc-text">**python原型链污染的来源</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%89%B9%E6%80%A7"><span class="toc-number">1.2.1.</span> <span class="toc-text">基础特性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%A7%E6%89%BF%E4%B8%8E%E6%96%B9%E6%B3%95%E8%A7%A3%E6%9E%90%E9%A1%BA%E5%BA%8F"><span class="toc-number">1.2.2.</span> <span class="toc-text">继承与方法解析顺序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8B%BC%E6%88%90big-picture"><span class="toc-number">1.2.3.</span> <span class="toc-text">拼成big picture</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Python%E5%92%8CJs%E4%B8%8D%E5%90%8C%E4%B9%8B%E5%A4%84"><span class="toc-number">2.</span> <span class="toc-text">Python和Js不同之处</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#merge%E6%83%85%E5%86%B5"><span class="toc-number">3.</span> <span class="toc-text">merge情况</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%83%85%E5%BD%A2%E8%A7%A3%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">情形解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#payload%E8%A7%A3%E6%9E%90"><span class="toc-number">3.2.</span> <span class="toc-text">payload解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#merge%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="toc-number">3.3.</span> <span class="toc-text">merge的局限性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E7%BB%95%E8%BF%87%E4%B8%80%E4%BA%9B%E9%99%90%E5%88%B6"><span class="toc-number">4.</span> <span class="toc-text">python原型链污染绕过一些限制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#globals-%E6%B1%A1%E6%9F%93%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-number">4.1.</span> <span class="toc-text">__globals__污染全局变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9D%97"><span class="toc-number">4.2.</span> <span class="toc-text">简单加载模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%8D%E6%9D%82%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9D%97"><span class="toc-number">4.3.</span> <span class="toc-text">复杂加载模块</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E8%A1%8D%E7%94%9F%E6%89%8B%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">原型链污染衍生手法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E9%BB%98%E8%AE%A4%E5%8F%82%E6%95%B0"><span class="toc-number">5.1.</span> <span class="toc-text">函数默认参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E5%AE%9A%E5%80%BC%E6%9B%BF%E6%8D%A2"><span class="toc-number">5.2.</span> <span class="toc-text">特定值替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8Eflask%E6%A1%86%E6%9E%B6"><span class="toc-number">5.3.</span> <span class="toc-text">基于flask框架</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">6.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Python原型链污染
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-11T07:25:23.140Z" class="dt-published" itemprop="datePublished">2024-11-11</time>
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>, <a class="p-category" href="/tags/python-pp/" rel="tag">python pp</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="纳尼？python还有原型链？"><a href="#纳尼？python还有原型链？" class="headerlink" title="纳尼？python还有原型链？"></a>纳尼？python还有原型链？</h2><blockquote>
+<p>接触python以来一直以为就是类的模型，直到24的强网拟态中的见到后才直到，其实也是热门考点了</p>
+</blockquote>
+<h3 id="Python中的对象模型"><a href="#Python中的对象模型" class="headerlink" title="Python中的对象模型"></a>Python中的对象模型</h3><h4 id="实例对象与类对象"><a href="#实例对象与类对象" class="headerlink" title="实例对象与类对象"></a>实例对象与类对象</h4><ol>
+<li><strong>对象 (Object)</strong><ol>
+<li>一切皆对象。每个对象都有一个类型（或类）、一个值和一个标识。</li>
+<li>对象的标识是对象的唯一标识符，可以通过 id() 函数获取。</li>
+<li>对象的类型是对象所属的类，可以通过 type() 函数获取。</li>
+<li>对象的值是对象的实际数据。</li>
+</ol>
+</li>
+<li><strong>类 (Class)</strong><ol>
+<li>类是对象的蓝图，定义了对象的属性和方法。</li>
+<li>类可以继承其他类，从而获得父类的属性和方法。</li>
+</ol>
+</li>
+<li><strong>实例 (Instance)</strong><ol>
+<li>实例是类的具体对象，通过调用类的构造函数（通常是 <code>__init__</code> 方法）创建</li>
+<li>实例有自己的属性和方法，这些属性和方法可以与类的其他实例不同</li>
+</ol>
+</li>
+<li>!!!<em><strong>类对象与实例对象</strong></em><ol>
+<li><strong>类对象</strong>是由 class 关键字定义的，用于创建实例对象。类对象可以包含属性（变量）和方法（函数），这些属性和方法可以被实例对象继承<ol>
+<li>cpp中的静态变量就是python类对象的属性，类变量：属于类对象，所有实例对象共享同一个类变量</li>
+</ol>
+</li>
+<li><strong>实例对象</strong>: 每个实例对象都是类对象的一个具体实例。实例对象在内存中是独立的，但它们共享类对象的属性和方法</li>
+<li>访问权限<ol>
+<li>类变量可以通过类对象和实例对象访问</li>
+<li>实例变量只能通过实例对象访问</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span>:</span><br><span class="line">    <span class="comment"># 1. 类属性</span></span><br><span class="line">    class_attribute = <span class="string">&quot;This is a class attribute&quot;</span></span><br><span class="line">    <span class="comment"># 2. 类方法: @classmethod 和 cls</span></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">class_method</span>(<span class="params">cls</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Class method called. Class name: <span class="subst">&#123;cls.__name__&#125;</span>&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 3. 实例方法: self</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        <span class="comment"># 4. 实例属性，在__init__或者实例确定后添加</span></span><br><span class="line">        <span class="variable language_">self</span>.value = value</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">instance_method</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Instance method called. Value: <span class="subst">&#123;self.value&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="getattr-setattr-and-delattr"><a href="#getattr-setattr-and-delattr" class="headerlink" title="getattr, setattr and delattr"></a>getattr, setattr and delattr</h4><blockquote>
+<p>在 Python 中，有一些内置方法可以在对象中处理未找到的属性或方法。这些方法允许你在尝试访问不存在的属性或方法时提供自定义行为<br>python中的getter和setter都是实例方法</p>
+</blockquote>
+<ol>
+<li><p><em><strong>所谓”getter1”: <code>__getattr__(self, name)</code></strong></em></p>
+<ol>
+<li>用途：当访问一个不存在的属性时，Python 会调用 <code>__getattr__</code> 方法</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__getattr__</span>(<span class="params">self, name</span>):</span><br><span class="line">        <span class="keyword">if</span> name == <span class="string">&#x27;age&#x27;</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="number">30</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">raise</span> AttributeError(<span class="string">f&quot;&#x27;<span class="subst">&#123;self.__class__.__name__&#125;</span>&#x27; object has no attribute &#x27;<span class="subst">&#123;name&#125;</span>&#x27;&quot;</span>)</span><br><span class="line"></span><br><span class="line">obj = MyClass()</span><br><span class="line"><span class="built_in">print</span>(obj.age)  <span class="comment"># 输出: 30</span></span><br><span class="line"><span class="built_in">print</span>(obj.name)  <span class="comment"># 抛出 AttributeError</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><em><strong>所谓”getter2”: <code>__getattribute__(self, name)</code></strong></em></p>
+<ol>
+<li>当访问任何属性时，Python 会先调用 <code>__getattribute__</code> 方法。这个方法比 <code>__getattr__</code> 更早被调用</li>
+<li><strong>递归调用</strong>: 在 <code>__getattribute__</code> 中，直接访问属性会导致递归调用(再次调用自己的该函数)，因此通常使用 <code>super().__getattribute__(name)</code> 来避免递归</li>
+</ol>
+</li>
+<li><p><em><strong>所谓”setter1”: <code>__setattr__(self, name, value)</code></strong></em> –&gt; 装饰器？</p>
+<ol>
+<li>当设置一个属性时，Python 会调用 <code>__setattr__</code> 方法</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__setattr__</span>(<span class="params">self, name, value</span>):</span><br><span class="line">        <span class="keyword">if</span> name == <span class="string">&#x27;age&#x27;</span>:</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(value, <span class="built_in">int</span>):</span><br><span class="line">                <span class="keyword">raise</span> ValueError(<span class="string">&quot;Age must be an integer&quot;</span>)</span><br><span class="line">            <span class="built_in">super</span>().__setattr__(name, value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">super</span>().__setattr__(name, value)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    obj.age = <span class="string">&#x27;thirty&#x27;</span></span><br><span class="line"><span class="keyword">except</span> ValueError <span class="keyword">as</span> e:</span><br><span class="line">    <span class="built_in">print</span>(e)  <span class="comment"># 输出: Age must be an integer</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><em><strong>所谓delattr: <code>__delattr__(self, name)</code></strong></em></p>
+<ol>
+<li>当使用del删除一个属性时，Python 会调用该方法</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__delattr__</span>(<span class="params">self, name</span>):</span><br><span class="line">        <span class="keyword">if</span> name == <span class="string">&#x27;age&#x27;</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;Deleting age attribute&quot;</span>)</span><br><span class="line">            <span class="built_in">super</span>().__delattr__(name)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">super</span>().__delattr__(name)</span><br><span class="line"></span><br><span class="line">obj = MyClass()</span><br><span class="line">obj.age = <span class="number">30</span></span><br><span class="line"><span class="keyword">del</span> obj.age  <span class="comment"># 输出: Deleting age attribute</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="python原型链污染的来源"><a href="#python原型链污染的来源" class="headerlink" title="**python原型链污染的来源"></a>**python原型链污染的来源</h3><h4 id="基础特性"><a href="#基础特性" class="headerlink" title="基础特性"></a>基础特性</h4><ol>
+<li><em><strong>唯一性</strong></em>: 类对象的唯一性: 在 Python 中，<strong>类对象是唯一的</strong>。当定义一个类时，Python 解释器会在内存中创建一个唯一的类对象，并将类的名称绑定到这个对象。这个类对象包含了类的所有属性和方法，在整个程序运行期间存在</li>
+<li><em><strong>指向同一个类对象</strong></em>: 无论通过类名还是通过实例对象的 <code>__class__</code> 属性，都可以引用到同一个类对象。Python 使用引用机制来确保类对象的唯一性</li>
+<li><em><strong>属性查找</strong></em><ol>
+<li><strong><code>__dict__</code>属性</strong>: 每个类都有一个 <code>__dict__</code> 属性，它是一个字典，存储了类的属性和方法。每个实例也有一个 <code>__dict__</code> 属性，存储了实例的属性</li>
+<li><strong>顺序</strong>: 实例字典 -&gt; 类字典 -&gt; 基类字典 -&gt; 内置方法<ol>
+<li>对比一下js原型链: 对象通过 <code>__proto__</code> 属性链接到其原型对象。属性查找沿着原型链逐级向上查找，直到找到属性或到达原型链的顶端（null）</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h4 id="继承与方法解析顺序"><a href="#继承与方法解析顺序" class="headerlink" title="继承与方法解析顺序"></a>继承与方法解析顺序</h4><blockquote>
+<p>在 Python 中，虽然没有像 JavaScript 那样的显式原型链（prototype chain），但 Python 使用了一种类似的机制，即继承机制和方法解析顺序（MRO, Method Resolution Order）。Python 中的类和对象可以<strong>通过继承关系形成一种链式结构</strong>，类似于 JavaScript 的原型链</p>
+</blockquote>
+<ol>
+<li><p>类与对象：在 Python 中，一切皆对象，包括类本身。类定义创建一个类对象，而类实例化创建一个实例对象。每个类对象和实例对象都可以通过特殊属性 <code>__class__</code> 和 <code>__bases__</code> 访问其继承关系</p>
+</li>
+<li><p><em><strong>MRO</strong></em>: 方法解析顺序（MRO）决定了在多继承环境中搜索方法的顺序。MRO 是基于 C3 线性化算法实现的，确保继承关系和方法解析的唯一性和一致性</p>
+<ol>
+<li><strong>super()函数</strong>: 用于在子类中调用父类的方法，遵循 MRO 顺序</li>
+<li><strong>广度优先</strong>: MRO 遵循“广度优先”策略，即优先从左到右查找同级父类的方法</li>
+<li>详见C3线性化合并算法</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 直接以多继承的情况进行讲解吧</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">A</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">method</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;A method&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">B</span>(<span class="title class_ inherited__">A</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">method</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;B method&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">C</span>(<span class="title class_ inherited__">A</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">method</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;C method&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">D</span>(B, C):</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">d = D()</span><br><span class="line">d.method()  <span class="comment"># 输出: B method</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(D.mro())</span><br><span class="line"><span class="comment"># 根据 D(B, C)，首先检查 B，然后检查 C</span></span><br><span class="line"><span class="comment"># 输出: [&lt;class &#x27;__main__.D&#x27;&gt;, &lt;class &#x27;__main__.B&#x27;&gt;, &lt;class &#x27;__main__.C&#x27;&gt;, &lt;class &#x27;__main__.A&#x27;&gt;, &lt;class &#x27;object&#x27;&gt;]</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="拼成big-picture"><a href="#拼成big-picture" class="headerlink" title="拼成big picture"></a>拼成big picture</h4><ol>
+<li>通过类对象的唯一性和唯一指向性，如果在访问唯一类对象时进行merge的会将添加类对象的属性(只能添加，不能覆盖，还是涉及到一个地址指向的问题)，从而添加新的内容</li>
+<li>在python中，原型链污染还有更加容易的利用变体，同时危害也更大</li>
+</ol>
+<h2 id="Python和Js不同之处"><a href="#Python和Js不同之处" class="headerlink" title="Python和Js不同之处"></a>Python和Js不同之处</h2><ol>
+<li><p>Nodejs是对键值对的控制来进行污染，而Python则是对类属性值的污染，且只能对类的属性来进行污染不能够污染类的方法</p>
+</li>
+<li><p>注意在python中的object的属性是不可以被污染的</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">merge(evil_playload,<span class="built_in">object</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">object</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># TypeError: cannot set &#x27;flag&#x27; attribute of immutable type &#x27;object&#x27; 或者 TypeError: can&#x27;t set attributes of built-in/extension type &#x27;object&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="merge情况"><a href="#merge情况" class="headerlink" title="merge情况"></a>merge情况</h2><blockquote>
+<p>由于Python中的类会继承父类中的属性，而类中声明（并不是实例中声明）的属性是唯一的，所以我们的目标就是这些在多个类、示例中仍然指向唯一的属性，如类中自定义属性及以__开头的内置属性等</p>
+</blockquote>
+<h3 id="情形解析"><a href="#情形解析" class="headerlink" title="情形解析"></a>情形解析</h3><ol>
+<li>merge情况和node的一样，都是通过污染要覆盖或者添加的那个属性来实现</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">merge</span>(<span class="params">src, dst</span>):</span><br><span class="line">    <span class="comment"># Recursive merge function</span></span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> src.items():</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(dst, <span class="string">&#x27;__getitem__&#x27;</span>):</span><br><span class="line">            <span class="comment"># the dict has __getitem__</span></span><br><span class="line">            <span class="comment"># possible for pp</span></span><br><span class="line">            <span class="keyword">if</span> dst.get(k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        <span class="keyword">elif</span> <span class="built_in">hasattr</span>(dst, k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">            <span class="comment"># the case when dst is a obj not a dict and owns the key k and v is a dict</span></span><br><span class="line">            <span class="comment"># not possible for pp</span></span><br><span class="line">            merge(v, <span class="built_in">getattr</span>(dst, k))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># the case when dst is an obj and v is not a dict OR dst has no key k</span></span><br><span class="line">            <span class="built_in">setattr</span>(dst, k, v)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ctfer</span>:  </span><br><span class="line">    flag = <span class="string">&quot;flag&#123;fake_flag&#125;&quot;</span>  </span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Delete</span>(<span class="title class_ inherited__">ctfer</span>):  </span><br><span class="line">    <span class="keyword">pass</span>  </span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Chu0</span>(<span class="title class_ inherited__">ctfer</span>):  </span><br><span class="line">    <span class="keyword">pass</span>  </span><br><span class="line"></span><br><span class="line">ctf1 = Delete()  </span><br><span class="line">ctf2 = Chu0()  </span><br><span class="line">evil_playload = &#123;  </span><br><span class="line">    <span class="string">&quot;__class__&quot;</span>:  </span><br><span class="line">    &#123;  </span><br><span class="line">        <span class="string">&quot;__base__&quot;</span>:  </span><br><span class="line">        &#123;  </span><br><span class="line">            <span class="string">&quot;flag&quot;</span>: <span class="string">&quot;flag&#123;really_flag&#125;&quot;</span>  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">print</span>(ctf1.flag)  </span><br><span class="line"><span class="built_in">print</span>(ctf2.flag)  </span><br><span class="line">merge(evil_playload, ctf1)  </span><br><span class="line"><span class="built_in">print</span>(ctf1.flag)  </span><br><span class="line"><span class="built_in">print</span>(ctf2.flag)</span><br></pre></td></tr></table></figure>
+
+<h3 id="payload解析"><a href="#payload解析" class="headerlink" title="payload解析"></a>payload解析</h3><ol>
+<li><code>__class__</code> 是Python中每个对象都具有的一个属性，它指向对象的类(对象)</li>
+<li><code>__base__</code> 是Python类对象的一个属性，指向当前类的父类</li>
+<li>这里通过payload来覆盖&#x2F;增加类对象的变量</li>
+</ol>
+<h3 id="merge的局限性"><a href="#merge的局限性" class="headerlink" title="merge的局限性"></a>merge的局限性</h3><ol>
+<li>在代码展示部分所给出的例子中，污染类属性是通过示例的__base__属性查找到其继承的父类，但是如果<em><strong>目标类与切入点类或实例没有继承关系时</strong></em>，这种方法就显得十分无力，无法污染到共同的类对象(object没办法)</li>
+</ol>
+<h2 id="python原型链污染绕过一些限制"><a href="#python原型链污染绕过一些限制" class="headerlink" title="python原型链污染绕过一些限制"></a>python原型链污染绕过一些限制</h2><h3 id="globals-污染全局变量"><a href="#globals-污染全局变量" class="headerlink" title="__globals__污染全局变量"></a><code>__globals__</code>污染全局变量</h3><blockquote>
+<p><code>__globals__</code>中具有的是当前模块的全局变量: 当前全局命名空间中的符号表（symbol table），这个符号表包含了当前模块（即当前文件）中的所有全局变量、函数、类等定义，<strong>每个模块的全局命名空间是独立的，互不影响</strong><br><code>__dict__</code>每个模块对象都有一个该属性，它是一个字典，包含了模块的全局命名空间</p>
+</blockquote>
+<ol>
+<li>在python中，对于类的内置方法如<code>__init__</code>这些来说，内置方法在并未重写时其数据类型为装饰器即wrapper_descriptor，只有在重写后才是函数function，<strong>普通函数对象拥有<code>__globals__</code>属性</strong>，这也就解释了为什么在SSTI中不是每一个类的<code>__init__</code>都有<code>__globals__</code>属性<ol>
+<li>在Python中，函数或类方法均具有一个<code>__globals__</code>属性，该属性将函数或类方法所申明的变量空间中的全局变量以字典的形式返回(相当于这个变量空间中的globals()函数的返回值)</li>
+<li>重写这些方法时，你实际上是在定义一个新的普通函数，并将其绑定到类的相应方法名上</li>
+</ol>
+</li>
+</ol>
+<h3 id="简单加载模块"><a href="#简单加载模块" class="headerlink" title="简单加载模块"></a>简单加载模块</h3><h3 id="复杂加载模块"><a href="#复杂加载模块" class="headerlink" title="复杂加载模块"></a>复杂加载模块</h3><h2 id="原型链污染衍生手法"><a href="#原型链污染衍生手法" class="headerlink" title="原型链污染衍生手法"></a>原型链污染衍生手法</h2><h3 id="函数默认参数"><a href="#函数默认参数" class="headerlink" title="函数默认参数"></a>函数默认参数</h3><h3 id="特定值替换"><a href="#特定值替换" class="headerlink" title="特定值替换"></a>特定值替换</h3><h3 id="基于flask框架"><a href="#基于flask框架" class="headerlink" title="基于flask框架"></a>基于flask框架</h3><h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>看下来真实醍醐灌顶，思路打开脑洞，pp+ssti部分见《从原型链深入理解flask的ssti》<a target="_blank" rel="noopener" href="https://tttang.com/archive/1876/">一把梭</a></li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%B3%E5%B0%BC%EF%BC%9Fpython%E8%BF%98%E6%9C%89%E5%8E%9F%E5%9E%8B%E9%93%BE%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">纳尼？python还有原型链？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Python%E4%B8%AD%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">Python中的对象模型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%E5%AF%B9%E8%B1%A1%E4%B8%8E%E7%B1%BB%E5%AF%B9%E8%B1%A1"><span class="toc-number">1.1.1.</span> <span class="toc-text">实例对象与类对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getattr-setattr-and-delattr"><span class="toc-number">1.1.2.</span> <span class="toc-text">getattr, setattr and delattr</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E7%9A%84%E6%9D%A5%E6%BA%90"><span class="toc-number">1.2.</span> <span class="toc-text">**python原型链污染的来源</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%89%B9%E6%80%A7"><span class="toc-number">1.2.1.</span> <span class="toc-text">基础特性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%A7%E6%89%BF%E4%B8%8E%E6%96%B9%E6%B3%95%E8%A7%A3%E6%9E%90%E9%A1%BA%E5%BA%8F"><span class="toc-number">1.2.2.</span> <span class="toc-text">继承与方法解析顺序</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8B%BC%E6%88%90big-picture"><span class="toc-number">1.2.3.</span> <span class="toc-text">拼成big picture</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Python%E5%92%8CJs%E4%B8%8D%E5%90%8C%E4%B9%8B%E5%A4%84"><span class="toc-number">2.</span> <span class="toc-text">Python和Js不同之处</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#merge%E6%83%85%E5%86%B5"><span class="toc-number">3.</span> <span class="toc-text">merge情况</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%83%85%E5%BD%A2%E8%A7%A3%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">情形解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#payload%E8%A7%A3%E6%9E%90"><span class="toc-number">3.2.</span> <span class="toc-text">payload解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#merge%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="toc-number">3.3.</span> <span class="toc-text">merge的局限性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E7%BB%95%E8%BF%87%E4%B8%80%E4%BA%9B%E9%99%90%E5%88%B6"><span class="toc-number">4.</span> <span class="toc-text">python原型链污染绕过一些限制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#globals-%E6%B1%A1%E6%9F%93%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-number">4.1.</span> <span class="toc-text">__globals__污染全局变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9D%97"><span class="toc-number">4.2.</span> <span class="toc-text">简单加载模块</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%8D%E6%9D%82%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9D%97"><span class="toc-number">4.3.</span> <span class="toc-text">复杂加载模块</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E8%A1%8D%E7%94%9F%E6%89%8B%E6%B3%95"><span class="toc-number">5.</span> <span class="toc-text">原型链污染衍生手法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E9%BB%98%E8%AE%A4%E5%8F%82%E6%95%B0"><span class="toc-number">5.1.</span> <span class="toc-text">函数默认参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%B9%E5%AE%9A%E5%80%BC%E6%9B%BF%E6%8D%A2"><span class="toc-number">5.2.</span> <span class="toc-text">特定值替换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8Eflask%E6%A1%86%E6%9E%B6"><span class="toc-number">5.3.</span> <span class="toc-text">基于flask框架</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">6.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&text=Python原型链污染"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&is_video=false&description=Python原型链污染"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Python原型链污染&body=Check out this article: https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&title=Python原型链污染"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&name=Python原型链污染&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/11/Python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/&t=Python原型链污染"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

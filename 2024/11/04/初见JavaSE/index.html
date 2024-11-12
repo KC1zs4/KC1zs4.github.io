@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="java中的类Final 类似于cpp中的const   final 变量：值一旦被赋值就不能再改变。 final 方法：不能被子类重写。 final 类：不能被继承。 final 参数：在方法体内不能被修改。 final 和匿名内部类：匿名内部类中使用的外部类局部变量必须是 final 或 effectively final  对比php java中的类是静态的，而php中的类是动态的  Cla">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初见JavaSE">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="java中的类Final 类似于cpp中的const   final 变量：值一旦被赋值就不能再改变。 final 方法：不能被子类重写。 final 类：不能被继承。 final 参数：在方法体内不能被修改。 final 和匿名内部类：匿名内部类中使用的外部类局部变量必须是 final 或 effectively final  对比php java中的类是静态的，而php中的类是动态的  Cla">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/%E5%88%9D%E8%A7%81JavaSE/java%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/%E5%88%9D%E8%A7%81JavaSE/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/%E5%88%9D%E8%A7%81JavaSE/java%E5%8A%A0%E8%BD%BD%E5%AE%8F%E8%A7%82.png">
+<meta property="article:published_time" content="2024-11-04T14:32:47.341Z">
+<meta property="article:modified_time" content="2024-11-06T00:52:36.990Z">
+<meta property="article:tag" content="all in one">
+<meta property="article:tag" content="JavaSE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/%E5%88%9D%E8%A7%81JavaSE/java%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>初见JavaSE</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/05/%E5%88%9D%E8%A7%81Go/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&text=初见JavaSE"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&is_video=false&description=初见JavaSE"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=初见JavaSE&body=Check out this article: https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&name=初见JavaSE&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&t=初见JavaSE"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#java%E4%B8%AD%E7%9A%84%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">java中的类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Final"><span class="toc-number">1.1.</span> <span class="toc-text">Final</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E6%AF%94php"><span class="toc-number">1.2.</span> <span class="toc-text">对比php</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ClassLoader"><span class="toc-number">2.</span> <span class="toc-text">ClassLoader</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Class%E7%B1%BB"><span class="toc-number">2.1.</span> <span class="toc-text">Class类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="toc-number">2.2.</span> <span class="toc-text">Java类的加载机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ClassLoader%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B"><span class="toc-number">2.3.</span> <span class="toc-text">ClassLoader的加载流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E6%96%B9%E5%BC%8F"><span class="toc-number">2.3.1.</span> <span class="toc-text">加载方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E5%AE%8F%E8%A7%82%E7%90%86%E8%A7%A3"><span class="toc-number">2.3.2.</span> <span class="toc-text">加载宏观理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B"><span class="toc-number">2.3.3.</span> <span class="toc-text">加载流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%89%98%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.3.4.</span> <span class="toc-text">双亲委托模型</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD%E9%9A%94%E7%A6%BB"><span class="toc-number">2.4.</span> <span class="toc-text">类的加载隔离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89ClassLoader"><span class="toc-number">2.5.</span> <span class="toc-text">*自定义ClassLoader</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B"><span class="toc-number">2.6.</span> <span class="toc-text">安全检测</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84"><span class="toc-number">3.</span> <span class="toc-text">反射</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">3.1.</span> <span class="toc-text">反射调用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8Runtime"><span class="toc-number">3.2.</span> <span class="toc-text">*反射调用Runtime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E8%8E%B7%E5%8F%96%E7%B1%BB%E4%BF%A1%E6%81%AF"><span class="toc-number">3.3.</span> <span class="toc-text">*反射获取类信息</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        初见JavaSE
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-04T14:32:47.341Z" class="dt-published" itemprop="datePublished">2024-11-04</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/JavaSE/" rel="tag">JavaSE</a>, <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="java中的类"><a href="#java中的类" class="headerlink" title="java中的类"></a>java中的类</h2><h3 id="Final"><a href="#Final" class="headerlink" title="Final"></a>Final</h3><blockquote>
+<p>类似于cpp中的const</p>
+</blockquote>
+<ol>
+<li>final 变量：值一旦被赋值就不能再改变。</li>
+<li>final 方法：不能被子类重写。</li>
+<li>final 类：不能被继承。</li>
+<li>final 参数：在方法体内不能被修改。</li>
+<li>final 和匿名内部类：匿名内部类中使用的外部类局部变量必须是 final 或 effectively final</li>
+</ol>
+<h3 id="对比php"><a href="#对比php" class="headerlink" title="对比php"></a>对比php</h3><ol>
+<li>java中的类是静态的，而php中的类是动态的</li>
+</ol>
+<h2 id="ClassLoader"><a href="#ClassLoader" class="headerlink" title="ClassLoader"></a>ClassLoader</h2><h3 id="Class类"><a href="#Class类" class="headerlink" title="Class类"></a>Class类</h3><ol>
+<li><em><strong>简短总结</strong></em><ol>
+<li>JVM为每个加载的class及interface创建了对应的Class实例来保存class及interface的所有信息；获取一个class对应的Class实例后，就可以<strong>获取该class的所有信息</strong>；通过Class实例获取class信息的方法称为反射（Reflection）</li>
+<li>基本类型boolean，byte，char，short，int，long，float，double和关键字void同样表现为 class 对象。数组同样也被映射为class 对象的一个类，所有具有相同元素类型和维数的数组都共享该 Class 对象</li>
+<li>JVM总是动态加载class，可以在运行期根据条件来控制加载class</li>
+<li>手动编写的类被编译后会产生一个Class对象，其表示的是创建的类的类型信息，而且这个Class对象保存在同名.class的文件中(字节码文件)</li>
+<li>每个通过关键字class标识的类，<strong>在内存中有且只有一个与之对应的Class对象来描述其类型信息</strong>，无论创建多少个实例对象，其依据的都是用一个Class对象。</li>
+<li>Class类只存私有构造函数，因此对应Class对象只能有JVM创建和加载</li>
+</ol>
+</li>
+<li>Class类，Class类也是一个实实在在的类，存在于JDK的java.lang包中。Class类的实例表示java应用运行时的类(class ans enum)或接口(interface and annotation)，每个java类运行时都在JVM里表现为一个class对象，可通过下列方法获取Class对象<ol>
+<li>类名.class</li>
+<li>类型.getClass()</li>
+<li>Class.forName(“类名”)。</li>
+</ol>
+</li>
+</ol>
+<h3 id="Java类的加载机制"><a href="#Java类的加载机制" class="headerlink" title="Java类的加载机制"></a>Java类的加载机制</h3><ol>
+<li>java加载机制<img src="/pic/%E5%88%9D%E8%A7%81JavaSE/java%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6.png" alt="java加载机制"></li>
+<li>java类加载<img src="/pic/%E5%88%9D%E8%A7%81JavaSE/java%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B.png" alt="java类加载"></li>
+</ol>
+<h3 id="ClassLoader的加载流程"><a href="#ClassLoader的加载流程" class="headerlink" title="ClassLoader的加载流程"></a>ClassLoader的加载流程</h3><blockquote>
+<p>详细流程[<a target="_blank" rel="noopener" href="https://pdai.tech/md/java/jvm/java-jvm-classload.html]">https://pdai.tech/md/java/jvm/java-jvm-classload.html]</a></p>
+</blockquote>
+<h4 id="加载方式"><a href="#加载方式" class="headerlink" title="加载方式"></a>加载方式</h4><ol>
+<li>类加载有三种方式:<ol>
+<li>命令行启动应用时候由JVM初始化加载</li>
+<li>通过Class.forName()方法动态加载</li>
+<li>通过ClassLoader.loadClass()方法动态加载</li>
+</ol>
+</li>
+<li>区别<ol>
+<li>Class.forName(): 将类的.class文件加载到jvm中之外，还会对类进行解释，执行类中的static块 –&gt; Class.forName(name, initialize, loader)<strong>带参函数也可控制是否加载static块</strong>。并且只有调用了newInstance()方法采用调用构造函数，创建类的对象</li>
+<li>ClassLoader.loadClass(): 只干一件事情，就是将.class文件加载到jvm中，不会执行static中的内容,只有在newInstance才会去执行static块。</li>
+</ol>
+</li>
+</ol>
+<h4 id="加载宏观理解"><a href="#加载宏观理解" class="headerlink" title="加载宏观理解"></a>加载宏观理解</h4><ol>
+<li><em><strong>全局上加载干了3件事</strong></em><ol>
+<li>通过一个类的全限定名来获取其定义的二进制字节流。</li>
+<li>将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。</li>
+<li>在Java堆中生成一个代表这个类的java.lang.Class对象，作为对方法区中这些数据的访问入口</li>
+<li><img src="/pic/%E5%88%9D%E8%A7%81JavaSE/java%E5%8A%A0%E8%BD%BD%E5%AE%8F%E8%A7%82.png" alt="宏观加载"></li>
+</ol>
+</li>
+</ol>
+<h4 id="加载流程"><a href="#加载流程" class="headerlink" title="加载流程"></a>加载流程</h4><ol>
+<li>源码部分详见<a target="_blank" rel="noopener" href="https://www.javasec.org/javase/ClassLoader/#classloader%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B">这个段落</a></li>
+<li><strong>类加载器并不需要等到某个类被“首次主动使用”时再加载它</strong>，JVM规范允许类加载器在预料某个类将要被使用时就预先加载它 –&gt; <strong>但是用到有问题才会报道</strong>: 如果在预先加载的过程中遇到了.class文件缺失或存在错误，类加载器必须在程序首次主动使用该类时才报告错误(LinkageError错误)如果这个类一直没有被程序主动使用，那么类加载器就不会报告错误。</li>
+<li><strong>简要说明以下，以缩进作为顺序的层次</strong><ol>
+<li><code>loadClass()</code>检查是否已经加载过<ol>
+<li>如果没有找到，检查parent，以下步骤一直递归进行<ol>
+<li>parent!&#x3D;null，调用parent的loadClass</li>
+<li>parent&#x3D;&#x3D;null，调用Bootstrap ClassLoader</li>
+</ol>
+</li>
+<li>如果找到也继续往下走</li>
+<li>判断是否找到<ol>
+<li>如果没有找到，调用<code>findClass()</code>，默认没有重写，直接返回类加载失败异常，如果有重写，一般会findClass()内部再实现<code>defineClass()</code></li>
+<li>如果找到了继续</li>
+</ol>
+</li>
+<li>判断是否有<code>resolve</code>如果调用loadClass的时候传入的resolve参数为true，那么还需要调用resolveClass方法链接类，默认为false</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h4 id="双亲委托模型"><a href="#双亲委托模型" class="headerlink" title="双亲委托模型"></a>双亲委托模型</h4><ol>
+<li><strong>双亲委托模型</strong>：这一模型的核心思想是——当一个类加载器接收到类加载请求时，它首先不会自己尝试加载这个类，而是<strong>优先将这个请求委派给它的父类加载器去处理</strong>。只有当父类加载器无法加载该类时，当前类加载器才会尝试自己去加载。</li>
+<li>双亲委派机制过程？<ol>
+<li>当AppClassLoader加载一个class时，它首先不会自己去尝试加载这个类，而是把类加载请求委派给父类加载器ExtClassLoader去完成。</li>
+<li>当ExtClassLoader加载一个class时，它首先也不会自己去尝试加载这个类，而是把类加载请求委派给BootStrapClassLoader去完成。</li>
+<li>如果BootStrapClassLoader加载失败(例如在$JAVA_HOME&#x2F;jre&#x2F;lib里未查找到该class)，会使用ExtClassLoader来尝试加载；</li>
+<li>若ExtClassLoader也加载失败，则会使用AppClassLoader来加载</li>
+<li>如果AppClassLoader也加载失败，则会报出异常ClassNotFoundException。</li>
+</ol>
+</li>
+<li><strong>目的</strong>：系统类防止内存中出现多份同样的字节码</li>
+</ol>
+<h3 id="类的加载隔离"><a href="#类的加载隔离" class="headerlink" title="类的加载隔离"></a>类的加载隔离</h3><ol>
+<li>创建类加载器的时候可以指定该类加载的父类加载器，ClassLoader是有隔离机制的，不同的ClassLoader可以加载相同的Class（两者必须是非继承关系），同级ClassLoader跨类加载器调用方法时必须使用反射。</li>
+<li><em><strong>基本原则</strong></em>: 跨类加载器调用类方法时需要特别注意一个基本原则：ClassLoader A和ClassLoader B可以加载相同类名的类，但是ClassLoader A中的Class A和ClassLoader B中的Class A是完全不同的对象，两者之间调用只能通过反射</li>
+</ol>
+<h3 id="自定义ClassLoader"><a href="#自定义ClassLoader" class="headerlink" title="*自定义ClassLoader"></a>*自定义ClassLoader</h3><ol>
+<li>详见<a target="_blank" rel="noopener" href="https://www.javasec.org/javase/ClassLoader/#%E8%87%AA%E5%AE%9A%E4%B9%89classloader">这个章节</a><ol>
+<li>略说实践：如果com.anbai.sec.classloader.TestHelloWorld根本就不存在于我们的classpath，那么我们可以使用自定义类加载器重写findClass方法，然后在调用defineClass方法</li>
+</ol>
+</li>
+<li><em><strong>加载想要的java类</strong></em>: 利用自定义类加载器我们可以在webshell中实现加载并调用自己编译的类对象，比如本地命令执行漏洞调用自定义类字节码的native方法绕过RASP检测，也可以用于加密重要的Java类字节码（只能算弱加密了）。</li>
+</ol>
+<h3 id="安全检测"><a href="#安全检测" class="headerlink" title="安全检测"></a>安全检测</h3><ol>
+<li>RASP和IAST经常会用到跨类加载器加载类的情况，因为RASP&#x2F;IAST会在任意可能存在安全风险的类中插入检测代码，因此必须得保证RASP&#x2F;IAST的类能够被插入的类所使用的类加载正确加载，否则就会出现ClassNotFoundException</li>
+</ol>
+<h2 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h2><blockquote>
+<p>Java反射机制是Java动态性中最为重要的体现，利用反射机制我们可以轻松的实现Java类的动态调用。Java的大部分框架都是采用了反射机制来实现的(如:Spring MVC、ORM框架等)，Java反射在编写漏洞利用代码、代码审计、绕过RASP方法限制等中起到了至关重要的作用</p>
+</blockquote>
+<h3 id="反射调用方式"><a href="#反射调用方式" class="headerlink" title="反射调用方式"></a>反射调用方式</h3><ol>
+<li><p>一般有3中方式</p>
+<ol>
+<li><em><strong>内部类</strong></em>: 反射调用内部类的时候需要使用<code>$</code>来代替.,如com.anbai.Test类有一个叫做Hello的内部类，那么调用的时候就应该将类名写成：<code>com.anbai.Test$Hello</code></li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;ClassName&#125;.class  <span class="comment">// 如:com.anbai.sec.classloader.TestHelloWorld.class。</span></span><br><span class="line">Class.forName(<span class="string">&quot;com.anbai.sec.classloader.TestHelloWorld&quot;</span>);</span><br><span class="line">&#123;classLoader&#125;.loadClass(<span class="string">&quot;com.anbai.sec.classloader.TestHelloWorld&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 举个例子</span></span><br><span class="line"><span class="type">String</span> <span class="variable">className</span>     <span class="operator">=</span> <span class="string">&quot;java.lang.Runtime&quot;</span>;</span><br><span class="line"><span class="type">Class</span>  <span class="variable">runtimeClass1</span> <span class="operator">=</span> Class.forName(className);</span><br><span class="line"><span class="type">Class</span>  <span class="variable">runtimeClass2</span> <span class="operator">=</span> java.lang.Runtime.class;</span><br><span class="line"><span class="type">Class</span>  <span class="variable">runtimeClass3</span> <span class="operator">=</span> ClassLoader.getSystemClassLoader().loadClass(className);</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="反射调用Runtime"><a href="#反射调用Runtime" class="headerlink" title="*反射调用Runtime"></a>*反射调用Runtime</h3><ol>
+<li><p>先来一个普通写法<code>System.out.println(org.apache.commons.io.IOUtils.toString(Runtime.getRuntime.exec(&#39;ls&#39;).getInputStream(),&#39;utf-8&#39;))</code></p>
+</li>
+<li><p>使用反射写法</p>
+<ol>
+<li><strong>不一样的创建实例</strong>: 使用Runtime类的Class对象获取Runtime类的无参数构造方法(getDeclaredConstructor())，因为Runtime的构造方法是private的我们无法直接调用，所以我们需要通过反射去修改方法的访问权限<code>constructor.setAccessible(true)</code></li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Class</span> <span class="variable">runtimeClass</span> <span class="operator">=</span> Class.forName(<span class="string">&#x27;java.lang.Runtime&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 修改权限</span></span><br><span class="line"><span class="type">Constructor</span> <span class="variable">constructor</span> <span class="operator">=</span> runtimeClass.getDeclaredConstructor();</span><br><span class="line">constructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取对象</span></span><br><span class="line"><span class="type">Object</span> <span class="variable">runtimeInstance</span> <span class="operator">=</span> constructor.newInstance();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取方法并调用方法</span></span><br><span class="line"><span class="type">Method</span> <span class="variable">runtimeMethod</span> <span class="operator">=</span> runtimeClass.getMethod(<span class="string">&quot;exec&quot;</span>, String.class);</span><br><span class="line"><span class="type">Process</span> <span class="variable">process</span> <span class="operator">=</span> (Process) runtimeMethod.invoke(runtimeInstance, cmd);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取命令执行结果并输出</span></span><br><span class="line"><span class="type">InputStream</span> <span class="variable">in</span> <span class="operator">=</span> process.getInputStream();</span><br><span class="line">System.out.println(org.apache.commons.io.IOUtils.toString(in, <span class="string">&quot;UTF-8&quot;</span>));</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="反射获取类信息"><a href="#反射获取类信息" class="headerlink" title="*反射获取类信息"></a>*反射获取类信息</h3><ol>
+<li><p>类构造函数</p>
+<ol>
+<li>想获取类的所有构造方法可以使用：clazz.getDeclaredConstructors来获取一个Constructor数组。</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">runtimeClass1.getDeclaredConstructor()</span><br><span class="line">runtimeClass1.getConstructor()  <span class="comment">// 无法获取到私有方法 --&gt; 一般使用这个</span></span><br><span class="line">    <span class="comment">// 注意一下权限constructor.setAccessible(true)</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>调用类方法</p>
+<ol>
+<li>关于参数<ol>
+<li>method.invoke的第一个参数必须是类实例对象，如果调用的是static方法那么第一个参数值可以传null，因为在java中调用静态方法是不需要有类实例的，因为可以直接类名.方法名(参数)的方式调用。</li>
+<li>method.invoke第二个参数如果有参数那么就<strong>必须严格的依次传入对应的参数类型</strong></li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 获取类方法</span></span><br><span class="line"><span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> xxx.getMethod(<span class="string">&quot;methodname&quot;</span>,<span class="string">&quot;参数类型&quot;</span>); <span class="comment">// getMethod只能获取到当前类和父类的所有有权限的方法(如：public)</span></span><br><span class="line"><span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> xxx.getDeclaredMethod(<span class="string">&quot;方法名&quot;</span>, <span class="string">&quot;参数类型如String.class，多个参数用,号隔开&quot;</span>);   <span class="comment">// getDeclaredMethod能获取到当前类的所有成员方法(不包含父类)</span></span><br><span class="line">    <span class="comment">// +s形式返回一个数组</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 调用类方法</span></span><br><span class="line">method.invoke(方法实例对象, 方法参数值，多个参数值用,隔开);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>访问成员变量</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 先获取字段，再获取值</span></span><br><span class="line"><span class="comment">// getField和getDeclaredField的区别同getMethod和getDeclaredMethod</span></span><br><span class="line"><span class="type">Field</span> <span class="variable">fields</span> <span class="operator">=</span> xxx.getDeclaredFields();</span><br><span class="line"><span class="type">Field</span> <span class="variable">field</span>  <span class="operator">=</span> xxx.getDeclaredField(<span class="string">&quot;变量名&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> field.get(类实例对象);</span><br><span class="line"><span class="comment">// 修改变量</span></span><br><span class="line">field.set(类实例对象, 修改后的值);</span><br><span class="line">    <span class="comment">// 注意权限</span></span><br><span class="line">    field.setAccessible(<span class="literal">true</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. final关键字修饰的成员变量 --&gt; 需要先修改</span></span><br><span class="line"><span class="type">Field</span> <span class="variable">modifiers</span> <span class="operator">=</span> field.getClass().getDeclaredField(<span class="string">&quot;modifiers&quot;</span>);</span><br><span class="line">modifiers.setAccessible(<span class="literal">true</span>);</span><br><span class="line">modifiers.setInt(field, field.getModifiers() &amp; ~Modifier.FINAL);    <span class="comment">// 修改成员变量的Field对象的modifiers值，~Modifier.FINAL</span></span><br><span class="line">field.set(类实例对象, 修改后的值);</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#java%E4%B8%AD%E7%9A%84%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">java中的类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Final"><span class="toc-number">1.1.</span> <span class="toc-text">Final</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E6%AF%94php"><span class="toc-number">1.2.</span> <span class="toc-text">对比php</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ClassLoader"><span class="toc-number">2.</span> <span class="toc-text">ClassLoader</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Class%E7%B1%BB"><span class="toc-number">2.1.</span> <span class="toc-text">Class类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="toc-number">2.2.</span> <span class="toc-text">Java类的加载机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ClassLoader%E7%9A%84%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B"><span class="toc-number">2.3.</span> <span class="toc-text">ClassLoader的加载流程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E6%96%B9%E5%BC%8F"><span class="toc-number">2.3.1.</span> <span class="toc-text">加载方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E5%AE%8F%E8%A7%82%E7%90%86%E8%A7%A3"><span class="toc-number">2.3.2.</span> <span class="toc-text">加载宏观理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B"><span class="toc-number">2.3.3.</span> <span class="toc-text">加载流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%89%98%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.3.4.</span> <span class="toc-text">双亲委托模型</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B1%BB%E7%9A%84%E5%8A%A0%E8%BD%BD%E9%9A%94%E7%A6%BB"><span class="toc-number">2.4.</span> <span class="toc-text">类的加载隔离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89ClassLoader"><span class="toc-number">2.5.</span> <span class="toc-text">*自定义ClassLoader</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B"><span class="toc-number">2.6.</span> <span class="toc-text">安全检测</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84"><span class="toc-number">3.</span> <span class="toc-text">反射</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">3.1.</span> <span class="toc-text">反射调用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8Runtime"><span class="toc-number">3.2.</span> <span class="toc-text">*反射调用Runtime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E8%8E%B7%E5%8F%96%E7%B1%BB%E4%BF%A1%E6%81%AF"><span class="toc-number">3.3.</span> <span class="toc-text">*反射获取类信息</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&text=初见JavaSE"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&is_video=false&description=初见JavaSE"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=初见JavaSE&body=Check out this article: https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&title=初见JavaSE"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&name=初见JavaSE&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/04/%E5%88%9D%E8%A7%81JavaSE/&t=初见JavaSE"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
