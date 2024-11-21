@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="序列化的概念php和python处已经学习过了，这里就不再进行纠缠了，直接到没有学过的内容  话外: 计算机网络中的序列化  OSI 七层协议模型中，表示层做的事情主要就是对应用层的用户数据进行处理转换为二进制流。反过来的话，就是将二进制流转换成应用层的用户数据。这就对应的是序列化和反序列化 OSI 七层协议模型中的应用层、表示层和会话层对应的都是 TCP&#x2F;IP 四层模型中的应用层，所">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全5(1)_序列化的开始">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="序列化的概念php和python处已经学习过了，这里就不再进行纠缠了，直接到没有学过的内容  话外: 计算机网络中的序列化  OSI 七层协议模型中，表示层做的事情主要就是对应用层的用户数据进行处理转换为二进制流。反过来的话，就是将二进制流转换成应用层的用户数据。这就对应的是序列化和反序列化 OSI 七层协议模型中的应用层、表示层和会话层对应的都是 TCP&#x2F;IP 四层模型中的应用层，所">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A85_%E5%BA%8F%E5%88%97%E5%8C%96/tcp-ip-4-model.png">
+<meta property="article:published_time" content="2024-11-13T14:42:18.044Z">
+<meta property="article:modified_time" content="2024-11-16T07:10:45.682Z">
+<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="java反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A85_%E5%BA%8F%E5%88%97%E5%8C%96/tcp-ip-4-model.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java安全5(1)_序列化的开始</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&text=Java安全5(1)_序列化的开始"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&is_video=false&description=Java安全5(1)_序列化的开始"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(1)_序列化的开始&body=Check out this article: https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&name=Java安全5(1)_序列化的开始&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&t=Java安全5(1)_序列化的开始"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%9D%E5%A4%96-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.</span> <span class="toc-text">话外: 计算机网络中的序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E8%87%AA%E5%B8%A6%E5%BA%8F%E5%88%97%E5%8C%96%E7%9A%84%E4%B8%BB%E8%A6%81%E7%89%B9%E7%82%B9%E4%B8%8E%E9%99%90%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">Java自带序列化的主要特点与限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#serialVersionUID"><span class="toc-number">3.</span> <span class="toc-text">serialVersionUID</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFserialVersionUID"><span class="toc-number">3.1.</span> <span class="toc-text">什么是serialVersionUID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#serialVersionUID%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">3.2.</span> <span class="toc-text">serialVersionUID的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E5%85%85%E9%97%AE%E9%A2%98-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9D%99%E6%80%81%E5%8F%98%E9%87%8FserialVersionUID%E5%8F%AF%E4%BB%A5%E8%A2%AB%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%9F"><span class="toc-number">3.3.</span> <span class="toc-text">补充问题: 为什么静态变量serialVersionUID可以被序列化？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8jdk%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">4.</span> <span class="toc-text">如何使用jdk的序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Serializable%E6%8E%A5%E5%8F%A3"><span class="toc-number">4.1.</span> <span class="toc-text">Serializable接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ObjectInputStream"><span class="toc-number">4.2.</span> <span class="toc-text">ObjectInputStream</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ObjectOutputStream"><span class="toc-number">4.3.</span> <span class="toc-text">ObjectOutputStream</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ObjectInputStream%E5%92%8CObjectOutputStream%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.4.</span> <span class="toc-text">*ObjectInputStream和ObjectOutputStream示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全5(1)_序列化的开始
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-13T14:42:18.044Z" class="dt-published" itemprop="datePublished">2024-11-13</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>, <a class="p-category" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">java反序列化</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>序列化的概念php和python处已经学习过了，这里就不再进行纠缠了，直接到没有学过的内容</p>
+</blockquote>
+<h2 id="话外-计算机网络中的序列化"><a href="#话外-计算机网络中的序列化" class="headerlink" title="话外: 计算机网络中的序列化"></a>话外: 计算机网络中的序列化</h2><ol>
+<li><img src="/pic/Java%E5%AE%89%E5%85%A85_%E5%BA%8F%E5%88%97%E5%8C%96/tcp-ip-4-model.png" alt="pic"></li>
+<li>OSI 七层协议模型中，表示层做的事情主要就是对应用层的用户数据进行处理转换为二进制流。反过来的话，就是将二进制流转换成应用层的用户数据。这就对应的是序列化和反序列化</li>
+<li>OSI 七层协议模型中的应用层、表示层和会话层对应的都是 TCP&#x2F;IP 四层模型中的应用层，所以序列化协议属于 TCP&#x2F;IP 协议应用层的一部分</li>
+</ol>
+<h2 id="Java自带序列化的主要特点与限制"><a href="#Java自带序列化的主要特点与限制" class="headerlink" title="Java自带序列化的主要特点与限制"></a>Java自带序列化的主要特点与限制</h2><ol>
+<li>反序列化类对象时有如下<strong>限制</strong>：<ol>
+<li>被反序列化的类必须存在</li>
+<li>serialVersionUID值必须一致</li>
+<li>不支持跨语言调用，跨语言需要使用JSON这种，有对应的漏洞</li>
+<li>必须实现Serializable接口，具体见下同名小标题处</li>
+</ol>
+</li>
+<li>特点：<ol>
+<li><p><strong>无需调用该类的构造函数</strong></p>
+<ol>
+<li>原理: 在反序列化创建类实例时使用了sun.reflect.ReflectionFactory.newConstructorForSerialization创建了一个反序列化专用的Constructor(<strong>反射构造方法对象</strong>)，使用这个特殊的Constructor可以绕过构造方法创建类实例</li>
+<li>一句话: 结合了JDK的序列化和反射机制来创建新对象，绕过构造器，避免构造器中的初始化逻辑</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DeserializationTest.java</span></span><br><span class="line"><span class="keyword">package</span> Deser;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DeserializationTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> age;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DeserializationTest</span><span class="params">()</span> &#123;</span><br><span class="line">        name = <span class="string">&quot;kc1zs4&quot;</span>;</span><br><span class="line">        age = <span class="number">18</span>;</span><br><span class="line">        System.out.println(<span class="string">&quot;DeserialzationTest() called&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;hello world&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// ReflectionFactoryTest</span></span><br><span class="line"><span class="keyword">package</span> Deser;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sun.reflect.ReflectionFactory;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ReflectionFactoryTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            <span class="comment">// 1. 获取工厂</span></span><br><span class="line">            <span class="type">ReflectionFactory</span> <span class="variable">factory</span> <span class="operator">=</span> ReflectionFactory.getReflectionFactory();</span><br><span class="line">            <span class="comment">// 2. 从工厂获取对应的构造器</span></span><br><span class="line">            <span class="type">Constructor</span> <span class="variable">constructor</span> <span class="operator">=</span> factory.newConstructorForSerialization(DeserializationTest.class, Object.class.getConstructor());</span><br><span class="line">            <span class="comment">// 3. 进行构造</span></span><br><span class="line">            System.out.println(constructor.newInstance());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 终端输出: (并没有调用构造函数)</span></span><br><span class="line"><span class="comment">// hello world</span></span><br><span class="line"><span class="comment">// Deser.DeserializationTest@1ed3c8d</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Java的序列化机制可以导致一个实例能直接从byte[]数组创建，而不经过构造方法</p>
+</li>
+</ol>
+</li>
+<li>在Java中实现对象反序列化非常简单，实现java.io.Serializable(内部序列化)或java.io.Externalizable(外部序列化)接口即可被序列化，其中java.io.Externalizable接口只是实现了java.io.Serializable接口。</li>
+</ol>
+<h2 id="serialVersionUID"><a href="#serialVersionUID" class="headerlink" title="serialVersionUID"></a>serialVersionUID</h2><h3 id="什么是serialVersionUID"><a href="#什么是serialVersionUID" class="headerlink" title="什么是serialVersionUID"></a>什么是serialVersionUID</h3><ol>
+<li><p>下面是一个典型的实现了Serializable接口的一个类，可以见到其中有一个特殊的静态final常量srialVersionUID</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@Getter</span></span><br><span class="line"><span class="meta">@Builder</span></span><br><span class="line"><span class="meta">@ToString</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RpcRequest</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1905122041950251207L</span>;</span><br><span class="line">    <span class="keyword">private</span> String requestId;</span><br><span class="line">    <span class="keyword">private</span> String interfaceName;</span><br><span class="line">    <span class="keyword">private</span> String methodName;</span><br><span class="line">    <span class="keyword">private</span> Object[] parameters;</span><br><span class="line">    <span class="keyword">private</span> Class&lt;?&gt;[] paramTypes;</span><br><span class="line">    <span class="keyword">private</span> RpcMessageTypeEnum rpcMessageTypeEnum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="serialVersionUID的作用"><a href="#serialVersionUID的作用" class="headerlink" title="serialVersionUID的作用"></a>serialVersionUID的作用</h3><ol>
+<li>Q: serialVersionUID 有什么作用？</li>
+<li>A: 序列化号 serialVersionUID 属于版本控制的作用。反序列化时，<strong>会检查 serialVersionUID 是否和当前类的 serialVersionUID 一致</strong>。如果 serialVersionUID 不一致则会抛出 InvalidClassException 异常。强烈推荐每个序列化类都手动指定其 serialVersionUID，如果不手动指定，那么编译器会动态生成默认的 serialVersionUID。</li>
+<li><em><strong>serialVersionUID的生成</strong></em><ol>
+<li>大多数现代IDE（如 IntelliJ IDEA、Eclipse）都提供了自动生成 serialVersionUID 的功能。生成的 serialVersionUID <strong>通常是基于类的结构计算出来的</strong>，确保每次类结构变化时，生成的 serialVersionUID 也会不同</li>
+</ol>
+</li>
+</ol>
+<h3 id="补充问题-为什么静态变量serialVersionUID可以被序列化？"><a href="#补充问题-为什么静态变量serialVersionUID可以被序列化？" class="headerlink" title="补充问题: 为什么静态变量serialVersionUID可以被序列化？"></a>补充问题: 为什么静态变量serialVersionUID可以被序列化？</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/Snailclimb/JavaGuide/issues/2174">stack exchange解答</a></li>
+<li>static 修饰的变量是静态变量，属于类而非类的实例，本身是不会被序列化的。然而，serialVersionUID 是一个特例，serialVersionUID 的序列化做了特殊处理。当一个对象被序列化时，serialVersionUID 会被写入到序列化的二进制流中；在反序列化时，也会解析它并做一致性判断，以此来验证序列化对象的版本一致性。如果两者不匹配，反序列化过程将抛出 InvalidClassException，因为这通常意味着序列化的类的定义已经发生了更改，可能不再兼容 –&gt; <em><strong>总结: 因为它就是特殊处理的，目的就是为了保证类的匹配</strong></em></li>
+<li><em><strong>关于transient</strong></em><ol>
+<li>对于不想进行序列化的变量，可以使用 transient 关键字修饰。 –&gt; transient 关键字的作用是：阻止实例中那些用此关键字修饰的的变量序列化；当对象被反序列化时，被 transient 修饰的变量值不会被持久化和恢复</li>
+<li>关于 transient 还有几点注意<ol>
+<li>transient 只能修饰变量，不能修饰类和方法</li>
+<li>transient 修饰的变量，在反序列化后变量值将会被置成<strong>类型的默认值</strong> –&gt; 例如，如果是修饰 int 类型，那么反序列后结果就是 0</li>
+<li><strong>static变量</strong>因为不属于任何对象(Object)，所以无论有没有 transient 关键字修饰，均不会被序列化</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="如何使用jdk的序列化"><a href="#如何使用jdk的序列化" class="headerlink" title="如何使用jdk的序列化"></a>如何使用jdk的序列化</h2><h3 id="Serializable接口"><a href="#Serializable接口" class="headerlink" title="Serializable接口"></a>Serializable接口</h3><ol>
+<li>java.io.Serializable是一个<strong>空的接口</strong>*(Marker Interface)，我们不需要实现java.io.Serializable的任何方法</li>
+<li>java.io.Serializable接口仅仅只用于标识这个类可序列化。实现了java.io.Serializable接口的类原则上都需要生产一个serialVersionUID常量，反序列化时如果双方的serialVersionUID不一致会导致InvalidClassException 异常</li>
+<li>以下是jdk7u21的源码及部分注释如下</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Classes that require special handling during the serialization and</span></span><br><span class="line"><span class="comment"> * deserialization process must implement special methods with these exact</span></span><br><span class="line"><span class="comment"> * signatures:</span></span><br><span class="line"><span class="comment"> *  要进行序列化和反序列化的类必须  自己  实现以下的方法</span></span><br><span class="line"><span class="comment"> * &lt;PRE&gt;</span></span><br><span class="line"><span class="comment"> * private void writeObject(java.io.ObjectOutputStream out)</span></span><br><span class="line"><span class="comment"> *     throws IOException</span></span><br><span class="line"><span class="comment"> * private void readObject(java.io.ObjectInputStream in)</span></span><br><span class="line"><span class="comment"> *     throws IOException, ClassNotFoundException;</span></span><br><span class="line"><span class="comment"> * private void readObjectNoData()</span></span><br><span class="line"><span class="comment"> *     throws ObjectStreamException;</span></span><br><span class="line"><span class="comment"> * &lt;/PRE&gt;</span></span><br><span class="line"><span class="comment"> * ...</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span>  unascribed</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> java.io.ObjectOutputStream</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> java.io.ObjectInputStream</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> java.io.ObjectOutput</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> java.io.ObjectInput</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> java.io.Externalizable</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span>   JDK1.1</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="ObjectInputStream"><a href="#ObjectInputStream" class="headerlink" title="ObjectInputStream"></a>ObjectInputStream</h3><ol>
+<li>java.io.ObjectInputStream类最核心的功能是readObject方法，即反序列化类对象<ol>
+<li>除了能读取基本类型和String类型外，调用readObject()可以直接返回一个Object对象。要把它变成一个特定类型，<strong>必须强制转型</strong>(因为返回的是Object对象)</li>
+</ol>
+</li>
+</ol>
+<h3 id="ObjectOutputStream"><a href="#ObjectOutputStream" class="headerlink" title="ObjectOutputStream"></a>ObjectOutputStream</h3><ol>
+<li>java.io.ObjectOutputStream类最核心的方法是writeObject方法，即序列化类对象<ol>
+<li><em><strong>Serializable接口的作用: ObjectOutputStream既可以写入基本类型，也可以写入实现了Serializable接口的Object</strong></em></li>
+</ol>
+</li>
+</ol>
+<h3 id="ObjectInputStream和ObjectOutputStream示例"><a href="#ObjectInputStream和ObjectOutputStream示例" class="headerlink" title="*ObjectInputStream和ObjectOutputStream示例"></a>*ObjectInputStream和ObjectOutputStream示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> ObjectxxxSteam;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DeserializationTest</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">public</span> String email;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">/* * * * * * 搞出一个对象 * * * * * */</span></span><br><span class="line">            <span class="type">DeserializationTest</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DeserializationTest</span>();</span><br><span class="line">            t.name = <span class="string">&quot;hello world&quot;</span>;</span><br><span class="line">            t.email = <span class="string">&quot;abc@apt&quot;</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * *  * * * ObjectOutputStream写出内存: 序列化 * * * * * */</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 字节数组输出流：ByteArrayOutputStream 是一个输出流，用于将数据写入内存中的字节数组</span></span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="comment">// 对象与数据类型输出流：ObjectOutputStream 是一个用于写入对象和基本数据类型的输出流</span></span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">            <span class="comment">// Object输出流的关闭和缓冲需要进行注意</span></span><br><span class="line">            oos.writeObject(t);</span><br><span class="line">            oos.close();</span><br><span class="line">            oos.flush();</span><br><span class="line">            System.out.println(<span class="string">&quot;DeserializationTest序列化后端字节数组&quot;</span> + Arrays.toString(baos.toByteArray()));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * ObjectInputSream写入内存:反序列化 * * * * * */</span></span><br><span class="line">            <span class="comment">// 原理和输出流类似的</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 字节数组输入流：需要接受一个别的输出，而输出流每一次创建都是新的</span></span><br><span class="line">            <span class="type">ByteArrayInputStream</span> <span class="variable">bais</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(baos.toByteArray());</span><br><span class="line">            <span class="comment">// 对象输入流</span></span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bais);</span><br><span class="line">            <span class="type">DeserializationTest</span> <span class="variable">newT</span> <span class="operator">=</span> (DeserializationTest) ois.readObject();</span><br><span class="line">            System.out.println(<span class="string">&quot;用户名: &quot;</span> + newT.name + <span class="string">&quot; 邮箱: &quot;</span> + newT.email);</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 指向不同的对象 * * * * * */</span></span><br><span class="line">            System.out.println(t);</span><br><span class="line">            System.out.println(newT);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://javaguide.cn/java/basis/serialization.html#jdk-%E8%87%AA%E5%B8%A6%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%E6%96%B9%E5%BC%8F">jdk-自带的序列化方式与serialVersionUID</a></li>
+<li>补充参考，比较细节，还没看完<ol>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/37562657/answer/1916596031">知乎讨论区</a></li>
+<li><a target="_blank" rel="noopener" href="https://cryin.github.io/blog/secure-development-java-deserialization-vulnerability/">应用安全:JAVA反序列化漏洞之殇</a></li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%9D%E5%A4%96-%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.</span> <span class="toc-text">话外: 计算机网络中的序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E8%87%AA%E5%B8%A6%E5%BA%8F%E5%88%97%E5%8C%96%E7%9A%84%E4%B8%BB%E8%A6%81%E7%89%B9%E7%82%B9%E4%B8%8E%E9%99%90%E5%88%B6"><span class="toc-number">2.</span> <span class="toc-text">Java自带序列化的主要特点与限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#serialVersionUID"><span class="toc-number">3.</span> <span class="toc-text">serialVersionUID</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFserialVersionUID"><span class="toc-number">3.1.</span> <span class="toc-text">什么是serialVersionUID</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#serialVersionUID%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">3.2.</span> <span class="toc-text">serialVersionUID的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E5%85%85%E9%97%AE%E9%A2%98-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9D%99%E6%80%81%E5%8F%98%E9%87%8FserialVersionUID%E5%8F%AF%E4%BB%A5%E8%A2%AB%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%9F"><span class="toc-number">3.3.</span> <span class="toc-text">补充问题: 为什么静态变量serialVersionUID可以被序列化？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8jdk%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">4.</span> <span class="toc-text">如何使用jdk的序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Serializable%E6%8E%A5%E5%8F%A3"><span class="toc-number">4.1.</span> <span class="toc-text">Serializable接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ObjectInputStream"><span class="toc-number">4.2.</span> <span class="toc-text">ObjectInputStream</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ObjectOutputStream"><span class="toc-number">4.3.</span> <span class="toc-text">ObjectOutputStream</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ObjectInputStream%E5%92%8CObjectOutputStream%E7%A4%BA%E4%BE%8B"><span class="toc-number">4.4.</span> <span class="toc-text">*ObjectInputStream和ObjectOutputStream示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&text=Java安全5(1)_序列化的开始"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&is_video=false&description=Java安全5(1)_序列化的开始"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(1)_序列化的开始&body=Check out this article: https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&title=Java安全5(1)_序列化的开始"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&name=Java安全5(1)_序列化的开始&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/&t=Java安全5(1)_序列化的开始"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

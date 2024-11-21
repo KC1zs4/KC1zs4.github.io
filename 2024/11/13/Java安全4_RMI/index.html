@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="引入RMI(Remote Method Invocation) RMI严重依赖序列化和反序列化使用RMI时，双方必须是内网互相信任的机器，不要把1099端口暴露在公网上作为对外服务Java的RMI调用机制决定了双方必须是Java程序，其他语言很难调用Java的RMI。如果要使用不同语言进行RPC调用，可以选择更通用的协议，例如gRPC   Java远程方法调用，RMI用于构建分布式应用程序，RMI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全4_RMI">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="引入RMI(Remote Method Invocation) RMI严重依赖序列化和反序列化使用RMI时，双方必须是内网互相信任的机器，不要把1099端口暴露在公网上作为对外服务Java的RMI调用机制决定了双方必须是Java程序，其他语言很难调用Java的RMI。如果要使用不同语言进行RPC调用，可以选择更通用的协议，例如gRPC   Java远程方法调用，RMI用于构建分布式应用程序，RMI">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A84_RMI/MACRO_Flow.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A84_RMI/DEEPER_Flow.png">
+<meta property="article:published_time" content="2024-11-13T03:32:40.115Z">
+<meta property="article:modified_time" content="2024-11-13T14:39:16.692Z">
+<meta property="article:tag" content="Java安全">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A84_RMI/MACRO_Flow.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java安全4_RMI</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/13/Java%E5%AE%89%E5%85%A85(1)_%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/13/Java%E5%AE%89%E5%85%A83(1)_%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%E8%AF%A6%E8%A7%A3/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&text=Java安全4_RMI"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&is_video=false&description=Java安全4_RMI"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全4_RMI&body=Check out this article: https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&name=Java安全4_RMI&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&t=Java安全4_RMI"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E5%85%A5RMI-Remote-Method-Invocation"><span class="toc-number">1.</span> <span class="toc-text">引入RMI(Remote Method Invocation)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E8%AF%9D%E4%B8%8D%E8%AF%B4%E5%85%88%E6%89%8B%E6%90%93%E7%86%9F%E6%82%89%E4%B8%80%E4%B8%8B"><span class="toc-number">2.</span> <span class="toc-text">二话不说先手搓熟悉一下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RMI%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B%E4%B8%8E%E6%9C%AC%E8%B4%A8"><span class="toc-number">3.</span> <span class="toc-text">RMI通信过程与本质</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E5%AE%8F%E8%A7%82%E7%90%86%E8%A7%A3%E6%96%B9%E9%9D%A2%E7%9A%84%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">从宏观理解方面的通信过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E4%B8%80%E7%82%B9"><span class="toc-number">3.2.</span> <span class="toc-text">深入一点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q-A"><span class="toc-number">4.</span> <span class="toc-text">*Q&amp;A</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Regiser%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">4.1.</span> <span class="toc-text">Regiser是什么？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全4_RMI
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-13T03:32:40.115Z" class="dt-published" itemprop="datePublished">2024-11-13</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="引入RMI-Remote-Method-Invocation"><a href="#引入RMI-Remote-Method-Invocation" class="headerlink" title="引入RMI(Remote Method Invocation)"></a>引入RMI(Remote Method Invocation)</h2><blockquote>
+<p>RMI严重依赖序列化和反序列化<br>使用RMI时，双方必须是内网互相信任的机器，不要把1099端口暴露在公网上作为对外服务<br>Java的RMI调用机制决定了双方必须是Java程序，其他语言很难调用Java的RMI。如果要使用不同语言进行RPC调用，可以选择更通用的协议，例如gRPC</p>
+</blockquote>
+<ol>
+<li>Java远程方法调用，RMI用于构建分布式应用程序，RMI实现了Java程序之间跨JVM的远程通信：<strong>实现了方法调用和对象实体的独立</strong>，一个JVM中的代码可以通过网络实现远程调用另一个JVM的某个方法 –&gt; <strong>RMI的方法执行是再服务端上进行的，只是将结果返回给客户端并且可以有客户端进行调用</strong></li>
+<li>RMI是Java独有的一种机制</li>
+</ol>
+<h2 id="二话不说先手搓熟悉一下"><a href="#二话不说先手搓熟悉一下" class="headerlink" title="二话不说先手搓熟悉一下"></a>二话不说先手搓熟悉一下</h2><blockquote>
+<p>大体先理解一下然后再进入细节</p>
+</blockquote>
+<ol>
+<li>实现注意事项<ol>
+<li>客户端只需要查找服务并获得接口实例，服务器端只需要编写实现类并注册为服务</li>
+<li><em><strong>接口</strong></em>: <strong>服务端和客户端中的接口类必须一样</strong>，客户端只要有接口类就可以，对象是从远程服务端进行加载的，与此同时，<strong>接口必须必须派生自java.rmi.Remote，并在每个方法声明抛出RemoteException</strong>，客户端提供接口并进行远程调用</li>
+<li><em><strong>服务端</strong></em>: 服务端需要将对应服务类的实例<strong>注册到rmi服务中</strong>(对应就是<code>Naming.bind(RMI_SERVER_NAME, new RMITest());</code>)，这里注册的是实例而不是类</li>
+<li>Index<ol>
+<li>RMIClientTest</li>
+<li>RMIServerTest</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// RMIClientTest</span></span><br><span class="line">    <span class="comment">// 本来客户端也要有IRMITest这个接口，但是在本机不能冲突</span></span><br><span class="line">    <span class="comment">// 如果冲突会报错: </span></span><br><span class="line">    <span class="comment">// java.lang.ClassCastException: com.sun.proxy.$Proxy0 cannot be cast to RMI.RMIClient.IRMITest at RMI.RMIClient.RMIClientTest.main(RMIClientTest.java:13)</span></span><br><span class="line">    <span class="comment">// 解决方法详见https://stackoverflow.com/questions/54848952/java-rmi-class-com-sun-proxy-proxy0-cannot-be-cast-to-class-client-messageserve</span></span><br><span class="line"><span class="keyword">package</span> RMI.RMIClient;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> RMI.RMIServer.IRMITest;</span><br><span class="line"><span class="keyword">import</span> java.rmi.Naming;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMIClientTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">RMI_SERVER_NAME</span> <span class="operator">=</span> <span class="string">&quot;rmi://192.168.193.126:7777/Test&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">IRMITest</span> <span class="variable">test</span> <span class="operator">=</span> (IRMITest) Naming.lookup(RMI_SERVER_NAME);</span><br><span class="line">            <span class="type">String</span> <span class="variable">res</span> <span class="operator">=</span> test.test();</span><br><span class="line">            System.out.println(res);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// RMIServerTest</span></span><br><span class="line"><span class="comment">// 1. IRMITest</span></span><br><span class="line"><span class="keyword">package</span> RMI.RMIServer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.Remote;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * RMI测试接口</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">IRMITest</span> <span class="keyword">extends</span> <span class="title class_">Remote</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * RMI测试方法</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 返回字符串</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    String <span class="title function_">test</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. RMITest</span></span><br><span class="line"><span class="keyword">package</span> RMI.RMIServer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.UnicastRemoteObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMITest</span> <span class="keyword">extends</span> <span class="title class_">UnicastRemoteObject</span> <span class="keyword">implements</span> <span class="title class_">IRMITest</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="title function_">RMITest</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * RMI测试方法实现</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 返回测试字符串</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">test</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;hello RMI&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. RMIServerTest</span></span><br><span class="line"><span class="keyword">package</span> RMI.RMIServer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.Naming;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMIServerTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">RMI_HOST</span> <span class="operator">=</span> <span class="string">&quot;127.0.0.1&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">RMI_PORT</span> <span class="operator">=</span> <span class="number">7777</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">RMI_SERVER_NAME</span> <span class="operator">=</span> <span class="string">&quot;rmi://&quot;</span> + RMI_HOST + <span class="string">&quot;:&quot;</span> + RMI_PORT + <span class="string">&quot;/Test&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// System.setProperty(&quot;java.rmi.server.hostname&quot;, RMI_HOST);</span></span><br><span class="line">            LocateRegistry.createRegistry(RMI_PORT);</span><br><span class="line">            Naming.bind(RMI_SERVER_NAME, <span class="keyword">new</span> <span class="title class_">RMITest</span>());</span><br><span class="line">            System.out.println(<span class="string">&quot;RMI服务启动成功，服务地址: &quot;</span> + RMI_SERVER_NAME);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="RMI通信过程与本质"><a href="#RMI通信过程与本质" class="headerlink" title="RMI通信过程与本质"></a>RMI通信过程与本质</h2><h3 id="从宏观理解方面的通信过程"><a href="#从宏观理解方面的通信过程" class="headerlink" title="从宏观理解方面的通信过程"></a>从宏观理解方面的通信过程</h3><ol>
+<li>先运行服务器，再运行客户端，服务端提供服务，客户端获得的接口方法返回值(实际上是通过网络从服务器端获取的)</li>
+<li>客户端持有的WorldClock接口实际上对应了一个“实现类”，它是由Registry内部动态生成的，并负责把方法调用通过网络传递到服务器端，客户端的“实现类”称为stub</li>
+<li>服务器端接收网络调用的服务并不是我们自己编写的WorldClockService，而是Registry自动生成的代码，服务器端的网络服务类称为skeleton，它会真正调用服务器端的WorldClockService</li>
+<li>获取结果，然后把结果通过网络传递给客户端</li>
+<li>整个过程由RMI底层负责实现序列化和反序列化</li>
+<li><img src="/pic/Java%E5%AE%89%E5%85%A84_RMI/MACRO_Flow.png" alt="图示"></li>
+</ol>
+<h3 id="深入一点"><a href="#深入一点" class="headerlink" title="深入一点"></a>深入一点</h3><ol>
+<li><p><img src="/pic/Java%E5%AE%89%E5%85%A84_RMI/DEEPER_Flow.png" alt="上图片"></p>
+</li>
+<li><p>根据p牛的java安全漫谈再次进行分析</p>
+<blockquote>
+<p>p牛原文<br>第⼀次建立TCP连接是连接远端 192.168.135.142 的1099端⼝，这也是我们在代码⾥里里看到的端⼝，二者进行沟通后，我向远端发送了了⼀一个“Call”消息，远端回复了了一“ReturnData”消息，然后我新建了一个TCP连接，连到远端的33769端⼝<br>在“ReturnData”这个包中，返回了目标的IP地址 192.168.135.142 ，其后跟的一个字节 \x00\x00\x83\xE9 ，刚好就是整数 33769 的⽹网络序列<br>首先客户端连接Registry，并在其中寻找Name是Hello的对象，这个对应数据流中的Call消息；然后Registry返回一个序列列化的数据，这个就是找到的Name&#x3D;Hello的对象，这个对应数据流中的ReturnData消息；客户端反序列化该对象，发现该对象是一个远程对象，地址在 192.168.135.142:33769 ，于是再与这个地址建立TCP连接；在这个新的连接中，才执行真正远程方法调⽤用，也就是 hello()</p>
+</blockquote>
+</li>
+<li><p>此处进行了<em><strong>两次tcp握手</strong></em></p>
+<ol>
+<li><strong>第一次握手</strong>是传输RemoteCall对象，含方法调用的所有必要信息，如方法名、参数等</li>
+<li><strong>第二次握手</strong>是通过远程对象的引用来调用远程方法并从服务端返回方法执行结果</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<ol>
+<li>客户端: RMI客户端在调用远程方法时会先创建Stub(sun.rmi.registry.RegistryImpl_Stub)</li>
+<li>客户端: Stub会将Remote对象传递给远程引用层(java.rmi.server.RemoteRef)并创建java.rmi.server.RemoteCall(远程调用)对象</li>
+<li>客户端: RemoteCall序列化RMI服务名称、Remote对象</li>
+<li>客户端到服务端: RMI客户端的远程引用层传输RemoteCall序列化后的请求信息通过Socket连接的方式传输到RMI服务端的远程引用层</li>
+<li>服务端: RMI服务端的远程引用层(sun.rmi.server.UnicastServerRef)收到请求会请求传递给Skeleton(sun.rmi.registry.RegistryImpl_Skel#dispatch)</li>
+<li>服务端: Skeleton调用RemoteCall反序列化RMI客户端传过来的序列化</li>
+<li>服务端到客户端: Skeleton处理客户端请求：bind、list、lookup、rebind、unbind，如果是lookup则查找RMI服务名绑定的接口对象，序列化该对象并通过RemoteCall传输到客户端</li>
+<li>客户端: RMI客户端反序列化服务端结果，获取远程对象的引用</li>
+<li>客户端到服务端: RMI客户端调用远程方法，RMI服务端反射调用RMI服务实现类的对应方法并序列化执行结果返回给客户端。</li>
+<li>服务端到客户端: RMI客户端反序列化RMI远程方法调用结果</li>
+</ol>
+</blockquote>
+<h2 id="Q-A"><a href="#Q-A" class="headerlink" title="*Q&amp;A"></a>*Q&amp;A</h2><h3 id="Regiser是什么？"><a href="#Regiser是什么？" class="headerlink" title="Regiser是什么？"></a>Regiser是什么？</h3><ol>
+<li>RMIRegistry就像一个网关，他自己是不会执行远程方法的，但RMI Server可以在上面注册一个Name到对象的绑定关系；RMI Client;通过Name向RMIRegistry查询，得到这个绑定关系，然后再连接RMIServer;最后，远程方法实际上在RMIServer上调用</li>
+<li>再结合《深入一点》就能差不多理解了</li>
+</ol>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>javasec</li>
+<li>java安全漫谈</li>
+</ol>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/about/">About</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E5%85%A5RMI-Remote-Method-Invocation"><span class="toc-number">1.</span> <span class="toc-text">引入RMI(Remote Method Invocation)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E8%AF%9D%E4%B8%8D%E8%AF%B4%E5%85%88%E6%89%8B%E6%90%93%E7%86%9F%E6%82%89%E4%B8%80%E4%B8%8B"><span class="toc-number">2.</span> <span class="toc-text">二话不说先手搓熟悉一下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RMI%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B%E4%B8%8E%E6%9C%AC%E8%B4%A8"><span class="toc-number">3.</span> <span class="toc-text">RMI通信过程与本质</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E5%AE%8F%E8%A7%82%E7%90%86%E8%A7%A3%E6%96%B9%E9%9D%A2%E7%9A%84%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">从宏观理解方面的通信过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E4%B8%80%E7%82%B9"><span class="toc-number">3.2.</span> <span class="toc-text">深入一点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Q-A"><span class="toc-number">4.</span> <span class="toc-text">*Q&amp;A</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Regiser%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">4.1.</span> <span class="toc-text">Regiser是什么？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&text=Java安全4_RMI"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&is_video=false&description=Java安全4_RMI"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全4_RMI&body=Check out this article: https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&title=Java安全4_RMI"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&name=Java安全4_RMI&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/13/Java%E5%AE%89%E5%85%A84_RMI/&t=Java安全4_RMI"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2024
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/about/">About</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
