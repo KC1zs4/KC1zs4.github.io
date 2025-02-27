@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="整体速览 前面说到，tomcat作为服务器处理的是底层的网络连接，而我们的Servlet在上面运行，我们可以注意到Servlet直接使用的是现成的HttpServletRequest和HttpServletResponse，这两个就是网络数据的封装，就是有tomcat处理网络后提供的；总的来说，tomcat有以下的功能 数据流处理：处理 Socket 连接，负责网络字节流与 Request 和 R">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全6(2)_Tomcat整体架构">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="整体速览 前面说到，tomcat作为服务器处理的是底层的网络连接，而我们的Servlet在上面运行，我们可以注意到Servlet直接使用的是现成的HttpServletRequest和HttpServletResponse，这两个就是网络数据的封装，就是有tomcat处理网络后提供的；总的来说，tomcat有以下的功能 数据流处理：处理 Socket 连接，负责网络字节流与 Request 和 R">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_struct_abstract.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_connecter_struct.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_endpoint_tree.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_processor_tree.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_protocolhandler_flow.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_container_struct.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_container_mapping.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_container_mapping.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_container_pipline.png">
+<meta property="article:published_time" content="2024-12-01T00:59:30.904Z">
+<meta property="article:modified_time" content="2024-12-26T06:16:28.980Z">
+<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="Java内存马">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_struct_abstract.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>Java安全6(2)_Tomcat整体架构</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/12/01/ciscn24/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&text=Java安全6(2)_Tomcat整体架构"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&is_video=false&description=Java安全6(2)_Tomcat整体架构"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全6(2)_Tomcat整体架构&body=Check out this article: https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&name=Java安全6(2)_Tomcat整体架构&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&t=Java安全6(2)_Tomcat整体架构"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E9%80%9F%E8%A7%88"><span class="toc-number">1.</span> <span class="toc-text">整体速览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Tomcat%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="toc-number">2.</span> <span class="toc-text">1. Tomcat连接器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E7%9A%84%E4%BD%9C%E7%94%A8%E4%B8%8E%E6%B5%81%E7%A8%8B"><span class="toc-number">2.1.</span> <span class="toc-text">连接器的作用与流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E7%9A%84%E5%86%85%E9%83%A8%E6%9E%84%E6%88%90"><span class="toc-number">2.2.</span> <span class="toc-text">连接器的内部构成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ProtocolHandler%E7%BB%84%E4%BB%B6"><span class="toc-number">2.3.</span> <span class="toc-text">ProtocolHandler组件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Adapter"><span class="toc-number">2.4.</span> <span class="toc-text">Adapter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E5%90%8E%E5%86%8D%E8%AF%B4%E4%B8%8BTomcat%E7%9A%84%E7%BD%91%E7%BB%9C%E6%94%AF%E6%8C%81"><span class="toc-number">2.5.</span> <span class="toc-text">最后再说下Tomcat的网络支持</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Servlet%E5%AE%B9%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text">2. Servlet容器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Servlet%E5%AE%B9%E5%99%A8%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">Servlet容器的结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Servlet%E5%AE%B9%E5%99%A8%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">3.2.</span> <span class="toc-text">Servlet容器工作流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%AE%9A%E4%BD%8D%E5%8E%9F%E7%90%86"><span class="toc-number">3.3.</span> <span class="toc-text">责任链模式实现定位原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Valve%E5%92%8CFilter"><span class="toc-number">3.4.</span> <span class="toc-text">Valve和Filter?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E4%B8%8ESevlet%E5%AE%B9%E5%99%A8%E7%9A%84%E6%9E%B6%E6%9E%84%E4%BD%9C%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">连接器与Sevlet容器的架构作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全6(2)_Tomcat整体架构
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-12-01T00:59:30.904Z" class="dt-published" itemprop="datePublished">2024-12-01</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%86%85%E5%AD%98%E9%A9%AC/" rel="tag">Java内存马</a>, <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="整体速览"><a href="#整体速览" class="headerlink" title="整体速览"></a>整体速览</h2><ol>
+<li>前面说到，tomcat作为服务器处理的是底层的网络连接，而我们的Servlet在上面运行，我们可以注意到Servlet直接使用的是现成的HttpServletRequest和HttpServletResponse，这两个就是网络数据的封装，就是有tomcat处理网络后提供的；总的来说，tomcat有以下的功能<ol>
+<li><strong>数据流处理</strong>：处理 Socket 连接，负责网络字节流与 Request 和 Response 对象的转化，并最终转化为HttpServletRequest和HttpServletResponse</li>
+<li><strong>加载和管理Servlet</strong>，以及具体处理 Request 请求<br><img src="/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_struct_abstract.png" alt="架构图"></li>
+</ol>
+</li>
+<li><strong>什么是service呢？</strong><ol>
+<li>一个容器可能对接多个连接器，就好比一个房间有多个门。但是单独的连接器或者容器都不能对外提供服务，需要把它们组装起来才能工作，组装后这个整体叫作 Service 组件</li>
+<li>Service 只是在连接器和容器外面多包了一层，把它们组装在一起，通过在 Tomcat 中配置多个 Service，可以实现通过不同的端口号来访问同一台机器上部署的不同应用</li>
+</ol>
+</li>
+<li>下面我们跟随这幅图进入到连接器中</li>
+</ol>
+<h2 id="1-Tomcat连接器"><a href="#1-Tomcat连接器" class="headerlink" title="1. Tomcat连接器"></a>1. Tomcat连接器</h2><h3 id="连接器的作用与流程"><a href="#连接器的作用与流程" class="headerlink" title="连接器的作用与流程"></a>连接器的作用与流程</h3><ol>
+<li>总的来说，<strong>连接器的作用</strong>是统一处理各种网络传输协议与I&#x2F;O，并最终处理生成可供容器内部Servlet进行处理的ServletRequest对象<ol>
+<li>网络通信，Socket这些</li>
+<li>应用层协议解析，不同的流</li>
+<li>Tomcat Request&#x2F;Response与ServletRequest&#x2F;ServletResponse之间的转换</li>
+</ol>
+</li>
+<li>Servlet的工作流程大致如下<ol>
+<li>外部传入数据<ol>
+<li>网络连接: 监听网络端口，等待连接请求；接受网络连接请求；读取请求中的字节流</li>
+<li>解析：根据具体应用层协议（HTTP&#x2F;APR）解析字节流，生成统一的Tomcat Request对象</li>
+<li>转换：将Tomcat Request对象转换成标准的ServletRequest提交给Servlet容器</li>
+</ol>
+</li>
+<li>内部传出数据<ol>
+<li>调用Servlet容器，得到ServletResponse</li>
+<li>将ServletResponse转换成Tomcat Response对象</li>
+<li>将Tomcat Response转成网络字节流进行发送</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="连接器的内部构成"><a href="#连接器的内部构成" class="headerlink" title="连接器的内部构成"></a>连接器的内部构成</h3><ol>
+<li>上面说到tomcat连接器有三个大的作用，Tomcat的设计者设计了3个组件来实现这三个功能：Endpoint、Processor和Adapter，他们的具体结构如下<br><img src="/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_connecter_struct.png" alt="tomcat连接器内部构成"><ol start="2">
+<li>Endpoint负责字节流：Endpoint负责提供字节流给Processor处理</li>
+<li>Processor负责解析：Processor处理好之后提供Tomcat Request对象给Adapter</li>
+<li>Adapter负责转换：Adapter将Tomcat Request对象转成标准的ServletRequest提供给Servlet容器</li>
+</ol>
+</li>
+</ol>
+<h3 id="ProtocolHandler组件"><a href="#ProtocolHandler组件" class="headerlink" title="ProtocolHandler组件"></a>ProtocolHandler组件</h3><ol>
+<li>Tomcat中连接器使用ProtocolHandler来处理网络连接和应用层协议，主要包含Endpoint和Processor</li>
+<li>Endpoint<ol>
+<li>具体职责：Endpoint是通信端点，是具体的Socket接收和发送处理器，是对传输层的抽象，所以Endpoint是用来<strong>实现TPC&#x2F;IP协议的</strong><br><img src="/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_endpoint_tree.png" alt="pic"><ol>
+<li>AbstractEndpoint是Endpoint对应的抽象接口，具体的实现类有NioEndpoint和Nio2Endpoint，有两个重要的子组件Acceptor和SocketProcessor<ol>
+<li>Acceptor是用来监听Socket连接请求</li>
+<li>SocketProcessor用来处理接收到的Socket请求，它实现了Runnable接口，在run方法中调用协议处理组件Processor进行处理，SocketProcessor被提交到线程池中执行</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>Processor<ol>
+<li>具体职责：Processor是用来实现HTTP协议，是对应应用层协议的抽象，Processor接受来自Endpoint的Socket，解析成Tomcat Request和Response对象，并通过Adapter提交到容器中<br> <img src="/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_processor_tree.png" alt="pic"><ol>
+<li>Processor是个接口，定义了请求的处理等方法。它的抽象实现类 AbstractProcessor 对一些协议共有的属性进行封装，没有对方法进行实现。具体的实现有 AJPProcessor、HTTP11Processor 等，这些具体实现类实现了特定协议的解析方法和请求处理方式</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>ProtocolHandler<br><img src="/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_protocolhandler_flow.png" alt="pic"><ol>
+<li><strong>通过组合实现</strong>: EndPoint 接收到 Socket 连接后，生成一个 SocketProcessor 任务提交到线程池去处理，SocketProcessor 的 Run 方法会调用 Processor 组件去解析应用层协议，Processor 通过解析生成 Request 对象后，会调用Adapter 的 Service 方法</li>
+</ol>
+</li>
+</ol>
+<h3 id="Adapter"><a href="#Adapter" class="headerlink" title="Adapter"></a>Adapter</h3><ol>
+<li>到了这一步，还需要进行转换ServletRequest</li>
+<li><strong>ProtocolHandler接口的结果</strong>: 解析请求并生成 Tomcat Request 类。但是这个 Request 对象不是标准的 ServletRequest，也就意味着，不能用 Tomcat Request 作为参数来调用容器</li>
+<li><strong>CoyoteAdapter</strong>:j这是适配器模式的经典运用，连接器调用 CoyoteAdapter 的 Sevice 方法，传入的是 Tomcat Request 对象，CoyoteAdapter 负责将 Tomcat Request 转成 ServletRequest，再调用容器的 Service 方法</li>
+</ol>
+<h3 id="最后再说下Tomcat的网络支持"><a href="#最后再说下Tomcat的网络支持" class="headerlink" title="最后再说下Tomcat的网络支持"></a>最后再说下Tomcat的网络支持</h3><ol>
+<li>Tomcat 支持的 I&#x2F;O 模型有<ol>
+<li>NIO：非阻塞 I&#x2F;O，采用 Java NIO 类库实现。</li>
+<li>NIO2：异步 I&#x2F;O，采用 JDK 7 最新的 NIO2 类库实现。</li>
+<li>APR：采用 Apache 可移植运行库实现，是 C&#x2F;C++ 编写的本地库。</li>
+</ol>
+</li>
+<li>Tomcat 支持的应用层协议有<ol>
+<li>HTTP&#x2F;1.1：这是大部分 Web 应用采用的访问协议。</li>
+<li>AJP：用于和 Web 服务器集成（如 Apache）。</li>
+<li>HTTP&#x2F;2：HTTP 2.0 大幅度的提升了 Web 性能。</li>
+</ol>
+</li>
+</ol>
+<h2 id="2-Servlet容器"><a href="#2-Servlet容器" class="headerlink" title="2. Servlet容器"></a>2. Servlet容器</h2><h3 id="Servlet容器的结构"><a href="#Servlet容器的结构" class="headerlink" title="Servlet容器的结构"></a>Servlet容器的结构</h3><ol>
+<li><p>Tomcat 设计了 4 种容器，分别是 Engine、Host、Context 和 Wrapper。这 4 种容器不是相互独立的关系，而是父子关系，逐层包含<br> <img src="/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_container_struct.png" alt="pic"></p>
+</li>
+<li><p>容器间对应关系如下图所示<br> <img src="/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_container_mapping.png" alt="pic"></p>
+<ol>
+<li>一个Service最多只能有一个Engine</li>
+<li>一个Engine可以管理多台host（虚拟主机）</li>
+<li>一个host下可以部署多部context，一个context表示一个web应用</li>
+<li>一个context下可以有多个wrapper，一个wrapper就是一个servlet</li>
+<li>wrapper对servlet进行包装，管理生命周期等</li>
+</ol>
+</li>
+<li><p>这里的关系可以在tomcat中的server.xml配置文件中体现</p>
+ <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 顶层组件，可以包含多个Service --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">Server</span> <span class="attr">port</span>=<span class="string">&quot;8005&quot;</span> <span class="attr">shutdown</span>=<span class="string">&quot;SHUTDOWN&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">&lt;!-- 顶层组件，可以包含一个Engine，多个连接器 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">Service</span> <span class="attr">name</span>=<span class="string">&quot;Catalina&quot;</span>&gt;</span></span><br><span class="line">      <span class="comment">&lt;!-- HTTP协议的连接器 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Connector</span> <span class="attr">port</span>=<span class="string">&quot;8080&quot;</span> <span class="attr">protocol</span>=<span class="string">&quot;HTTP/1.1&quot;</span></span></span><br><span class="line"><span class="tag">               <span class="attr">connectionTimeout</span>=<span class="string">&quot;20000&quot;</span></span></span><br><span class="line"><span class="tag">               <span class="attr">redirectPort</span>=<span class="string">&quot;8443&quot;</span> /&gt;</span></span><br><span class="line">      <span class="comment">&lt;!-- AJP协议的连接器 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Connector</span> <span class="attr">port</span>=<span class="string">&quot;8009&quot;</span> <span class="attr">protocol</span>=<span class="string">&quot;AJP/1.3&quot;</span> <span class="attr">redirectPort</span>=<span class="string">&quot;8443&quot;</span> /&gt;</span></span><br><span class="line">      <span class="comment">&lt;!-- 一个Engine组件处理Service中的所有请求 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Engine</span> <span class="attr">name</span>=<span class="string">&quot;Catalina&quot;</span> <span class="attr">defaultHost</span>=<span class="string">&quot;localhost&quot;</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 处理特定的Host下的请求，可以包含多个Context --&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">Host</span> <span class="attr">name</span>=<span class="string">&quot;localhost&quot;</span>  <span class="attr">appBase</span>=<span class="string">&quot;webapps&quot;</span></span></span><br><span class="line"><span class="tag">            <span class="attr">unpackWARs</span>=<span class="string">&quot;true&quot;</span> <span class="attr">autoDeploy</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Valve</span> <span class="attr">className</span>=<span class="string">&quot;org.apache.catalina.valves.AccessLogValve&quot;</span> <span class="attr">directory</span>=<span class="string">&quot;logs&quot;</span></span></span><br><span class="line"><span class="tag">               <span class="attr">prefix</span>=<span class="string">&quot;localhost_access_log&quot;</span> <span class="attr">suffix</span>=<span class="string">&quot;.txt&quot;</span></span></span><br><span class="line"><span class="tag">               <span class="attr">pattern</span>=<span class="string">&quot;%h %l %u %t <span class="symbol">&amp;quot;</span>%r<span class="symbol">&amp;quot;</span> %s %b&quot;</span> /&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">context</span>&gt;</span><span class="tag">&lt;/<span class="name">context</span>&gt;</span> <span class="comment">&lt;!-- 为特定的Web应用处理所有的请求 --&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">Host</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Engine</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">Service</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Server</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>补充一点设计思想吧</p>
+<ol>
+<li><p>由于Tomcat中的这些容器是父子的包含关系，最后会形成一个树状结构，<strong>这就是设计模式中的组合模型</strong>，Tomcat就是通过组合模式来管理这些容器的</p>
+</li>
+<li><p>所有的容器组件都实现了Container接口，因此组合模式可以使得用户对但容器对象和组合溶剂对象的使用具有一致性。这里但容器对象是指最底层的Wrapper，组合容器对象指的是Wrapper之上的Context、Host或者Engine</p>
+</li>
+<li><p>给个Container的接口</p>
+<ol>
+<li>Container 接口扩展了 LifeCycle 接口，LifeCycle 接口用来统一管理各组件的生命周期</li>
+</ol>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Container</span> <span class="keyword">extends</span> <span class="title class_">Lifecycle</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span>;</span><br><span class="line">    <span class="keyword">public</span> Container <span class="title function_">getParent</span><span class="params">()</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setParent</span><span class="params">(Container container)</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addChild</span><span class="params">(Container child)</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">removeChild</span><span class="params">(Container child)</span>;</span><br><span class="line">    <span class="keyword">public</span> Container <span class="title function_">findChild</span><span class="params">(String name)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h3 id="Servlet容器工作流程"><a href="#Servlet容器工作流程" class="headerlink" title="Servlet容器工作流程"></a>Servlet容器工作流程</h3><ol>
+<li><strong>定位工作</strong>: 在这么多个容器组合使用时，最重要的是确定请求要到达哪一个Servlet中进行处理</li>
+<li><strong>Mapper组件</strong><ol>
+<li>Mapper里保存了Web应用的配置信息，就是容器组件与访问路径的映射关系，这里再用用老图<br> <img src="/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_container_mapping.png" alt="pic"><ol>
+<li>Host容器里配置的域名</li>
+<li>Context容器里的Web应用路径</li>
+<li>以及Wrapper容器里Servlet映射的路径</li>
+</ol>
+</li>
+<li>S1: 根据协议和端口号选定 Service 和 Engine<ol>
+<li>Tomcat 的每个连接器都监听不同的端口，而一个连接器是属于一个 Service 组件的，一个 Service 组件里除了有多个连接器，还有一个容器组件，具体来说就是一个 Engine 容器，因此 Service 确定了也就意味着 Engine 也确定了</li>
+</ol>
+</li>
+<li>S2: 根据域名选定 Host</li>
+<li>S3: 根据 URL 路径找到 Context 组件</li>
+<li>S4: 根据 web.xml 找到 Wrapper（Servlet）<ol>
+<li>Context 确定后，Mapper 再根据 web.xml 中配置的 Servlet 映射路径来找到具体的 Wrapper 和 Servlet</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="责任链模式实现定位原理"><a href="#责任链模式实现定位原理" class="headerlink" title="责任链模式实现定位原理"></a>责任链模式实现定位原理</h3><ol>
+<li><p>连接器先处理请求后，最先拿到请求的是 Engine 容器，Engine 容器对请求做一些处理后，会把请求传给自己子容器 Host 继续处理，依次类推，最后这个请求会传给 Wrapper 容器，Wrapper 会调用最终的 Servlet 来处理  –&gt; <strong>使用Pipeline-Valve管道来实现</strong></p>
+</li>
+<li><p><strong>什么是责任链?A: 类似链表</strong>：责任链模式是指在一个请求处理的过程中有很多处理者依次对请求进行处理，每个处理者负责做自己相应的处理，处理完之后将再调用下一个处理者继续处理</p>
+</li>
+<li><p><strong>Pipline-Value</strong></p>
+<ol>
+<li><p>Valve接口如下，Valve 是一个处理点，因此 invoke 方法就是来处理请求的。 Valve 中有 getNext 和 setNext 方法 –&gt; 类似于链表中的节点</p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Valve</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> Valve <span class="title function_">getNext</span><span class="params">()</span>;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setNext</span><span class="params">(Valve valve)</span>;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">invoke</span><span class="params">(Request request, Response response)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Pipeline接口如下，Pipeline 中有 addValve 方法。Pipeline 中维护了<strong>一个Valve链表</strong>，Valve 可以插入到 Pipeline 中，对请求做某些处理</p>
+<ol>
+<li>Pipeline 中没有 invoke 方法，因为整个调用链的触发是 Valve 来完成的，Valve 完成自己的处理后，调用 getNext.invoke() 来触发下一个 Valve 调用</li>
+</ol>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Pipeline</span> <span class="keyword">extends</span> <span class="title class_">Contained</span> &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addValve</span><span class="params">(Valve valve)</span>;</span><br><span class="line">  <span class="keyword">public</span> Valve <span class="title function_">getBasic</span><span class="params">()</span>;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setBasic</span><span class="params">(Valve valve)</span>;</span><br><span class="line">  <span class="keyword">public</span> Valve <span class="title function_">getFirst</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>tomcat容器中的pipline<br> <img src="/pic/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/tomcat_container_pipline.png" alt="pic"></p>
+<ol>
+<li>Tomcat中每一个容器都有一个 Pipeline 对象</li>
+<li>触发这个 Pipeline 的第一个 Valve，这个容器里 Pipeline 中的 Valve 就都会被调用到</li>
+<li>这个 BasicValve 处于 Valve 链表的末端，它是 Pipeline 中必不可少的一个 Valve，负责调用下层容器的 Pipeline 里的第一个 Valve</li>
+<li>不同容器的 Pipeline 通过getBasic 方法调用下层容器的Pipeline里的第一个Valve</li>
+<li><strong>由Adapter触发</strong>: 整个调用过程由连接器中的 Adapter 触发的，它会调用 Engine 的第一个 Valve</li>
+</ol>
+</li>
+</ol>
+<h3 id="Valve和Filter"><a href="#Valve和Filter" class="headerlink" title="Valve和Filter?"></a>Valve和Filter?</h3><ol>
+<li>Valve 是 Tomcat 的私有机制，与 Tomcat 的基础架构 &#x2F;API 是紧耦合的，它工作在容器级别，<strong>拦截所有应用的请求</strong></li>
+<li>Filter 工作在应用级别，只能拦截某个 Web 应用的所有请求</li>
+<li>如果想要一个整个web容器的filter，其实应该使用Valve来进行实现</li>
+</ol>
+<h2 id="连接器与Sevlet容器的架构作用"><a href="#连接器与Sevlet容器的架构作用" class="headerlink" title="连接器与Sevlet容器的架构作用"></a>连接器与Sevlet容器的架构作用</h2><ol>
+<li>Sevlet容器是一个路由与服务处理功能，<strong>负责内部处理</strong></li>
+<li>连接器就是用于封装网络结构的，<strong>负责外部交流</strong></li>
+</ol>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>较为细节，可做补充[<a target="_blank" rel="noopener" href="https://blog.nowcoder.net/n/0c4b545949344aa0b313f22df9ac2c09]">https://blog.nowcoder.net/n/0c4b545949344aa0b313f22df9ac2c09]</a></li>
+<li>[<a target="_blank" rel="noopener" href="https://www.maishuren.top/posts/tomcat/1-tomcat%E4%B8%AD%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%99%A8%E6%98%AF%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E7%9A%84/]">https://www.maishuren.top/posts/tomcat/1-tomcat%E4%B8%AD%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%99%A8%E6%98%AF%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E7%9A%84/]</a></li>
+<li>[<a target="_blank" rel="noopener" href="https://www.maishuren.top/posts/tomcat/2-tomcat%E4%B8%ADsevlet%E5%AE%B9%E5%99%A8%E7%9A%84%E8%AE%BE%E8%AE%A1%E5%8E%9F%E7%90%86/]">https://www.maishuren.top/posts/tomcat/2-tomcat%E4%B8%ADsevlet%E5%AE%B9%E5%99%A8%E7%9A%84%E8%AE%BE%E8%AE%A1%E5%8E%9F%E7%90%86/]</a></li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B4%E4%BD%93%E9%80%9F%E8%A7%88"><span class="toc-number">1.</span> <span class="toc-text">整体速览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Tomcat%E8%BF%9E%E6%8E%A5%E5%99%A8"><span class="toc-number">2.</span> <span class="toc-text">1. Tomcat连接器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E7%9A%84%E4%BD%9C%E7%94%A8%E4%B8%8E%E6%B5%81%E7%A8%8B"><span class="toc-number">2.1.</span> <span class="toc-text">连接器的作用与流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E7%9A%84%E5%86%85%E9%83%A8%E6%9E%84%E6%88%90"><span class="toc-number">2.2.</span> <span class="toc-text">连接器的内部构成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ProtocolHandler%E7%BB%84%E4%BB%B6"><span class="toc-number">2.3.</span> <span class="toc-text">ProtocolHandler组件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Adapter"><span class="toc-number">2.4.</span> <span class="toc-text">Adapter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E5%90%8E%E5%86%8D%E8%AF%B4%E4%B8%8BTomcat%E7%9A%84%E7%BD%91%E7%BB%9C%E6%94%AF%E6%8C%81"><span class="toc-number">2.5.</span> <span class="toc-text">最后再说下Tomcat的网络支持</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Servlet%E5%AE%B9%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text">2. Servlet容器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Servlet%E5%AE%B9%E5%99%A8%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">Servlet容器的结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Servlet%E5%AE%B9%E5%99%A8%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">3.2.</span> <span class="toc-text">Servlet容器工作流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%AE%9A%E4%BD%8D%E5%8E%9F%E7%90%86"><span class="toc-number">3.3.</span> <span class="toc-text">责任链模式实现定位原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Valve%E5%92%8CFilter"><span class="toc-number">3.4.</span> <span class="toc-text">Valve和Filter?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E5%99%A8%E4%B8%8ESevlet%E5%AE%B9%E5%99%A8%E7%9A%84%E6%9E%B6%E6%9E%84%E4%BD%9C%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">连接器与Sevlet容器的架构作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&text=Java安全6(2)_Tomcat整体架构"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&is_video=false&description=Java安全6(2)_Tomcat整体架构"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全6(2)_Tomcat整体架构&body=Check out this article: https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&title=Java安全6(2)_Tomcat整体架构"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&name=Java安全6(2)_Tomcat整体架构&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/&t=Java安全6(2)_Tomcat整体架构"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

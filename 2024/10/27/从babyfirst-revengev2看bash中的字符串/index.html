@@ -2,10 +2,13 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
     <meta name="description" content="Ref bash转义与换行问题 阮一峰 挺好的教程   其他参考资料见小部分中的如无引用变量的拓展  php如何处理用户输入的字符串 当处理用户输入的字符串(比如$_GET)并将其传递给系统命令时，PHP 本身不会自动为这些字符串添加引号，只是直接进行添加(什么样就放什么进去)，只有字面量才需要进行(单引号和双引号的考虑)  1234&lt;?php$input &#x3D; $_GET[&#x27;cmd">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从babyfirst-revengev2看bash中的字符串">
@@ -17,35 +20,42 @@
 <meta property="og:image" content="https://kc1zs4.github.io/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E5%8F%8C%E5%BC%95%E5%8F%B7%E4%BF%9D%E6%8C%81%E6%A0%BC%E5%BC%8F.png">
 <meta property="og:image" content="https://kc1zs4.github.io/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%BC%95%E5%8F%B7%E7%9A%84echo.png">
 <meta property="article:published_time" content="2024-10-27T01:51:13.585Z">
-<meta property="article:modified_time" content="2024-10-30T03:07:52.312Z">
-<meta property="article:tag" content="rce">
+<meta property="article:modified_time" content="2025-02-26T11:51:22.093Z">
+<meta property="article:tag" content="Linux安全">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://kc1zs4.github.io/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E5%8D%95%E5%BC%95%E5%8F%B7%E4%B8%8E%E5%8F%8C%E5%BC%95%E5%8F%B7%E7%9A%84%E8%BD%AC%E4%B9%89%E5%8C%BA%E5%88%AB.png">
-    
-    
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/bash%E4%B8%AD%E5%8D%95%E5%BC%95%E5%8F%B7%E4%B8%8E%E5%8F%8C%E5%BC%95%E5%8F%B7%E7%9A%84%E8%BD%AC%E4%B9%89%E5%8C%BA%E5%88%AB.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>从babyfirst-revengev2看bash中的字符串</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -55,10 +65,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -72,8 +81,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -89,7 +96,7 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="Previous post" href="/2024/10/27/ctfshow_jwt/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Previous post" href="/2024/10/28/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
         <li><a class="icon" aria-label="Next post" href="/2024/10/26/%E8%AF%AD%E8%A8%80%E8%87%AA%E5%AD%A6%E6%8C%87%E5%8D%97/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
@@ -163,7 +170,7 @@
       
     <div class="article-tag">
         <i class="fa-solid fa-tag"></i>
-        <a class="p-category" href="/tags/rce/" rel="tag">rce</a>
+        <a class="p-category" href="/tags/Linux%E5%AE%89%E5%85%A8/" rel="tag">Linux安全</a>
     </div>
 
 
@@ -300,6 +307,12 @@
   </div>
 </article>
 
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
 
 
         
@@ -310,8 +323,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -366,7 +377,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -374,8 +385,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -440,6 +449,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

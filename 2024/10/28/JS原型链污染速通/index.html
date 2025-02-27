@@ -2,10 +2,13 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
     <meta name="description" content="Q&amp;A1. DONE: Js中函数也是对象啊，他们的原型链怎么办? 对于构造函数，更加准确是使用new调用时，func.prototype才能发挥他特有的作用，否则只是一个普通的属性 Constructor.prototype 仅在构造实例时有用。它与 Constructor.[[Prototype]] 无关，后者是构造函数的自有原型，即 Function.prototype。也就是说，O">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JS原型链污染速通">
@@ -16,36 +19,42 @@
 <meta property="og:image" content="https://kc1zs4.github.io/pic/Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/%E5%87%BD%E6%95%B0%E8%BD%AC%E6%8D%A2.png">
 <meta property="og:image" content="https://kc1zs4.github.io/pic/Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/JSONparse%E4%B8%AD%E7%9A%84%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93.png">
 <meta property="article:published_time" content="2024-10-28T00:47:47.190Z">
-<meta property="article:modified_time" content="2024-11-02T13:11:33.415Z">
-<meta property="article:tag" content="all in one">
-<meta property="article:tag" content="node pp">
+<meta property="article:modified_time" content="2025-02-26T11:49:11.208Z">
+<meta property="article:tag" content="Node安全">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/%E5%87%BD%E6%95%B0%E8%BD%AC%E6%8D%A2.png">
-    
-    
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E9%80%9F%E9%80%9A/%E5%87%BD%E6%95%B0%E8%BD%AC%E6%8D%A2.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>JS原型链污染速通</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -55,10 +64,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -72,8 +80,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -92,7 +98,7 @@
         <li><a class="icon" aria-label="Previous post" href="/2024/10/29/web02_%E7%BD%91%E9%BC%8E24/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
-        <li><a class="icon" aria-label="Next post" href="/2024/10/27/ctfshow_jwt/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Next post" href="/2024/10/27/%E4%BB%8Ebabyfirst-revengev2%E7%9C%8Bbash%E4%B8%AD%E7%9A%84%E5%AD%97%E7%AC%A6%E4%B8%B2/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -158,7 +164,7 @@
       
     <div class="article-tag">
         <i class="fa-solid fa-tag"></i>
-        <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>, <a class="p-category" href="/tags/node-pp/" rel="tag">node pp</a>
+        <a class="p-category" href="/tags/Node%E5%AE%89%E5%85%A8/" rel="tag">Node安全</a>
     </div>
 
 
@@ -293,6 +299,12 @@
   </div>
 </article>
 
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
 
 
         
@@ -303,8 +315,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -359,7 +369,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -367,8 +377,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -433,6 +441,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="这几天数字逻辑期末考试，3天速通一下回来了；上次到ciscn24的simple_php那里命令执行在windows下phpstudy没法模拟，所以来学一下本地搭建linux的php环境，但是这里没有也问题不大，可以靠脑子模拟一下  内置web server ref[https:&#x2F;&#x2F;www.php.net&#x2F;manual&#x2F;zh&#x2F;features.commandline.webserver.php]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搭建本地linux下的php环境">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="这几天数字逻辑期末考试，3天速通一下回来了；上次到ciscn24的simple_php那里命令执行在windows下phpstudy没法模拟，所以来学一下本地搭建linux的php环境，但是这里没有也问题不大，可以靠脑子模拟一下  内置web server ref[https:&#x2F;&#x2F;www.php.net&#x2F;manual&#x2F;zh&#x2F;features.commandline.webserver.php]">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-12-04T15:07:55.564Z">
+<meta property="article:modified_time" content="2024-12-14T12:59:40.661Z">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>搭建本地linux下的php环境</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/12/07/python%E6%A0%88%E5%B8%A7%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/12/01/ciscn24/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&text=搭建本地linux下的php环境"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&is_video=false&description=搭建本地linux下的php环境"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=搭建本地linux下的php环境&body=Check out this article: https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&name=搭建本地linux下的php环境&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&t=搭建本地linux下的php环境"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%AEweb-server"><span class="toc-number">1.</span> <span class="toc-text">内置web server</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker"><span class="toc-number">2.</span> <span class="toc-text">docker</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#php-fpm-nginx"><span class="toc-number">2.1.</span> <span class="toc-text">php-fpm + nginx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lmnp"><span class="toc-number">2.2.</span> <span class="toc-text">lmnp</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#debug-without-xdebug"><span class="toc-number">3.</span> <span class="toc-text">debug without xdebug</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E7%AD%94%E6%A1%88%E7%BB%9F%E4%B8%80%E6%A8%A1%E6%9D%BF"><span class="toc-number">3.1.</span> <span class="toc-text">最终答案统一模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E7%AD%94%E6%A1%88-phpdbg"><span class="toc-number">3.2.</span> <span class="toc-text">第二答案: phpdbg</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="toc-number">3.3.</span> <span class="toc-text">php异常处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        搭建本地linux下的php环境
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-12-04T15:07:55.564Z" class="dt-published" itemprop="datePublished">2024-12-04</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E9%85%8D%E7%BD%AE/">配置</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>这几天数字逻辑期末考试，3天速通一下回来了；上次到ciscn24的simple_php那里命令执行在windows下phpstudy没法模拟，所以来学一下本地搭建linux的php环境，但是这里没有也问题不大，可以靠脑子模拟一下</p>
+</blockquote>
+<h2 id="内置web-server"><a href="#内置web-server" class="headerlink" title="内置web server"></a>内置web server</h2><ol>
+<li><p>ref[<a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/features.commandline.webserver.php]">https://www.php.net/manual/zh/features.commandline.webserver.php]</a></p>
+</li>
+<li><p><strong>一键运行</strong>: 在wsl下&#x2F;vps上运行<code>php -S 127.0.0.1:7777 route.php</code>，随后直接访问<code>ip:7777</code>就可以了，类似如下模板</p>
+<ol>
+<li>routes等有需要再来，ai一下就好了，<strong>比如请求有固定的后缀这些</strong></li>
+<li>这里只是浅做一个日志</li>
+</ol>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// route.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$log</span> = <span class="keyword">__DIR__</span>.<span class="string">&#x27;php.log&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">logAccess</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">global</span> <span class="variable">$log</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取时间</span></span><br><span class="line">    <span class="variable">$timestamp</span> = <span class="title function_ invoke__">date</span>(<span class="string">&#x27;Y-m-d H:i:s&#x27;</span>);</span><br><span class="line">    <span class="comment">// 获取客户端 IP 地址</span></span><br><span class="line">    <span class="variable">$clientIp</span> = <span class="variable">$_SERVER</span>[<span class="string">&#x27;REMOTE_ADDR&#x27;</span>] ?? <span class="string">&#x27;unknown&#x27;</span>;</span><br><span class="line">    <span class="comment">// 获取请求 URI</span></span><br><span class="line">    <span class="variable">$requestUri</span> = <span class="variable">$_SERVER</span>[<span class="string">&#x27;REQUEST_URI&#x27;</span>] ?? <span class="string">&#x27;unknown&#x27;</span>;</span><br><span class="line">    <span class="comment">// 获取 HTTP 方法（GET, POST 等）</span></span><br><span class="line">    <span class="variable">$httpMethod</span> = <span class="variable">$_SERVER</span>[<span class="string">&#x27;REQUEST_METHOD&#x27;</span>] ?? <span class="string">&#x27;unknown&#x27;</span>;</span><br><span class="line">    <span class="comment">// 构建日志条目</span></span><br><span class="line">    <span class="variable">$logEntry</span> = <span class="string">&quot;[<span class="subst">$timestamp</span>] IP: <span class="subst">$clientIp</span>, Method: <span class="subst">$httpMethod</span>, URI: <span class="subst">$requestUri</span>\n&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将日志条目追加到日志文件</span></span><br><span class="line">    <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$log</span>, <span class="variable">$logEntry</span>, FILE_APPEND | LOCK_EX);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 用于测试是否访问到，其实也可以看Server的输出</span></span><br><span class="line"><span class="title function_ invoke__">logAccess</span>();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>???存在一个问题没有解决</strong>：内置server中在vps中外部无法访问</p>
+</li>
+</ol>
+<h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><h3 id="php-fpm-nginx"><a href="#php-fpm-nginx" class="headerlink" title="php-fpm + nginx"></a>php-fpm + nginx</h3><blockquote>
+<p>没有xdebug的，配置它有点麻烦，算了，总之可以直接输出<br>直接按着下面步骤就ok，一般肯定可以，解释看菜鸟教程的文档</p>
+</blockquote>
+<ol>
+<li><strong>S1: docker下载镜像</strong>；php找版本，tags里搜；nginx也一样，但是可以直接复用本地有的</li>
+<li><strong>S2: 挂载目录，开启php</strong>；创建目录<code>mkdir -p ~/Docker/nginx/www</code>，然后<code>docker run  --name php7.3-fpm -v ~/Docker/nginx/www:/www -d php:7.3.33-fpm</code></li>
+<li><strong>S3: 配置文件，挂载nginx</strong><ol>
+<li><p>S1: nginx配置文件，路径<code>~/Docker/nginx/conf/conf.d</code>，并<code>vim ~/Docker/nginx/conf/conf.d/nginx-php.conf</code>，写入以下内容</p>
+  <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen       <span class="number">80</span>;</span><br><span class="line">    server_name  localhost;</span><br><span class="line"></span><br><span class="line">    location / &#123;</span><br><span class="line">        root   /usr/share/nginx/html;</span><br><span class="line">        index  index.html index.htm index.php;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    error_page   <span class="number">500</span> <span class="number">502</span> <span class="number">503</span> <span class="number">504</span>  /<span class="number">50</span>x.html;</span><br><span class="line">    location = /<span class="number">50</span>x.html &#123;</span><br><span class="line">        root   /usr/share/nginx/html;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location ~ \.php$ &#123;</span><br><span class="line">        fastcgi_pass   php:<span class="number">9000</span>;</span><br><span class="line">        fastcgi_index  index.php;</span><br><span class="line">        fastcgi_param  SCRIPT_FILENAME  /www/<span class="variable">$fastcgi_script_name</span>;</span><br><span class="line">        <span class="keyword">include</span>        fastcgi_params;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>S2: <code>docker run  --name nginx-php -p 8083:80 -d -v  ~/Docker/nginx/www:/usr/share/nginx/html:ro -v ~/Docker/nginx/conf/conf.d/:/etc/nginx/conf.d:ro --link php7.3-fpm:php nginx</code>，在本地8083端口访问<code>http://localhost:8083/</code></p>
+</li>
+</ol>
+</li>
+<li><strong>S4: 修改目录权限，可以vscode</strong>：<code>sudo chown $USER:$USER ~/Docker/nginx/www</code></li>
+<li><strong>S5: 关闭与重启</strong>；<code>docker start &lt;container-name&gt;</code></li>
+<li><strong>S6: 交互式进入php环境</strong>；<code>docker exec -it &lt;container-name&gt; /bin/bash</code></li>
+</ol>
+<h3 id="lmnp"><a href="#lmnp" class="headerlink" title="lmnp"></a>lmnp</h3><blockquote>
+<p>暂时先跳过，没有这个需求，可以借助这个东西来学docker compose</p>
+</blockquote>
+<h2 id="debug-without-xdebug"><a href="#debug-without-xdebug" class="headerlink" title="debug without xdebug"></a>debug without xdebug</h2><h3 id="最终答案统一模板"><a href="#最终答案统一模板" class="headerlink" title="最终答案统一模板"></a>最终答案统一模板</h3><blockquote>
+<ol>
+<li>php是一个顺序执行的语句，只有在出错时才会停止</li>
+<li>先给出一个统一处理的模板吧，其他可用[<a target="_blank" rel="noopener" href="https://www.php.net/manual/en/errorfunc.configuration.php#ini.display-errors]">https://www.php.net/manual/en/errorfunc.configuration.php#ini.display-errors]</a></li>
+</ol>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// 1. 可能需要到php.ini中手动修改，一般可以</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(E_ALL);</span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;display_errors&#x27;</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 针对异常</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 3. 用于监督变量</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$info</span>;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125; <span class="keyword">catch</span> (<span class="built_in">Exception</span> <span class="variable">$e</span>) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;[!!!]:  &#x27;</span>,  <span class="variable">$e</span>-&gt;<span class="title function_ invoke__">getMessage</span>(), <span class="string">&quot;\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>ref: [<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/845021/how-can-i-get-useful-error-messages-in-php]%EF%BC%8C%E5%8F%AF%E4%BB%A5%E5%BA%94%E5%AF%B9%E7%BC%96%E8%BE%91%E5%99%A8%E4%B8%AD%E6%B2%A1%E6%9C%89%E5%86%85%E7%BD%AEdebugger%E7%9A%84%E6%83%85%E5%86%B5%EF%BC%8C%E6%AF%94%E5%A6%82%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%8F%AA%E6%9C%89vim%E6%97%B6">https://stackoverflow.com/questions/845021/how-can-i-get-useful-error-messages-in-php]，可以应对编辑器中没有内置debugger的情况，比如服务端只有vim时</a></li>
+<li>主要运用的就是：报错+异常处理+输出的做法</li>
+</ol>
+<h3 id="第二答案-phpdbg"><a href="#第二答案-phpdbg" class="headerlink" title="第二答案: phpdbg"></a>第二答案: phpdbg</h3><ol>
+<li>具体看文档并搜这些的[<a target="_blank" rel="noopener" href="https://www.php.net/manual/en/book.phpdbg.php]">https://www.php.net/manual/en/book.phpdbg.php]</a></li>
+</ol>
+<h3 id="php异常处理"><a href="#php异常处理" class="headerlink" title="php异常处理"></a>php异常处理</h3><blockquote>
+<p>顺便了解一下主要用法吧</p>
+</blockquote>
+<ol>
+<li><p>PHP 5 开始提供了异常，PHP 8.0.0 起，throw 关键词现在开始是表达式，可用于任何表达式上下文。在此之前，它是语句，必须独占一行</p>
+</li>
+<li><p>这里只讲2个东西，抛出和处理见上witout xdebug</p>
+<ol>
+<li>自定义</li>
+<li>顶层处理器</li>
+</ol>
+</li>
+<li><p>自定义</p>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 必须 extends Exception</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyException</span> <span class="keyword">extends</span> <span class="title">Exception</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 重写输出的调用函数 errorMessage()</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">errorMessage</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable">$errorMsg</span> = <span class="string">&#x27;错误行号 &#x27;</span>.<span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">getLine</span>().<span class="string">&#x27; in &#x27;</span>.<span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">getFile</span>().<span class="string">&#x27;: &lt;b&gt;&#x27;</span>.<span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">getMessage</span>().<span class="string">&#x27;&lt;/br&gt;&#x27;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$errorMsg</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>顶层处理器</p>
+<ol>
+<li>如果异常没有被捕获，而且又没用使用 set_exception_handler() 作相应的处理的话，那么将发生一个严重的错误（致命错误），并且输出 “Uncaught Exception” （未捕获异常）的错误消息</li>
+<li>使用<code>set_exception_handler</code><strong>类似反射设置回调处理函数</strong>，自动捕获所有没有被catch的异常</li>
+</ol>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">myException</span>(<span class="params"><span class="variable">$exception</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;&lt;b&gt;Exception:&lt;/b&gt; &quot;</span> , <span class="variable">$exception</span>-&gt;<span class="title function_ invoke__">getMessage</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">set_exception_handler</span>(<span class="string">&#x27;myException&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&#x27;Uncaught Exception occurred&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>内置<ol>
+<li>[<a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/features.commandline.webserver.php]">https://www.php.net/manual/zh/features.commandline.webserver.php]</a></li>
+</ol>
+</li>
+<li>fpm+nginx<ol>
+<li>docker来源[<a target="_blank" rel="noopener" href="https://hub.docker.com/]">https://hub.docker.com/]</a></li>
+<li>[<a target="_blank" rel="noopener" href="https://www.runoob.com/docker/docker-install-php.html]">https://www.runoob.com/docker/docker-install-php.html]</a></li>
+</ol>
+</li>
+<li>debug<ol>
+<li>[<a target="_blank" rel="noopener" href="https://www.runoob.com/php/php-exception.html]">https://www.runoob.com/php/php-exception.html]</a></li>
+<li>[<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/845021/how-can-i-get-useful-error-messages-in-php]">https://stackoverflow.com/questions/845021/how-can-i-get-useful-error-messages-in-php]</a></li>
+<li>[<a target="_blank" rel="noopener" href="https://xdebug.org/]">https://xdebug.org/]</a></li>
+<li>[<a target="_blank" rel="noopener" href="https://www.php.net/manual/en/errorfunc.configuration.php#ini.display-errors]">https://www.php.net/manual/en/errorfunc.configuration.php#ini.display-errors]</a></li>
+<li>[<a target="_blank" rel="noopener" href="https://www.php.net/manual/en/book.phpdbg.php]">https://www.php.net/manual/en/book.phpdbg.php]</a></li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%AEweb-server"><span class="toc-number">1.</span> <span class="toc-text">内置web server</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#docker"><span class="toc-number">2.</span> <span class="toc-text">docker</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#php-fpm-nginx"><span class="toc-number">2.1.</span> <span class="toc-text">php-fpm + nginx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lmnp"><span class="toc-number">2.2.</span> <span class="toc-text">lmnp</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#debug-without-xdebug"><span class="toc-number">3.</span> <span class="toc-text">debug without xdebug</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E7%AD%94%E6%A1%88%E7%BB%9F%E4%B8%80%E6%A8%A1%E6%9D%BF"><span class="toc-number">3.1.</span> <span class="toc-text">最终答案统一模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E7%AD%94%E6%A1%88-phpdbg"><span class="toc-number">3.2.</span> <span class="toc-text">第二答案: phpdbg</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="toc-number">3.3.</span> <span class="toc-text">php异常处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&text=搭建本地linux下的php环境"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&is_video=false&description=搭建本地linux下的php环境"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=搭建本地linux下的php环境&body=Check out this article: https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&title=搭建本地linux下的php环境"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&name=搭建本地linux下的php环境&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/&t=搭建本地linux下的php环境"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

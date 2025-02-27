@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="Servlet什么是Servlet 在JavaEE平台上，处理TCP连接，解析HTTP协议这些底层工作统统扔给现成的Web服务器去做，我们只需要把自己的应用程序跑在Web服务器上。为了实现这一目的，JavaEE提供了Servlet API，我们使用Servlet API编写自己的Servlet来处理HTTP请求，Web服务器实现Servlet API接口，实现底层功能  Servlet本质上是一个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全6(1)_初识JavaWeb">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="Servlet什么是Servlet 在JavaEE平台上，处理TCP连接，解析HTTP协议这些底层工作统统扔给现成的Web服务器去做，我们只需要把自己的应用程序跑在Web服务器上。为了实现这一目的，JavaEE提供了Servlet API，我们使用Servlet API编写自己的Servlet来处理HTTP请求，Web服务器实现Servlet API接口，实现底层功能  Servlet本质上是一个">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/javaweb_servlet_structure.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/javaweb_servlets.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/javaweb_mvc_example.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/javaweb_mvc_impl.png">
+<meta property="article:published_time" content="2024-11-28T14:17:30.824Z">
+<meta property="article:modified_time" content="2024-12-26T06:16:22.336Z">
+<meta property="article:tag" content="JavaWeb">
+<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="Java内存马">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/javaweb_servlet_structure.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>Java安全6(1)_初识JavaWeb</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/30/%E5%86%8D%E9%81%87ssrf/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/28/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%962_%E7%BB%95%E8%BF%87%E6%89%8B%E6%B3%95/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&text=Java安全6(1)_初识JavaWeb"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&is_video=false&description=Java安全6(1)_初识JavaWeb"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全6(1)_初识JavaWeb&body=Check out this article: https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&name=Java安全6(1)_初识JavaWeb&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&t=Java安全6(1)_初识JavaWeb"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Servlet"><span class="toc-number">1.</span> <span class="toc-text">Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFServlet"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Servlet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E4%B8%80%E4%B8%AAServlet"><span class="toc-number">1.2.</span> <span class="toc-text">运行一个Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%88%E6%9C%AC%E8%AE%BE%E7%BD%AE"><span class="toc-number">1.2.1.</span> <span class="toc-text">版本设置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Servlet-Java%E5%92%8CTomcat%E7%89%88%E6%9C%AC%E7%9A%84%E5%85%BC%E5%AE%B9%E6%80%A7"><span class="toc-number">1.2.2.</span> <span class="toc-text">Servlet, Java和Tomcat版本的兼容性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pom-xml"><span class="toc-number">1.2.3.</span> <span class="toc-text">pom.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Hello-Servlet"><span class="toc-number">1.2.4.</span> <span class="toc-text">Hello Servlet</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E5%85%85%EF%BC%9A%E5%B5%8C%E5%85%A5%E5%BC%8Ftomcat%E8%BF%90%E8%A1%8CServlet"><span class="toc-number">1.3.</span> <span class="toc-text">补充：嵌入式tomcat运行Servlet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E9%98%B6Servlet"><span class="toc-number">1.4.</span> <span class="toc-text">进阶Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#HttpServlet-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%A4%84%E7%90%86%E8%AF%B7%E6%B1%82"><span class="toc-number">1.4.1.</span> <span class="toc-text">HttpServlet: 自定义处理请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HttpServletRequest%E5%92%8CHttpServletResponse"><span class="toc-number">1.4.2.</span> <span class="toc-text">HttpServletRequest和HttpServletResponse</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Servlet%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.4.3.</span> <span class="toc-text">Servlet的多线程模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#more-servlet"><span class="toc-number">1.4.4.</span> <span class="toc-text">more servlet</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JSP"><span class="toc-number">2.</span> <span class="toc-text">JSP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFJSP"><span class="toc-number">2.1.</span> <span class="toc-text">什么是JSP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JSP%E4%B8%AD%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-number">2.2.</span> <span class="toc-text">JSP中的概念</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JSESSION"><span class="toc-number">3.</span> <span class="toc-text">JSESSION</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVC"><span class="toc-number">4.</span> <span class="toc-text">MVC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFMVC"><span class="toc-number">4.1.</span> <span class="toc-text">什么是MVC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%8A%A0%E6%88%90%E7%86%9F%E7%9A%84MVC"><span class="toc-number">4.2.</span> <span class="toc-text">一个更加成熟的MVC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Filter"><span class="toc-number">5.</span> <span class="toc-text">Filter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Listener"><span class="toc-number">6.</span> <span class="toc-text">Listener</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">7.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全6(1)_初识JavaWeb
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-28T14:17:30.824Z" class="dt-published" itemprop="datePublished">2024-11-28</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/JavaWeb/" rel="tag">JavaWeb</a>, <a class="p-category" href="/tags/Java%E5%86%85%E5%AD%98%E9%A9%AC/" rel="tag">Java内存马</a>, <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Servlet"><a href="#Servlet" class="headerlink" title="Servlet"></a>Servlet</h2><h3 id="什么是Servlet"><a href="#什么是Servlet" class="headerlink" title="什么是Servlet"></a>什么是Servlet</h3><ol>
+<li><p>在JavaEE平台上，处理TCP连接，解析HTTP协议这些底层工作统统扔给现成的Web服务器去做，我们只需要把自己的应用程序跑在Web服务器上。为了实现这一目的，JavaEE提供了Servlet API，我们使用Servlet API编写自己的Servlet来处理HTTP请求，Web服务器实现Servlet API接口，实现底层功能<img src="/pic/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/javaweb_servlet_structure.png" alt="javaweb_servlet_structure"></p>
+</li>
+<li><p>Servlet本质上是一个接口，定义于javax.servlet.Servlet包中。但是，当开发者提到Servlet时，通常指的是实现了这个接口的类</p>
+<ol>
+<li>在实际开发中最常用的不是直接实现Servlet接口，而是<strong>继承自javax.servlet.http.HttpServlet抽象类</strong>，这是因为HttpServlet已经为我们提供了一些处理HTTP请求的基本方法（如doGet(), doPost()等），使得我们可以更加专注于业务逻辑的实现而不需要关心太多底层细节</li>
+<li>在tomcat服务器上运行servlet<ol>
+<li>因为我们编写的Servlet并不是直接运行，而是由Web服务器加载后创建实例运行，所以，类似Tomcat这样的Web服务器也称为Servlet容器</li>
+<li>类似Tomcat这样的服务器也是Java编写的，启动Tomcat服务器实际上是启动Java虚拟机，执行Tomcat的main()方法，然后由Tomcat负责加载我们的.war文件，并创建一个HelloServlet实例，最后以多线程的模式来处理HTTP请求。如果Tomcat服务器收到的请求路径是&#x2F;（假定部署文件为ROOT.war），就转发到HelloServlet并传入HttpServletRequest和HttpServletResponse两个对象</li>
+</ol>
+</li>
+<li><strong>Servlet的角色</strong><ol>
+<li>中间件：Servlet充当客户端（如浏览器）和后端资源（如数据库或文件系统）之间的桥梁。</li>
+<li>控制器：在MVC（Model-View-Controller）设计模式中，Servlet通常扮演控制器的角色，负责接收用户输入、调用业务逻辑组件，并选择合适的视图来展示结果。</li>
+<li>服务提供者：Servlet可以看作是为用户提供特定服务的组件，这些服务可能涉及数据处理、内容生成等。</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> javax.servlet;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Servlet</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(ServletConfig var1)</span> <span class="keyword">throws</span> ServletException;</span><br><span class="line"></span><br><span class="line">    ServletConfig <span class="title function_">getServletConfig</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">service</span><span class="params">(ServletRequest var1, ServletResponse var2)</span> <span class="keyword">throws</span> ServletException, IOException;</span><br><span class="line"></span><br><span class="line">    String <span class="title function_">getServletInfo</span><span class="params">()</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">destroy</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>创建一个Servlet主要包括以下几个步骤：</p>
+<ol>
+<li>实现javax.servlet.Servlet接口或者继承javax.servlet.http.HttpServlet类。</li>
+<li>覆盖相应的方法，比如doGet()或doPost()来处理HTTP GET或POST请求。</li>
+<li>在web.xml文件中配置Servlet，指定URL模式与Servlet之间的映射关系，或者是使用注解的方式直接在代码中进行配置。<ol>
+<li><strong>在Servlet3.0以来支持使用注解进行配置而无需web.xml</strong></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="运行一个Servlet"><a href="#运行一个Servlet" class="headerlink" title="运行一个Servlet"></a>运行一个Servlet</h3><h4 id="版本设置"><a href="#版本设置" class="headerlink" title="版本设置"></a>版本设置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">java: 1.8.0_66,</span><br><span class="line">jakarta.servlet-api: 4.0.4,</span><br><span class="line">tomcat: 9.0.97,</span><br></pre></td></tr></table></figure>
+
+<h4 id="Servlet-Java和Tomcat版本的兼容性"><a href="#Servlet-Java和Tomcat版本的兼容性" class="headerlink" title="Servlet, Java和Tomcat版本的兼容性"></a>Servlet, Java和Tomcat版本的兼容性</h4><ol>
+<li>tomcat(全部适配)<ol>
+<li>Tomcat的官网上可以看到<a target="_blank" rel="noopener" href="https://tomcat.apache.org/whichversion.html">指引</a></li>
+<li>也可以在Tomcat下载中看需知文件中的对应版本的配置</li>
+</ol>
+</li>
+<li>Servlet和java的适应关系<ol>
+<li><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Java_Servlet">wiki百科</a></li>
+</ol>
+</li>
+<li>JavaEE历史<ol>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Jakarta_EE">wiki百科</a></li>
+</ol>
+</li>
+</ol>
+<h4 id="pom-xml"><a href="#pom-xml" class="headerlink" title="pom.xml"></a>pom.xml</h4><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.shiro<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>JavaSec_WebDev<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span>  <span class="comment">&lt;!--用于运行时生成war包--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.servlet<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>javax.servlet-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">finalName</span>&gt;</span>HelloServlet<span class="tag">&lt;/<span class="name">finalName</span>&gt;</span> <span class="comment">&lt;!--生成war包的名字--&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Hello-Servlet"><a href="#Hello-Servlet" class="headerlink" title="Hello Servlet"></a>Hello Servlet</h4><ol>
+<li>S1: 无需进行目录结构，直接在包中编写以下脚本</li>
+<li>S2: edit configuration(IDEA)中并添加tomcat，可以设置热加载(需要war explode和debug)</li>
+<li>S3: run！</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> ServletDemo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.ServletException;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.annotation.WebServlet;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServlet;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.PrintWriter;</span><br><span class="line"></span><br><span class="line"><span class="meta">@WebServlet(urlPatterns = &quot;/&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line"></span><br><span class="line">        resp.setContentType(<span class="string">&quot;text/html&quot;</span>);</span><br><span class="line">        <span class="type">PrintWriter</span> <span class="variable">pw</span> <span class="operator">=</span> resp.getWriter();</span><br><span class="line">        pw.write(<span class="string">&quot;&lt;h1&gt;hello servlet&lt;/h1&gt;&quot;</span>);</span><br><span class="line">        pw.write(<span class="string">&quot;&lt;h2&gt;welcome to javaweb&lt;/h2&gt;&quot;</span>);</span><br><span class="line">        pw.flush();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="补充：嵌入式tomcat运行Servlet"><a href="#补充：嵌入式tomcat运行Servlet" class="headerlink" title="补充：嵌入式tomcat运行Servlet"></a>补充：嵌入式tomcat运行Servlet</h3><blockquote>
+<p>这个方法一开始是用于开发时进行debug方便的，但是存在一个问题，导war包比较难<br>更好的选择: 现在1dae允许通过edit configuration来实时debug，而且还容易配置，后续到处war包也方便</p>
+</blockquote>
+<ol>
+<li>这里就<a target="_blank" rel="noopener" href="https://liaoxuefeng.com/books/java/web/servlet-dev/index.html">贴个链接</a>吧，就不浪费时间写了嘻嘻</li>
+</ol>
+<h3 id="进阶Servlet"><a href="#进阶Servlet" class="headerlink" title="进阶Servlet"></a>进阶Servlet</h3><blockquote>
+<p>一个Web App就是由一个或多个Servlet组成的，每个Servlet通过注解说明自己能处理的路径<br>早期的Servlet需要在web.xml中配置映射路径，但Servlet3.0版本后只需要通过注解就可以完成映射</p>
+</blockquote>
+<p><img src="/pic/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/javaweb_servlets.png" alt="总体架构"></p>
+<ol>
+<li><p>根据路径转发的功能我们一般称为dispatch。映射到&#x2F;的IndexServlet比较特殊，它实际上会接收所有未匹配的路径，相当于&#x2F;*，因为Dispatcher的逻辑可以用伪代码实现如下</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> ...</span><br><span class="line"><span class="keyword">if</span> (path.equals(<span class="string">&quot;/hello&quot;</span>)) &#123;</span><br><span class="line">    dispatchTo(helloServlet);</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (path.equals(<span class="string">&quot;/signin&quot;</span>)) &#123;</span><br><span class="line">    dispatchTo(signinServlet);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 所有未匹配的路径均转发到&quot;/&quot;</span></span><br><span class="line">    dispatchTo(indexServlet);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="HttpServlet-自定义处理请求"><a href="#HttpServlet-自定义处理请求" class="headerlink" title="HttpServlet: 自定义处理请求"></a>HttpServlet: 自定义处理请求</h4><ol>
+<li><p>只需要Override重写HttpServlet中的doGet等函数即可</p>
+</li>
+<li><p>如果不进行自定义，会根据情况返回405，下面是get方法的，其他方法也一样的</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">protocol</span> <span class="operator">=</span> req.getProtocol();</span><br><span class="line">    <span class="type">String</span> <span class="variable">msg</span> <span class="operator">=</span> lStrings.getString(<span class="string">&quot;http.method_get_not_supported&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (protocol.endsWith(<span class="string">&quot;1.1&quot;</span>)) &#123;</span><br><span class="line">        resp.sendError(<span class="number">405</span>, msg);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        resp.sendError(<span class="number">400</span>, msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h4 id="HttpServletRequest和HttpServletResponse"><a href="#HttpServletRequest和HttpServletResponse" class="headerlink" title="HttpServletRequest和HttpServletResponse"></a>HttpServletRequest和HttpServletResponse</h4><blockquote>
+<p>方法很多就不放了，具体用到再找就好了，总结就是对http响应或者请求设置头等内容</p>
+</blockquote>
+<ol>
+<li>我们不需要直接处理HTTP协议。具体的实现类是由各服务器提供的，而我们编写的Web应用程序只关心接口方法，并不需要关心具体实现的子类</li>
+<li>HttpServletRequest<ol>
+<li>封装了一个HTTP请求，它实际上是从ServletRequest继承而来。最早设计Servlet时，设计者希望Servlet不仅能处理HTTP，也能处理类似SMTP等其他协议，因此，单独抽出了ServletRequest接口，但实际上除了HTTP外，并没有其他协议会用Servlet处理，所以这是一个过度设计。</li>
+</ol>
+</li>
+<li>HttpServletResponse<ol>
+<li>封装了一个HTTP响应。由于HTTP响应必须先发送Header，再发送Body，所以，操作HttpServletResponse对象时，必须先调用设置Header的方法，最后调用发送Body的方法。</li>
+<li><strong>注意</strong>: 写入完毕后调用flush()却是必须的，因为大部分Web服务器都基于HTTP&#x2F;1.1协议，会复用TCP连接。如果没有调用flush()，将导致缓冲区的内容无法及时发送到客户端。此外，写入完毕后千万不要调用close()，原因同样是因为会复用TCP连接，如果关闭写入流，将关闭TCP连接，使得Web服务器无法复用此TCP连接。</li>
+</ol>
+</li>
+</ol>
+<h4 id="Servlet的多线程模型"><a href="#Servlet的多线程模型" class="headerlink" title="Servlet的多线程模型"></a>Servlet的多线程模型</h4><ol>
+<li>一个Servlet类在服务器中<strong>只有一个实例</strong>，但对于每个HTTP请求，Web服务器会使用多线程执行请求。因此，一个Servlet的doGet()、doPost()等处理请求的方法是多线程并发执行的。如果Servlet中定义了字段，要注意多线程并发访问的问题，比如map等容器的处理</li>
+<li>对于每个请求，Web服务器会创建唯一的HttpServletRequest和HttpServletResponse实例，因此，HttpServletRequest和HttpServletResponse实例只有在当前处理线程中有效，<strong>它们总是局部变量，不存在多线程共享的问题</strong><ol>
+<li><strong>影响自己</strong>：在doGet()或doPost()方法中，如果使用了ThreadLocal，但没有清理，那么它的状态很可能会影响到下次的某个请求，因为Servlet容器很可能用线程池实现线程复用。</li>
+</ol>
+</li>
+</ol>
+<h4 id="more-servlet"><a href="#more-servlet" class="headerlink" title="more servlet"></a>more servlet</h4><p>Servlet的生命周期由三个主要阶段组成：</p>
+<p>加载和初始化：当Web容器启动时，或者第一次接收到针对某个Servlet的请求时，Servlet会被实例化并调用init()方法进行初始化。这个阶段只发生一次。<br>服务：一旦Servlet被初始化，它就可以通过service()方法处理来自客户端的请求。对于HTTP协议，这通常是通过doGet()或doPost()方法实现的。<br>销毁：当Servlet不再需要时（例如，Web应用关闭），Web容器会调用destroy()方法来清理资源。之后，Servlet对象将被垃圾回收。</p>
+<p>在Servlet容器中运行的Servlet具有如下特点：</p>
+<p>无法在代码中直接通过new创建Servlet实例，必须由Servlet容器自动创建Servlet实例；<br>Servlet容器只会给每个Servlet类创建唯一实例；<br>Servlet容器会使用多线程执行doGet()或doPost()方法。</p>
+<h2 id="JSP"><a href="#JSP" class="headerlink" title="JSP"></a>JSP</h2><h3 id="什么是JSP"><a href="#什么是JSP" class="headerlink" title="什么是JSP"></a>什么是JSP</h3><blockquote>
+<p>JSP本身目前已经很少使用，只需要了解其基本用法即可: 现代的MVC框架(如：Spring MVC 5.x)已经完全抛弃了JSP技术，采用了模板引擎(如：Freemark)或者RESTful的方式来实现与客户端的交互工作</p>
+</blockquote>
+<ol>
+<li><strong>本质</strong>: JSP是一种在HTML中嵌入动态输出(Java)的文件，它和Servlet正好相反，Servlet是在Java代码中嵌入输出HTML<ol>
+<li>Jsp-&gt;Servelt: JSP和Servlet有什么区别？其实它们没有任何区别，因为<strong>JSP在执行前首先被编译成一个Servlet</strong>。在Tomcat的临时目录下，可以找到一个hello_jsp.java的源文件，这个文件就是Tomcat把JSP自动转换成的Servlet源码</li>
+</ol>
+</li>
+<li>JSP是Java Server Pages的缩写，它的文件必须放到可访问目录下，文件名必须以.jsp结尾</li>
+</ol>
+<h3 id="JSP中的概念"><a href="#JSP中的概念" class="headerlink" title="JSP中的概念"></a>JSP中的概念</h3><ol>
+<li><p>实际上是一个html</p>
+</li>
+<li><p><strong>内置了变量</strong>: 可以直接访问， JSP 引擎在调用 JSP 对应的 jspServlet 时，会传递或创建9个与web开发相关的对象供jspServlet使用</p>
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>类型</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pageContext</td>
+<td>PageContext</td>
+<td>当前页面共享数据，还可以获取其他8个内置对象</td>
+</tr>
+<tr>
+<td>request</td>
+<td>HttpServletRequest</td>
+<td>客户端请求对象，包含了所有客户端请求信息</td>
+</tr>
+<tr>
+<td>session</td>
+<td>HttpSession</td>
+<td>请求会话</td>
+</tr>
+<tr>
+<td>application</td>
+<td>ServletContext</td>
+<td>全局对象，所有用户间共享数据</td>
+</tr>
+<tr>
+<td>response</td>
+<td>HttpServletResponse</td>
+<td>响应对象，主要用于服务器端设置响应信息</td>
+</tr>
+<tr>
+<td>page</td>
+<td>Object</td>
+<td>当前Servlet对象,this</td>
+</tr>
+<tr>
+<td>out</td>
+<td>JspWriter</td>
+<td>输出对象，数据输出到页面上</td>
+</tr>
+<tr>
+<td>config</td>
+<td>ServletConfig</td>
+<td>Servlet的配置对象</td>
+</tr>
+<tr>
+<td>exception</td>
+<td>Throwable</td>
+<td>异常对象</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>JSP有三大指令</strong></p>
+<ol>
+<li><code>&lt;%@ page ... %&gt;</code> 可以引入java类，定义网页依赖属性，比如脚本语言、error页面、缓存需求等等</li>
+<li><code>&lt;%@ include ... %&gt;</code> 另一个jsp文件，包含其他文件（静态包含）</li>
+<li><code>&lt;%@ taglib prefix=&quot;c&quot; uri=&quot;http://java.sun.com/jsp/jstl/core&quot; %&gt;</code> 引入标签库的定义<ol>
+<li>JSP Tag需要正确引入taglib的jar包，并且还需要正确声明，使用起来非常复杂，对于页面开发来说，不推荐使用JSP Tag，后续有更简单的模板引擎，taglib就略</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p><strong>JSP标准库(JSTL)</strong></p>
+<ol>
+<li>JSTL支持通用的、结构化的任务，比如迭代，条件判断，XML文档操作，国际化标签，SQL标签。 除了这些，它还提供了一个框架来使用集成JSTL的自定义标签</li>
+</ol>
+</li>
+<li><p><strong>JSP表达式(el)</strong></p>
+<ol>
+<li>包含在<code>&lt;%--</code>和<code>--%&gt;</code>之间的是JSP的注释，它们会被完全忽略</li>
+<li>包含在<code>&lt;%</code>和<code>%&gt;</code>之间的是Java代码，可以编写任意Java代码；</li>
+<li>如果使用<code>&lt;%= xxx %&gt;</code>则可以快捷输出一个变量的值</li>
+</ol>
+  <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>Hello World - JSP<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    &lt;%-- JSP Comment --%&gt;</span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello World!<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span></span><br><span class="line">    &lt;%</span><br><span class="line">         out.println(&quot;Your IP address is &quot;);</span><br><span class="line">    %&gt;</span><br><span class="line">    <span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">&quot;color:red&quot;</span>&gt;</span></span><br><span class="line">        &lt;%= request.getRemoteAddr() %&gt;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="JSESSION"><a href="#JSESSION" class="headerlink" title="JSESSION"></a>JSESSION</h2><h2 id="MVC"><a href="#MVC" class="headerlink" title="MVC"></a>MVC</h2><h3 id="什么是MVC"><a href="#什么是MVC" class="headerlink" title="什么是MVC"></a>什么是MVC</h3><ol>
+<li>概念图如下<img src="/pic/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/javaweb_mvc_example.png" alt="概念图如下"><ol>
+<li>Servlet作为Controller处理业务的逻辑</li>
+<li>获得到数据的集成Model，这里使用JavaBean实现</li>
+<li>最终将Model发送到View也就是这里的JSP中进行渲染</li>
+</ol>
+</li>
+<li>可以实现功能的解耦<ol>
+<li>Controller专注于业务处理，它的处理结果就是Model。Model可以是一个JavaBean，也可以是一个包含多个对象的Map，Controller只负责把Model传递给View，View只负责把Model给“渲染”出来</li>
+</ol>
+</li>
+</ol>
+<h3 id="一个更加成熟的MVC"><a href="#一个更加成熟的MVC" class="headerlink" title="一个更加成熟的MVC"></a>一个更加成熟的MVC</h3><blockquote>
+<p>上述通过Servlet和JSP讲述了MVC的概念，这里通过更加实际可行的方式搭建一个MVC的示例</p>
+</blockquote>
+<ol>
+<li>实现思想<img src="/pic/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/javaweb_mvc_impl.png" alt="实现图"><ol>
+<li><p>使用普通的Java类实现Controller: 业务逻辑最好由纯粹的Java类实现，而不是强迫继承自Servlet</p>
+</li>
+<li><p>创建一个接收所有请求的Servlet</p>
+</li>
+<li><p>DispatcherServlet</p>
+<ol>
+<li>总是映射到&#x2F;，跟据不同的Controller的方法定义的@Get或@Post的Path决定调用哪个方法</li>
+<li>存储请求路径到某个具体方法的映射</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(urlPatterns = &quot;/&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DispatcherServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, GetDispatcher&gt; getMappings = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, PostDispatcher&gt; postMappings = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Controller</p>
+<ol>
+<li>其中的每一个函数作为一个小的控制器，用于处理业务逻辑</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">    <span class="meta">@GetMapping(&quot;/signin&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> ModelAndView <span class="title function_">signin</span><span class="params">()</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/signin&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> ModelAndView <span class="title function_">doSignin</span><span class="params">(SignInBean bean)</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/signout&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> ModelAndView <span class="title function_">signout</span><span class="params">(HttpSession session)</span> &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h2 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h2><h2 id="Listener"><a href="#Listener" class="headerlink" title="Listener"></a>Listener</h2><h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>JSP<ol>
+<li><a target="_blank" rel="noopener" href="https://www.javasec.org/javaweb/JSP.html">javasec</a></li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Servlet"><span class="toc-number">1.</span> <span class="toc-text">Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFServlet"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Servlet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%90%E8%A1%8C%E4%B8%80%E4%B8%AAServlet"><span class="toc-number">1.2.</span> <span class="toc-text">运行一个Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%88%E6%9C%AC%E8%AE%BE%E7%BD%AE"><span class="toc-number">1.2.1.</span> <span class="toc-text">版本设置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Servlet-Java%E5%92%8CTomcat%E7%89%88%E6%9C%AC%E7%9A%84%E5%85%BC%E5%AE%B9%E6%80%A7"><span class="toc-number">1.2.2.</span> <span class="toc-text">Servlet, Java和Tomcat版本的兼容性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#pom-xml"><span class="toc-number">1.2.3.</span> <span class="toc-text">pom.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Hello-Servlet"><span class="toc-number">1.2.4.</span> <span class="toc-text">Hello Servlet</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A1%A5%E5%85%85%EF%BC%9A%E5%B5%8C%E5%85%A5%E5%BC%8Ftomcat%E8%BF%90%E8%A1%8CServlet"><span class="toc-number">1.3.</span> <span class="toc-text">补充：嵌入式tomcat运行Servlet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E9%98%B6Servlet"><span class="toc-number">1.4.</span> <span class="toc-text">进阶Servlet</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#HttpServlet-%E8%87%AA%E5%AE%9A%E4%B9%89%E5%A4%84%E7%90%86%E8%AF%B7%E6%B1%82"><span class="toc-number">1.4.1.</span> <span class="toc-text">HttpServlet: 自定义处理请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HttpServletRequest%E5%92%8CHttpServletResponse"><span class="toc-number">1.4.2.</span> <span class="toc-text">HttpServletRequest和HttpServletResponse</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Servlet%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.4.3.</span> <span class="toc-text">Servlet的多线程模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#more-servlet"><span class="toc-number">1.4.4.</span> <span class="toc-text">more servlet</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JSP"><span class="toc-number">2.</span> <span class="toc-text">JSP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFJSP"><span class="toc-number">2.1.</span> <span class="toc-text">什么是JSP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JSP%E4%B8%AD%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-number">2.2.</span> <span class="toc-text">JSP中的概念</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JSESSION"><span class="toc-number">3.</span> <span class="toc-text">JSESSION</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MVC"><span class="toc-number">4.</span> <span class="toc-text">MVC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFMVC"><span class="toc-number">4.1.</span> <span class="toc-text">什么是MVC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%8A%A0%E6%88%90%E7%86%9F%E7%9A%84MVC"><span class="toc-number">4.2.</span> <span class="toc-text">一个更加成熟的MVC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Filter"><span class="toc-number">5.</span> <span class="toc-text">Filter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Listener"><span class="toc-number">6.</span> <span class="toc-text">Listener</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">7.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&text=Java安全6(1)_初识JavaWeb"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&is_video=false&description=Java安全6(1)_初识JavaWeb"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全6(1)_初识JavaWeb&body=Check out this article: https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&title=Java安全6(1)_初识JavaWeb"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&name=Java安全6(1)_初识JavaWeb&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/28/Java%E5%AE%89%E5%85%A86(1)_%E5%88%9D%E8%AF%86JavaWeb/&t=Java安全6(1)_初识JavaWeb"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

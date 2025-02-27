@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="网络相关的类与协议 类: 从网上搜刮来的类有这么多  1234567HttpClientRequest # 第三方，对HttpClient封装后的类HttpURLConnectionURLConnectionURLokhttp  # 第三方ImageIO  协议: Java网络请求支持的协议可通过下面几种方法检测  代码中遍历协议  官方文档中查看  import sun.net.www.prot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全7_ssrf">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="网络相关的类与协议 类: 从网上搜刮来的类有这么多  1234567HttpClientRequest # 第三方，对HttpClient封装后的类HttpURLConnectionURLConnectionURLokhttp  # 第三方ImageIO  协议: Java网络请求支持的协议可通过下面几种方法检测  代码中遍历协议  官方文档中查看  import sun.net.www.prot">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A87_ssrf/protocals.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A87_ssrf/jdk8_protocals.png">
+<meta property="article:published_time" content="2024-11-30T12:52:58.101Z">
+<meta property="article:modified_time" content="2024-12-01T07:52:13.625Z">
+<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="ssrf">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A87_ssrf/protocals.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>Java安全7_ssrf</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/30/%E5%86%8D%E9%81%87ssrf/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&text=Java安全7_ssrf"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&is_video=false&description=Java安全7_ssrf"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全7_ssrf&body=Check out this article: https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&name=Java安全7_ssrf&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&t=Java安全7_ssrf"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3%E7%9A%84%E7%B1%BB%E4%B8%8E%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.</span> <span class="toc-text">网络相关的类与协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#URLConnection%E4%B8%8EURL%E7%A4%BA%E4%BE%8B"><span class="toc-number">2.</span> <span class="toc-text">URLConnection与URL示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#http-https%E9%BB%98%E8%AE%A4%E5%A4%84%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">http|https默认处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E4%B8%AD%E7%9A%84SSRF"><span class="toc-number">4.</span> <span class="toc-text">Java中的SSRF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#new-URL"><span class="toc-number">4.1.</span> <span class="toc-text">new URL()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jar"><span class="toc-number">4.2.</span> <span class="toc-text">jar:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">4.3.</span> <span class="toc-text">利用方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全7_ssrf
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-30T12:52:58.101Z" class="dt-published" itemprop="datePublished">2024-11-30</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>, <a class="p-category" href="/tags/ssrf/" rel="tag">ssrf</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="网络相关的类与协议"><a href="#网络相关的类与协议" class="headerlink" title="网络相关的类与协议"></a>网络相关的类与协议</h2><ol>
+<li><p><strong>类</strong>: 从网上搜刮来的类有这么多</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">HttpClient</span><br><span class="line">Request <span class="comment"># 第三方，对HttpClient封装后的类</span></span><br><span class="line">HttpURLConnection</span><br><span class="line">URLConnection</span><br><span class="line">URL</span><br><span class="line">okhttp  <span class="comment"># 第三方</span></span><br><span class="line">ImageIO</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>协议</strong>: Java网络请求支持的协议可通过下面几种方法检测</p>
+<ol>
+<li><p>代码中遍历协议</p>
+</li>
+<li><p>官方文档中查看</p>
+</li>
+<li><p>import sun.net.<a target="_blank" rel="noopener" href="http://www.protocol查看/">www.protocol查看</a></p>
+<ol>
+<li>可以发现，每一个协议都有其对应的一个Handler和一个XXXURLConnection继承URLConnection的子类</li>
+<li>jdk7u21<ol>
+<li>gopher实际在jdk8版本以后被阉割了，jdk7高版本虽然存在，但是需要设置</li>
+<li><img src="/pic/Java%E5%AE%89%E5%85%A87_ssrf/protocals.png" alt="jdk7u21"></li>
+</ol>
+</li>
+<li>这是jdk8<img src="/pic/Java%E5%AE%89%E5%85%A87_ssrf/jdk8_protocals.png" alt="jdk8"></li>
+<li>jdk11高版本上netdoc也被弃用</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// jdk7u2</span></span><br><span class="line">file ftp mailto http https jar netdoc gopher</span><br><span class="line"><span class="comment">// jdk8中看不到gopher了</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p><strong>限制</strong></p>
+<ol>
+<li>如果用URL和URLConnection还有ImageIO类的方法发起请求，则支持sun.net.<a target="_blank" rel="noopener" href="http://www.protocol所有协议/">www.protocol所有协议</a></li>
+<li>如果使用HttpURLConnection, HttpClient, Request, okhttp这些协议就只支持http和https协议<ol>
+<li>Request类对HttpClient进行了封装。类似Python的requests库。用法及其简单，一行代码就可以获取网页内容<code>Request.Get(url).execute().returnContent().toString();</code></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="URLConnection与URL示例"><a href="#URLConnection与URL示例" class="headerlink" title="URLConnection与URL示例"></a>URLConnection与URL示例</h2><ol>
+<li><p>发起一个简单请求</p>
+<ol>
+<li>这里使用的file协议需要是<code>file:./</code>而不是<code>file://</code></li>
+<li><strong>遇到这两个类可以用其他协议进行攻击</strong></li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"><span class="keyword">import</span> java.net.URL;</span><br><span class="line"><span class="keyword">import</span> java.net.URLConnection;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConnectionTest</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">        </span><br><span class="line">            <span class="type">URL</span> <span class="variable">url</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URL</span>(<span class="string">&quot;file:./src/main/java/HelloSSRF.txt&quot;</span>);    <span class="comment">// 相对于项目根目录</span></span><br><span class="line">            <span class="type">URLConnection</span> <span class="variable">conn</span> <span class="operator">=</span> url.openConnection();</span><br><span class="line"></span><br><span class="line">            conn.setConnectTimeout(<span class="number">1000</span>);</span><br><span class="line">            conn.setReadTimeout(<span class="number">1000</span>);</span><br><span class="line">            conn.setRequestProperty(<span class="string">&quot;user-agent&quot;</span>, <span class="string">&quot;KC1zs4&quot;</span>);    <span class="comment">// 可以以键值对形式设置请求头</span></span><br><span class="line"></span><br><span class="line">            conn.connect();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 进行输出 </span></span><br><span class="line">            <span class="type">StringBuilder</span> <span class="variable">resp</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">            <span class="type">BufferedReader</span> <span class="variable">in</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(conn.getInputStream()));</span><br><span class="line">            String line;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">while</span> ((line = in.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">                resp.append(line).append(<span class="string">&quot;\n&quot;</span>); <span class="comment">// 进行换行</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            System.out.print(resp.toString());</span><br><span class="line"></span><br><span class="line">            &#125;<span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="http-https默认处理"><a href="#http-https默认处理" class="headerlink" title="http|https默认处理"></a>http|https默认处理</h2><ol>
+<li><p>默认启用了透明NTLM认证</p>
+</li>
+<li><p>默认跟随跳转</p>
+<ol>
+<li>进入到HttpURLConnection.class中，搜索<code>followRedirect</code>，可以再以下代码出看到<strong>要求url的协议和Location头中的协议是一致的</strong></li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">var2</span> <span class="operator">=</span> <span class="built_in">this</span>.getHeaderField(<span class="string">&quot;Location&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (var2 == <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    URL var3;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        var3 = <span class="keyword">new</span> <span class="title class_">URL</span>(var2);</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">this</span>.url.getProtocol().equalsIgnoreCase(var3.getProtocol())) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Java中的SSRF"><a href="#Java中的SSRF" class="headerlink" title="Java中的SSRF"></a>Java中的SSRF</h2><h3 id="new-URL"><a href="#new-URL" class="headerlink" title="new URL()"></a>new URL()</h3><ol>
+<li>在查看jarURLConnection时查到了下面这段话</li>
+<li>When constructing a JAR url via new URL(context, spec), the following rules apply:<ol>
+<li>if there is no context URL and the specification passed to the URL constructor doesn’t contain a separator, the URL is considered to refer to a JarFile.</li>
+<li>if there is a context URL, the context URL is assumed to refer to a JAR file or a Jar directory.</li>
+<li>if the specification begins with a ‘&#x2F;‘, the Jar directory is ignored, and the spec is considered to be at the root of the Jar file.</li>
+</ol>
+</li>
+<li>例子如下<ol>
+<li>context: <code>jar:http://www.foo.com/bar/jar.jar!/</code>, spec:baz&#x2F;entry.txt<ol>
+<li>url:<code>jar:http://www.foo.com/bar/jar.jar!/baz/entry.txt</code></li>
+</ol>
+</li>
+<li>context: <code>jar:http://www.foo.com/bar/jar.jar!/baz</code>, spec:entry.txt<ol>
+<li>url:<code>jar:http://www.foo.com/bar/jar.jar!/baz/entry.txt</code></li>
+</ol>
+</li>
+<li>context: <code>jar:http://www.foo.com/bar/jar.jar!/baz</code>, spec:&#x2F;entry.txt<ol>
+<li>url:<code>jar:http://www.foo.com/bar/jar.jar!/entry.txt</code></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="jar"><a href="#jar" class="headerlink" title="jar:&#x2F;&#x2F;"></a>jar:&#x2F;&#x2F;</h3><ol>
+<li><p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/api/java/net/JarURLConnection.html">官方文档</a>，jar:&#x2F;&#x2F;协议能从远程获取jar文件及解压得到其中的内容</p>
+<ol>
+<li>主要格式如下<code>jar:&lt;url&gt;!/&#123;entry&#125;</code>，!符号后面就是其需要从中解压出的文件，这里的url是需要包含协议的</li>
+<li><strong>只读</strong>: JarURLConnection 实例只能用于从 JAR 文件中读取。使用此类无法获取 OutputStream 来修改或写入底层 JAR 文件</li>
+<li>jar协议处理文件过程<ol>
+<li>下载 jar&#x2F;zip 文件到临时文件中</li>
+<li>提取出我们指定的文件</li>
+<li>删除临时文件</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jar:http://www.foo.com/bar/baz.jar!/    <span class="comment"># jar包本身</span></span><br><span class="line">jar:http://xxx.xxx.xxx/bar/bar.jar!/info.txt    <span class="comment"># jar包中的资源文件</span></span><br><span class="line">jar:http://xxx.xxx.xxx/bar/baz.jar!/info_dir/    <span class="comment"># jar包中的某个目录    </span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h3><ol>
+<li>一般情况下Java的ssrf利用方式比较有限，因为仅有(URL和)URLConnection可以使用其他协议<ol>
+<li>使用file, netdoc, jar, ImageIO加载文件<ol>
+<li>ImageIO只能读取文件以及探测文件存不存在</li>
+<li>通file协议，结合不同的返回type会读取到或者下载文件，<code>file:///flag.txt</code></li>
+<li>jar读源码：如果jar包还是开发者自定义的话就会造成源码泄露<code>?url=jar:http://127.0.0.1/ysoserial.jar!/ysoserial/payloads/C3P0.class</code></li>
+<li>netdoc类似file，<code>url=netdoc:///Users/xxxx/sql.txt</code></li>
+</ol>
+</li>
+<li>使用http探测端口: 通过不同的返回结果可以判断是否由开放某个端口</li>
+</ol>
+</li>
+<li>例题可以看pcb23的http，是java背景的ssrf，需要涉及一些分析</li>
+</ol>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.javasec.org/javase/URLConnection/">javasec</a></li>
+<li>[<a target="_blank" rel="noopener" href="https://www.cnblogs.com/CoLo/p/15236424.html#urlconnection]">https://www.cnblogs.com/CoLo/p/15236424.html#urlconnection]</a></li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BD%91%E7%BB%9C%E7%9B%B8%E5%85%B3%E7%9A%84%E7%B1%BB%E4%B8%8E%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.</span> <span class="toc-text">网络相关的类与协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#URLConnection%E4%B8%8EURL%E7%A4%BA%E4%BE%8B"><span class="toc-number">2.</span> <span class="toc-text">URLConnection与URL示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#http-https%E9%BB%98%E8%AE%A4%E5%A4%84%E7%90%86"><span class="toc-number">3.</span> <span class="toc-text">http|https默认处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E4%B8%AD%E7%9A%84SSRF"><span class="toc-number">4.</span> <span class="toc-text">Java中的SSRF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#new-URL"><span class="toc-number">4.1.</span> <span class="toc-text">new URL()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jar"><span class="toc-number">4.2.</span> <span class="toc-text">jar:&#x2F;&#x2F;</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">4.3.</span> <span class="toc-text">利用方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&text=Java安全7_ssrf"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&is_video=false&description=Java安全7_ssrf"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全7_ssrf&body=Check out this article: https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&title=Java安全7_ssrf"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&name=Java安全7_ssrf&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/30/Java%E5%AE%89%E5%85%A87_ssrf/&t=Java安全7_ssrf"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

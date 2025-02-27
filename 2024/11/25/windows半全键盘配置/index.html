@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="不喜欢把手从键盘移动到鼠标的感觉，干脆直接画时间配置一下一个简要的题纲，后续搞个github仓库整理一下  配置哲学 尽量熟悉原厂: 对于一些比较不方便的才进行自定义的设置 组合&gt;一刀切: win和linux都很好😍  小提纲 windows PowerToys cmd git(gitbash) Batch(.bat) 快捷键   wsl bash   ide vscode+vim ex">
+<meta property="og:type" content="article">
+<meta property="og:title" content="windows半全键盘配置😋">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="不喜欢把手从键盘移动到鼠标的感觉，干脆直接画时间配置一下一个简要的题纲，后续搞个github仓库整理一下  配置哲学 尽量熟悉原厂: 对于一些比较不方便的才进行自定义的设置 组合&gt;一刀切: win和linux都很好😍  小提纲 windows PowerToys cmd git(gitbash) Batch(.bat) 快捷键   wsl bash   ide vscode+vim ex">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-25T09:35:04.998Z">
+<meta property="article:modified_time" content="2024-12-06T14:03:45.420Z">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>windows半全键盘配置😋</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/24/Java%E5%AE%89%E5%85%A85(14)_rome/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&text=windows半全键盘配置😋"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&is_video=false&description=windows半全键盘配置😋"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=windows半全键盘配置😋&body=Check out this article: https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&name=windows半全键盘配置😋&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&t=windows半全键盘配置😋"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%93%B2%E5%AD%A6"><span class="toc-number">1.</span> <span class="toc-text">配置哲学</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E6%8F%90%E7%BA%B2"><span class="toc-number">2.</span> <span class="toc-text">小提纲</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#windows%E7%BB%88%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">3.</span> <span class="toc-text">windows终端配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cmd"><span class="toc-number">3.1.</span> <span class="toc-text">cmd</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#cmdrc-bat-%E2%80%9C-bashrc%E2%80%9D"><span class="toc-number">3.1.1.</span> <span class="toc-text">.cmdrc.bat(“.bashrc”)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.2.</span> <span class="toc-text">编码问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#windows%E4%B8%AD%E7%9A%84Vim"><span class="toc-number">3.1.3.</span> <span class="toc-text">windows中的Vim</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Scoop%E5%92%8Cwinget"><span class="toc-number">3.1.4.</span> <span class="toc-text">Scoop和winget</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wsl%E7%BB%88%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">4.</span> <span class="toc-text">wsl终端配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tmux"><span class="toc-number">4.1.</span> <span class="toc-text">tmux</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        windows半全键盘配置😋
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-25T09:35:04.998Z" class="dt-published" itemprop="datePublished">2024-11-25</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E9%85%8D%E7%BD%AE/">配置</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>不喜欢把手从键盘移动到鼠标的感觉，干脆直接画时间配置一下<br>一个简要的题纲，后续搞个github仓库整理一下</p>
+</blockquote>
+<h2 id="配置哲学"><a href="#配置哲学" class="headerlink" title="配置哲学"></a>配置哲学</h2><ol>
+<li><strong>尽量熟悉原厂</strong>: 对于一些比较不方便的才进行自定义的设置</li>
+<li><strong>组合&gt;一刀切</strong>: win和linux都很好😍</li>
+</ol>
+<h2 id="小提纲"><a href="#小提纲" class="headerlink" title="小提纲"></a>小提纲</h2><ol>
+<li>windows<ol>
+<li>PowerToys</li>
+<li>cmd</li>
+<li>git(gitbash)</li>
+<li>Batch(.bat)</li>
+<li>快捷键</li>
+</ol>
+</li>
+<li>wsl<ol>
+<li>bash</li>
+</ol>
+</li>
+<li>ide<ol>
+<li>vscode+vim ext</li>
+<li>jetbrains+vim ext</li>
+<li>快捷键</li>
+</ol>
+</li>
+</ol>
+<h2 id="windows终端配置"><a href="#windows终端配置" class="headerlink" title="windows终端配置"></a>windows终端配置</h2><ol>
+<li>我的选择：git bash(主) + cmd(辅)</li>
+<li>其他选择<ol>
+<li>cmder</li>
+</ol>
+</li>
+</ol>
+<h3 id="cmd"><a href="#cmd" class="headerlink" title="cmd"></a>cmd</h3><h4 id="cmdrc-bat-“-bashrc”"><a href="#cmdrc-bat-“-bashrc”" class="headerlink" title=".cmdrc.bat(“.bashrc”)"></a>.cmdrc.bat(“.bashrc”)</h4><blockquote>
+<p>windows中并没有这样的一个文件，这个我用的配置文件而已</p>
+</blockquote>
+<ol>
+<li><p>随便一个目录下设置一个.cmdrc.txt文件</p>
+</li>
+<li><p>进行编辑写入比如下列的脚本</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@echo</span> off</span><br><span class="line">set greet=hello world</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>win+r regedit进入注册表，ctrl+f搜索Command Processor，等一下就有了，我这里网上有些大小写差异，要ctrl+f才行，我的是<code>计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor</code></p>
+</li>
+<li><p>这里添加“字符串”，将选项名称改为AutoRun，一定要AutoRun，然后添加上你的.cmdrc.bat的路径</p>
+</li>
+<li><p>重新打开一个cmd，<code>echo %greet%</code>发现可以运行</p>
+</li>
+<li><p>重新加载似乎只有重启</p>
+</li>
+</ol>
+<h4 id="编码问题"><a href="#编码问题" class="headerlink" title="编码问题"></a>编码问题</h4><ol>
+<li>再.cmdrc.bat中添加<code>chcp 65001 &gt; nul</code>即可</li>
+</ol>
+<h4 id="windows中的Vim"><a href="#windows中的Vim" class="headerlink" title="windows中的Vim"></a>windows中的Vim</h4><ol>
+<li>下载后记得添加path里就好，是由.exe文件那个目录就好，不用精细到vim.exe</li>
+<li>自定义在“项目”根目录下的_vimrc就ok</li>
+<li><a target="_blank" rel="noopener" href="https://www.huangdc.com/421">老哥的配置参考</a></li>
+</ol>
+<h4 id="Scoop和winget"><a href="#Scoop和winget" class="headerlink" title="Scoop和winget"></a>Scoop和winget</h4><blockquote>
+<p>类似于apt的包管理器</p>
+</blockquote>
+<ol>
+<li>个人现在还不需要，先放着知道有这个东西</li>
+</ol>
+<h2 id="wsl终端配置"><a href="#wsl终端配置" class="headerlink" title="wsl终端配置"></a>wsl终端配置</h2><h3 id="tmux"><a href="#tmux" class="headerlink" title="tmux"></a>tmux</h3><blockquote>
+<p>.tmux.conf具体配置见github</p>
+</blockquote>
+<ol>
+<li><strong>S1: 下载tmux管理插件</strong>，<code>git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm</code>，需要时就创建目录</li>
+<li><strong>S2: 自定义文件</strong>，在~目录中需要.tmux.conf文件中进行设置，编写完毕后<code>tmux</code>进入模式，可能就生效了，没有就在ctrl+b接:再<code>source-file ~/.tmux.conf</code>，完成配置</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%93%B2%E5%AD%A6"><span class="toc-number">1.</span> <span class="toc-text">配置哲学</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E6%8F%90%E7%BA%B2"><span class="toc-number">2.</span> <span class="toc-text">小提纲</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#windows%E7%BB%88%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">3.</span> <span class="toc-text">windows终端配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cmd"><span class="toc-number">3.1.</span> <span class="toc-text">cmd</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#cmdrc-bat-%E2%80%9C-bashrc%E2%80%9D"><span class="toc-number">3.1.1.</span> <span class="toc-text">.cmdrc.bat(“.bashrc”)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%96%E7%A0%81%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.2.</span> <span class="toc-text">编码问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#windows%E4%B8%AD%E7%9A%84Vim"><span class="toc-number">3.1.3.</span> <span class="toc-text">windows中的Vim</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Scoop%E5%92%8Cwinget"><span class="toc-number">3.1.4.</span> <span class="toc-text">Scoop和winget</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wsl%E7%BB%88%E7%AB%AF%E9%85%8D%E7%BD%AE"><span class="toc-number">4.</span> <span class="toc-text">wsl终端配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tmux"><span class="toc-number">4.1.</span> <span class="toc-text">tmux</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&text=windows半全键盘配置😋"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&is_video=false&description=windows半全键盘配置😋"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=windows半全键盘配置😋&body=Check out this article: https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&title=windows半全键盘配置😋"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&name=windows半全键盘配置😋&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/&t=windows半全键盘配置😋"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

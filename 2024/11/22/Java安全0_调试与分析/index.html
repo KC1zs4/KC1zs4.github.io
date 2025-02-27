@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="classpath classpath是Java编译器和Java虚拟机(JVM)用来查找类文件的路径 classpath的类型 系统类路径：由系统类加载器加载，包含JDK的核心类库和扩展类库 加载器：由 Bootstrap ClassLoader 加载 包含 JDK 的核心类库（如 rt.jar、charsets.jar 等），这些类库是 Java 运行时环境（JRE）的核心部分 通常是 JRE_">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全0_调试与分析">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="classpath classpath是Java编译器和Java虚拟机(JVM)用来查找类文件的路径 classpath的类型 系统类路径：由系统类加载器加载，包含JDK的核心类库和扩展类库 加载器：由 Bootstrap ClassLoader 加载 包含 JDK 的核心类库（如 rt.jar、charsets.jar 等），这些类库是 Java 运行时环境（JRE）的核心部分 通常是 JRE_">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/ctrl_h.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/ctrl_alt_b.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/ctrl_f12.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/alt_7.png">
+<meta property="article:published_time" content="2024-11-22T15:26:09.853Z">
+<meta property="article:modified_time" content="2025-02-14T15:49:22.220Z">
+<meta property="article:tag" content="Java安全">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/ctrl_h.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>Java安全0_调试与分析</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/23/Java%E5%AE%89%E5%85%A85(13)_shiro550/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&text=Java安全0_调试与分析"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&is_video=false&description=Java安全0_调试与分析"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全0_调试与分析&body=Check out this article: https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&name=Java安全0_调试与分析&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&t=Java安全0_调试与分析"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#classpath"><span class="toc-number">1.</span> <span class="toc-text">classpath</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#maven"><span class="toc-number">2.</span> <span class="toc-text">maven</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jar"><span class="toc-number">3.</span> <span class="toc-text">jar</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jar%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.1.</span> <span class="toc-text">jar介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idea%E6%9F%A5%E7%9C%8Bjar"><span class="toc-number">3.2.</span> <span class="toc-text">idea查看jar</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#war"><span class="toc-number">4.</span> <span class="toc-text">war</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#src-zip"><span class="toc-number">5.</span> <span class="toc-text">src.zip</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDEA%E6%93%8D%E4%BD%9C"><span class="toc-number">6.</span> <span class="toc-text">IDEA操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IDEA%E6%90%9C%E7%B4%A2%E5%8A%9F%E8%83%BD"><span class="toc-number">6.1.</span> <span class="toc-text">IDEA搜索功能</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#extends-implements%E5%92%8C%E5%88%86%E6%9E%90%E7%B1%BB"><span class="toc-number">6.1.1.</span> <span class="toc-text">extends, implements和分析类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%90%9C%E7%B4%A2%E4%B8%8E%E6%9F%A5%E6%89%BE"><span class="toc-number">6.1.2.</span> <span class="toc-text">搜索与查找</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idea%E4%B8%8E%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%8D%8F%E8%B0%83"><span class="toc-number">6.2.</span> <span class="toc-text">idea与命令行协调</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全0_调试与分析
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-22T15:26:09.853Z" class="dt-published" itemprop="datePublished">2024-11-22</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="classpath"><a href="#classpath" class="headerlink" title="classpath"></a>classpath</h2><ol>
+<li><strong>classpath</strong>是Java编译器和Java虚拟机(JVM)用来查找类文件的路径</li>
+<li><strong>classpath的类型</strong><ol>
+<li><strong>系统类路径</strong>：由系统类加载器加载，包含JDK的核心类库和扩展类库<ol>
+<li>加载器：由 Bootstrap ClassLoader 加载</li>
+<li>包含 JDK 的核心类库（如 rt.jar、charsets.jar 等），这些类库是 Java 运行时环境（JRE）的核心部分</li>
+<li>通常是 JRE_HOME&#x2F;lib 目录下的 JAR 文件</li>
+<li>含义<ol>
+<li>这些类是 Java 运行的基础，由 JVM 直接加载</li>
+<li>系统类路径优先于其他类路径加载。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><strong>应用类路径</strong>：由应用类加载器加载，包含应用程序的类文件<ol>
+<li>加载器：由 Extension ClassLoader 加载</li>
+<li>内容：包含 JDK 的扩展类库（如 ext 目录下的 JAR 文件）</li>
+<li>路径：通常是 JRE_HOME&#x2F;lib&#x2F;ext 目录</li>
+<li>含义<ol>
+<li>用于加载 JDK 的扩展类库</li>
+<li>开发者可以将自定义的 JAR 文件放入 ext 目录，这些类会被自动加载</li>
+<li>扩展类路径的优先级低于系统类路径，但高于应用类路径</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><strong>扩展类路径</strong>：由扩展类加载器加载，包含JDK的扩展类库<ol>
+<li>加载器：由 Application ClassLoader（也称为系统类加载器）加载</li>
+<li>内容：包含应用程序的类文件、第三方库（JAR 文件）以及资源文件</li>
+<li>路径：由开发者通过 -classpath 或 -cp 参数显式指定，或者通过环境变量 CLASSPATH 设置</li>
+<li>含义<ol>
+<li>应用类路径的优先级最低，只有在系统类路径和扩展类路径中找不到类时，才会从应用类路径加载</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>类加载器的层次结构: Java 的类加载器采用双亲委派模型（Parent Delegation Model）<ol>
+<li>即类加载器在加载类时，会先委托其父类加载器尝试加载，只有在父类加载器无法加载时，才会自己尝试加载。类加载器的层次结构如下：<ol>
+<li>Bootstrap ClassLoader：加载系统类路径中的类</li>
+<li>Extension ClassLoader：加载扩展类路径中的类</li>
+<li>Application ClassLoader：加载应用类路径中的类</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><strong>依赖的存储路径</strong><ol>
+<li>Maven项目<ol>
+<li>默认路径：~&#x2F;.m2&#x2F;repository&#x2F;</li>
+<li>在 Windows 系统中，路径通常是：C:\Users&lt;用户名&gt;.m2\repository\</li>
+<li>在 Linux&#x2F;Mac 系统中，路径通常是：&#x2F;home&#x2F;&lt;用户名&gt;&#x2F;.m2&#x2F;repository&#x2F;</li>
+</ol>
+</li>
+<li>手动管理：依赖通常放在项目的 lib 目录中</li>
+</ol>
+</li>
+</ol>
+<h2 id="maven"><a href="#maven" class="headerlink" title="maven"></a>maven</h2><ol>
+<li>直接跳转<a href="/_posts/JavaWeb4_Maven.md">JavaWeb4_Maven</a></li>
+</ol>
+<h2 id="jar"><a href="#jar" class="headerlink" title="jar"></a>jar</h2><h3 id="jar介绍"><a href="#jar介绍" class="headerlink" title="jar介绍"></a>jar介绍</h3><ol>
+<li><p>总结: 一个打包.class与资源文件的zip格式压缩包，可用于作为库分发和应用部署</p>
+</li>
+<li><p><strong>定义</strong>: JAR（Java Archive）包是一种用于打包Java类文件、资源文件和元数据的压缩文件格式，通常以.jar为扩展名。它基于ZIP格式，允许将多个文件合并为一个文件，便于分发和部署</p>
+</li>
+<li><p><strong>用途</strong></p>
+<ol>
+<li>库分发：将Java库打包为JAR文件，供其他项目使用</li>
+<li>应用部署：将应用程序及其依赖打包为JAR文件，便于部署</li>
+<li>资源打包：将图片、配置文件等资源与代码一起打包</li>
+</ol>
+</li>
+<li><p><strong>结构</strong></p>
+<ol>
+<li><p>元数据目录: META-INF（必须），用于存储元数据</p>
+<ol>
+<li>最重要的文件是 MANIFEST.MF，它包含JAR包的元信息<ol>
+<li>主类（Main-Class）：指定可执行JAR包的入口类</li>
+<li>版本信息：JAR包的版本号</li>
+<li>类路径（Class-Path）：指定依赖的其他JAR包</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>依赖库（可选）</p>
+</li>
+<li><p>其他文件（可选）</p>
+<ol>
+<li>META-INF&#x2F;*.SF：签名文件</li>
+<li>META-INF&#x2F;*.DSA 或 META-INF&#x2F;*.RSA：签名块文件</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MANIFEST.MF</span></span><br><span class="line">Manifest-Version: <span class="number">1.0</span></span><br><span class="line">Main-Class: com.example.Main</span><br><span class="line">Class-Path: lib/dependency1.jar lib/dependency2.jar</span><br></pre></td></tr></table></figure></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">myapp.jar</span><br><span class="line">│</span><br><span class="line">├── com/ <span class="comment">// 编译后的Java类文件（.class文件）</span></span><br><span class="line">│   └── example/</span><br><span class="line">│       ├── MyClass.class</span><br><span class="line">│       └── Utils.class</span><br><span class="line">│</span><br><span class="line">├── config/ <span class="comment">// 资源文件: 配置文件</span></span><br><span class="line">│   └── settings.properties</span><br><span class="line">│</span><br><span class="line">├── images/ <span class="comment">// 资源文件: 图片文件</span></span><br><span class="line">│   └── logo.png</span><br><span class="line">│</span><br><span class="line">└── META-INF/  <span class="comment">// 元数据文件（META-INF 目录）</span></span><br><span class="line">    ├── MANIFEST.MF</span><br><span class="line">    └── EXAMPLE.SF</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="idea查看jar"><a href="#idea查看jar" class="headerlink" title="idea查看jar"></a>idea查看jar</h3><ul>
+<li>ref<ul>
+<li>[<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44009447/article/details/107553098]">https://blog.csdn.net/weixin_44009447/article/details/107553098]</a></li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>S1: 新建一个文件夹，将jar包放入其中</li>
+<li>S2: 将该文件夹打开为项目，右键jar包<code>add as library</code>，即可查看idea反编译源码</li>
+<li>局限: jar包中含有的是经过编译后生成的class文件，和原java文件会有不同，而且完全不会存在注释信息，并且有些命名会被混淆</li>
+</ol>
+<h2 id="war"><a href="#war" class="headerlink" title="war"></a>war</h2><h2 id="src-zip"><a href="#src-zip" class="headerlink" title="src.zip"></a>src.zip</h2><h2 id="IDEA操作"><a href="#IDEA操作" class="headerlink" title="IDEA操作"></a>IDEA操作</h2><h3 id="IDEA搜索功能"><a href="#IDEA搜索功能" class="headerlink" title="IDEA搜索功能"></a>IDEA搜索功能</h3><h4 id="extends-implements和分析类"><a href="#extends-implements和分析类" class="headerlink" title="extends, implements和分析类"></a>extends, implements和分析类</h4><ul>
+<li>常用<ul>
+<li>ctrl+h</li>
+<li>alt+7</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>查看实现类<ol>
+<li><code>ctrl+h</code>有树状结构<ol>
+<li><img src="/pic/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/ctrl_h.png" alt="pic"></li>
+</ol>
+</li>
+<li><code>ctrl+alt+b</code>没有树状结构<ol>
+<li><img src="/pic/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/ctrl_alt_b.png" alt="pic"></li>
+</ol>
+</li>
+<li>diagram法，右键可选</li>
+</ol>
+</li>
+<li><code>ctrl+fn+f12</code>，可以看到类的方法和成员和内部类，并支持搜索快速定位<ol>
+<li><img src="/pic/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/ctrl_f12.png" alt="pic"></li>
+</ol>
+</li>
+<li><code>alt+7</code>，当前类的struct，包括成员属性，可以选择查看继承关系的方法<ol>
+<li><img src="/pic/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/alt_7.png" alt="pic"></li>
+</ol>
+</li>
+</ol>
+<h4 id="搜索与查找"><a href="#搜索与查找" class="headerlink" title="搜索与查找"></a>搜索与查找</h4><ol>
+<li><code>shift+shift</code>在整个项目中搜索匹配符合关键词的位置</li>
+<li><code>ctrl+shift+f</code>项目中搜索关键字</li>
+<li><code>ctrl+e</code>，可以查找最近修改的文件，支持模糊匹配</li>
+<li><code>gd</code>，在方法处可以<strong>跳转到定义处</strong>或者<strong>查看全局调用处</strong></li>
+</ol>
+<h3 id="idea与命令行协调"><a href="#idea与命令行协调" class="headerlink" title="idea与命令行协调"></a>idea与命令行协调</h3>
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#classpath"><span class="toc-number">1.</span> <span class="toc-text">classpath</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#maven"><span class="toc-number">2.</span> <span class="toc-text">maven</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jar"><span class="toc-number">3.</span> <span class="toc-text">jar</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jar%E4%BB%8B%E7%BB%8D"><span class="toc-number">3.1.</span> <span class="toc-text">jar介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idea%E6%9F%A5%E7%9C%8Bjar"><span class="toc-number">3.2.</span> <span class="toc-text">idea查看jar</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#war"><span class="toc-number">4.</span> <span class="toc-text">war</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#src-zip"><span class="toc-number">5.</span> <span class="toc-text">src.zip</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IDEA%E6%93%8D%E4%BD%9C"><span class="toc-number">6.</span> <span class="toc-text">IDEA操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#IDEA%E6%90%9C%E7%B4%A2%E5%8A%9F%E8%83%BD"><span class="toc-number">6.1.</span> <span class="toc-text">IDEA搜索功能</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#extends-implements%E5%92%8C%E5%88%86%E6%9E%90%E7%B1%BB"><span class="toc-number">6.1.1.</span> <span class="toc-text">extends, implements和分析类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%90%9C%E7%B4%A2%E4%B8%8E%E6%9F%A5%E6%89%BE"><span class="toc-number">6.1.2.</span> <span class="toc-text">搜索与查找</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idea%E4%B8%8E%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%8D%8F%E8%B0%83"><span class="toc-number">6.2.</span> <span class="toc-text">idea与命令行协调</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&text=Java安全0_调试与分析"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&is_video=false&description=Java安全0_调试与分析"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全0_调试与分析&body=Check out this article: https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&title=Java安全0_调试与分析"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&name=Java安全0_调试与分析&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/&t=Java安全0_调试与分析"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

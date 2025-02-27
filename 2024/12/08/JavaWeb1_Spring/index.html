@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="!!!JavaWeb0其实是在《Java安全6(1)_初始JavaWbe》那里，这里直接进入Spring了ai时代了，思想、设计与创造力更加重要  IoCAOPAOP概念原理一二三解 AOP(Aspect Oriented Programming): 面向切面编程  为什么要有AOP  OOP有所不足 面向对象的特点：是对个体进行抽象来构成全体的运行，对于实现类则实现了该个体应该具有的全部方法与">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaWeb1_Spring">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="!!!JavaWeb0其实是在《Java安全6(1)_初始JavaWbe》那里，这里直接进入Spring了ai时代了，思想、设计与创造力更加重要  IoCAOPAOP概念原理一二三解 AOP(Aspect Oriented Programming): 面向切面编程  为什么要有AOP  OOP有所不足 面向对象的特点：是对个体进行抽象来构成全体的运行，对于实现类则实现了该个体应该具有的全部方法与">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-12-08T12:55:35.371Z">
+<meta property="article:modified_time" content="2024-12-17T14:58:24.810Z">
+<meta property="article:tag" content="JavaWeb">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>JavaWeb1_Spring</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/12/12/JavaWeb2_JDBC/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/12/07/python%E6%A0%88%E5%B8%A7%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&text=JavaWeb1_Spring"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&is_video=false&description=JavaWeb1_Spring"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JavaWeb1_Spring&body=Check out this article: https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&name=JavaWeb1_Spring&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&t=JavaWeb1_Spring"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IoC"><span class="toc-number">1.</span> <span class="toc-text">IoC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOP"><span class="toc-number">2.</span> <span class="toc-text">AOP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AOP%E6%A6%82%E5%BF%B5%E5%8E%9F%E7%90%86%E4%B8%80%E4%BA%8C%E4%B8%89%E8%A7%A3"><span class="toc-number">2.1.</span> <span class="toc-text">AOP概念原理一二三解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8Spring%E5%BA%94%E7%94%A8AOP"><span class="toc-number">2.2.</span> <span class="toc-text">利用Spring应用AOP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring%E8%83%8C%E5%90%8E%E7%9A%84AOP%E8%A3%85%E9%85%8D"><span class="toc-number">2.3.</span> <span class="toc-text">Spring背后的AOP装配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring-AOP%E9%81%BF%E5%9D%91"><span class="toc-number">2.4.</span> <span class="toc-text">Spring AOP避坑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%AB%E7%96%91%E7%8E%AF%E8%8A%82"><span class="toc-number">3.</span> <span class="toc-text">扫疑环节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring-Bean"><span class="toc-number">3.1.</span> <span class="toc-text">Spring Bean</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Bean%E6%AF%94%E8%BE%83"><span class="toc-number">3.1.1.</span> <span class="toc-text">Bean比较</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Component%E6%80%BB%E7%BB%93"><span class="toc-number">3.1.2.</span> <span class="toc-text">Component总结</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Bean%E7%9A%84%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="toc-number">3.1.3.</span> <span class="toc-text">Bean的作用域</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BA%94%E7%A7%8D%E7%B1%BB%E5%9E%8B"><span class="toc-number">3.1.3.1.</span> <span class="toc-text">五种类型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Esingleton%E5%92%8Capplicaton"><span class="toc-number">3.1.3.2.</span> <span class="toc-text">关于singleton和applicaton</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Bean%E5%92%8CComponent"><span class="toc-number">3.1.4.</span> <span class="toc-text">Bean和Component</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Bean%E4%B8%8E%E6%B3%A8%E5%85%A5"><span class="toc-number">3.1.5.</span> <span class="toc-text">Bean与注入</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%B1%BB"><span class="toc-number">3.2.</span> <span class="toc-text">配置类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%B1%BB%E8%80%8C%E4%B8%8D%E6%98%AFXML"><span class="toc-number">3.2.1.</span> <span class="toc-text">配置类而不是XML</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%B1%BB%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3"><span class="toc-number">3.2.2.</span> <span class="toc-text">配置类常用注解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E6%9C%BA%E5%88%B6"><span class="toc-number">3.2.3.</span> <span class="toc-text">代理机制</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        JavaWeb1_Spring
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-12-08T12:55:35.371Z" class="dt-published" itemprop="datePublished">2024-12-08</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/Dev/">Dev</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/JavaWeb/" rel="tag">JavaWeb</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>!!!JavaWeb0其实是在《Java安全6(1)_初始JavaWbe》那里，这里直接进入Spring了<br>ai时代了，思想、设计与创造力更加重要</p>
+</blockquote>
+<h2 id="IoC"><a href="#IoC" class="headerlink" title="IoC"></a>IoC</h2><h2 id="AOP"><a href="#AOP" class="headerlink" title="AOP"></a>AOP</h2><h3 id="AOP概念原理一二三解"><a href="#AOP概念原理一二三解" class="headerlink" title="AOP概念原理一二三解"></a>AOP概念原理一二三解</h3><ol>
+<li><p>AOP(Aspect Oriented Programming): 面向切面编程</p>
+</li>
+<li><p><em><strong>为什么要有AOP</strong></em></p>
+<ol>
+<li><strong>OOP有所不足</strong><ol>
+<li>面向对象的特点：是对个体进行抽象来构成全体的运行，对于实现类则实现了该个体应该具有的全部方法与属性，类似于图书管理员需要addBook(), updateBook(), deleteBook()这样子</li>
+<li>OPP局限：我们关注这个个体的核心逻辑，在于管理书籍，但是在这个过程中看能需要统一对书籍进行log()登记日志, check()信息检查这些功能，需要重复的代码片段(即使抽象为函数也有&#x2F;组合)，统一管理&#x2F;修改比较难，并且没有体现单一职责和开闭原则的思想，对于这一问题其实还有下列的方法<ol>
+<li>proxy模式，但是proxy模式比较麻烦，必须先抽取接口，然后，针对每个方法实现Proxy；虽然实现了单一的职责，但是并没有成功做到<strong>泛化和减重</strong></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><strong>AOP特点</strong><ol>
+<li><strong>核心思想</strong><ol>
+<li>AOP将功能看作一个一个的面，有些类负责一个个切面的功能比如log(), check()等，最终还是通过proxy模式(但是是由框架具体实现，<strong>加了一层抽象</strong>)来调用对于的切面功能，其实也是<strong>将切面与代理解耦了</strong></li>
+<li>spring中aop实质是代理模式，将公共功能代码提取到切面中，通过代理对象将切面逻辑横插入业务逻辑调用链的连接点，前或后或环绕；</li>
+<li>aop是方法执行前进行拦截，做些其他处理，让service只关注自身业务，使用代理只是实现aop的一种方式，使用aop不需要对原来service做任何修改，<strong>是无感知的</strong></li>
+</ol>
+</li>
+<li>在AOP的实现上，我们需要实现<ol>
+<li>目标类的核心功能，比如图书管理员的BookService</li>
+<li>切面逻辑：权限检查&#x2F;日志&#x2F;信息检查</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p><em><strong>AOP的原理</strong></em>：AOP思想的实现依赖于框架的抽象，在Java平台上，对于AOP的织入，有3种方式</p>
+<ol>
+<li><p>字节码层面(就不是代理了)</p>
+<ol>
+<li>编译期：在编译时，由编译器把切面调用编译进字节码，这种方式需要定义新的关键字并扩展编译器，AspectJ就扩展了Java编译器，使用关键字aspect来实现织入</li>
+<li>类加载器：在目标类被装载到JVM时，通过一个特殊的类加载器，对目标类的字节码重新“增强”</li>
+</ol>
+</li>
+<li><p>代码层面(代理)</p>
+<ol>
+<li>运行期：目标对象和切面都是普通Java类，通过JVM的动态代理功能或者第三方库实现运行期动态织入</li>
+</ol>
+</li>
+<li><p><strong>在Spring中</strong>: Spring的AOP实现就是基于JVM的动态代理。由于JVM的动态代理要求必须实现接口，如果一个普通类没有业务接口，就需要通过CGLIB或者Javassist这些第三方库实现</p>
+<blockquote>
+<p>未考证：Spring AOP实现AOP的方式是动态代理，而AspectJ实现的方式是静态代理。Spring虽然支持AspectJ，但仅仅是支持AspectJ的切点解析和匹配，比如@Before注解和execution()语句，代理的底层实现还是Spring AOP，即JDK动态代理和CGLIB动态代理</p>
+</blockquote>
+</li>
+</ol>
+</li>
+<li><p><em><strong>AOP的应用</strong></em></p>
+<ol>
+<li>横跨类&#x2F;类方法的通用问题很适合</li>
+<li>个异问题就不太合适，但是也可以通过注解来配置AOP的工作范围&#x2F;函数</li>
+</ol>
+</li>
+</ol>
+<h3 id="利用Spring应用AOP"><a href="#利用Spring应用AOP" class="headerlink" title="利用Spring应用AOP"></a>利用Spring应用AOP</h3><ol>
+<li>我们以一个例子来理解过程，现在有两个核心业务：UserService, MailService<ol>
+<li><p>现在的要求</p>
+<ol>
+<li>给UserService的每个业务方法执行前添加日志</li>
+<li>给MailService的每个业务方法执行前后添加日志</li>
+</ol>
+</li>
+<li><p><strong>实现流程</strong></p>
+<ol>
+<li>S1: 引入依赖<code>org.springframework:spring-aspects:6.0.0</code>，自动引入了AspectJ，使用AspectJ实现AOP比较方便，因为它的定义比较简单</li>
+<li>S2: 定义一个切面<ol>
+<li>并在方法上通过AspectJ的注解告诉Spring应该在何处调用此方法</li>
+<li>配置支持通配，但是<strong>最佳实践是尽量具体</strong>，防止无意调用对开闭产生了影响</li>
+<li>标记<code>@Component</code>和<code>@Aspect</code></li>
+</ol>
+</li>
+</ol>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoggingAspect</span> &#123;</span><br><span class="line">    <span class="comment">// 在执行UserService的每个方法前执行:</span></span><br><span class="line">    <span class="meta">@Before(&quot;execution(public * com.itranswarp.learnjava.service.UserService.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doAccessCheck</span><span class="params">()</span> &#123;</span><br><span class="line">        System.err.println(<span class="string">&quot;[Before] do access check...&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 在执行MailService的每个方法前后执行:</span></span><br><span class="line">    <span class="meta">@Around(&quot;execution(public * com.itranswarp.learnjava.service.MailService.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">doLogging</span><span class="params">(ProceedingJoinPoint pjp)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        System.err.println(<span class="string">&quot;[Around] start &quot;</span> + pjp.getSignature());</span><br><span class="line">        <span class="type">Object</span> <span class="variable">retVal</span> <span class="operator">=</span> pjp.proceed();</span><br><span class="line">        System.err.println(<span class="string">&quot;[Around] done &quot;</span> + pjp.getSignature());</span><br><span class="line">        <span class="keyword">return</span> retVal;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>S3: 给@Configuration类加上一个@EnableAspectJAutoProxy注解，有它来控制</p>
+<ol>
+<li>Spring的IoC容器看到这个注解，就会自动查找带有@Aspect的Bean，然后根据每个方法的@Before、@Around等注解把AOP注入到特定的Bean中</li>
+</ol>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="meta">@EnableAspectJAutoProxy</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AppConfig</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接下来就大功搞成了，直接调用就ok了</p>
+</li>
+</ol>
+</li>
+<li><em><strong>最佳实践</strong></em><ol>
+<li>通过注解来识别并进行AOP，类似于<code>@Around(&quot;@annotation(metricTime)&quot;)</code></li>
+</ol>
+</li>
+</ol>
+<h3 id="Spring背后的AOP装配"><a href="#Spring背后的AOP装配" class="headerlink" title="Spring背后的AOP装配"></a>Spring背后的AOP装配</h3><ol>
+<li><p>Spring容器启动时为我们<strong>自动创建的注入了Aspect的子类</strong>，它取代了原始的UserService(原始的UserService实例作为内部变量(<strong>组合</strong>)隐藏在UserServiceAopProxy中)如果我们打印从Spring容器获取的UserService实例类型，它类似UserService$$EnhancerBySpringCGLIB$$1f44e01c，实际上是Spring使用CGLIB动态创建的子类，但对于调用方来说，感觉不到任何区别(<strong>无感&#x2F;被拦截</strong>)</p>
+<ol>
+<li>使用AspectJ解析注解，并通过CGLIB实现代理类</li>
+<li>Spring也提供其他方法来装配AOP，但都没有使用AspectJ注解的方式来得简洁明了</li>
+</ol>
+<blockquote>
+<p>Spring对接口类型使用JDK动态代理，对普通类使用CGLIB创建子类。如果一个Bean的class是final，Spring将无法为其创建子类</p>
+</blockquote>
+<ol>
+<li><p>一个类似的实现(仅仅是类似)</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> UserServiceAopProxy <span class="keyword">extends</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> UserService target;</span><br><span class="line">    <span class="keyword">private</span> LoggingAspect aspect;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">UserServiceAopProxy</span><span class="params">(UserService target, LoggingAspect aspect)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.target = target;</span><br><span class="line">        <span class="built_in">this</span>.aspect = aspect;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> User <span class="title function_">login</span><span class="params">(String email, String password)</span> &#123;</span><br><span class="line">        <span class="comment">// 先执行Aspect的代码:</span></span><br><span class="line">        aspect.doAccessCheck();</span><br><span class="line">        <span class="comment">// 再执行UserService的逻辑:</span></span><br><span class="line">        <span class="keyword">return</span> target.login(email, password);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> User <span class="title function_">register</span><span class="params">(String email, String password, String name)</span> &#123;</span><br><span class="line">        aspect.doAccessCheck();</span><br><span class="line">        <span class="keyword">return</span> target.register(email, password, name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>拦截器：代理拦截方法，有以下类型</p>
+<ol>
+<li>@Before：这种拦截器先执行拦截代码，再执行目标代码。如果拦截器抛异常，那么目标代码就不执行了；</li>
+<li>@After：这种拦截器先执行目标代码，再执行拦截器代码。无论目标代码是否抛异常，拦截器代码都会执行；</li>
+<li>@AfterReturning：和@After不同的是，只有当目标代码正常返回时，才执行拦截器代码；</li>
+<li>@AfterThrowing：和@After不同的是，只有当目标代码抛出了异常时，才执行拦截器代码；</li>
+<li>@Around：能完全控制目标代码是否执行，并可以在执行前后、抛异常后执行任意拦截代码，可以说是包含了上面所有功能。</li>
+</ol>
+</li>
+</ol>
+<h3 id="Spring-AOP避坑"><a href="#Spring-AOP避坑" class="headerlink" title="Spring AOP避坑"></a>Spring AOP避坑</h3><ol>
+<li>因为Spring使用了CGLIB来实现运行期动态创建Proxy，如果我们没能深入理解其运行原理和实现机制，就极有可能遇到各种诡异的问题<ol>
+<li><p><em><strong>Q1: 访问原有变量(almost确定)会返回none?</strong></em></p>
+<ol>
+<li>S1: 只需要把直接访问字段的代码，改为通过方法访问</li>
+<li><strong>讲讲原因</strong><ol>
+<li>Spring通过CGLIB动态创建的UserService$$EnhancerBySpringCGLIB代理类，它的构造方法中，并未调用super()，因此，从父类继承的成员变量，包括final类型的成员变量，统统都没有初始化</li>
+<li>Java语言规定，任何类的构造方法，第一行必须调用super()，如果没有，编译器会自动加上，怎么Spring的CGLIB就可以搞特殊？这是因为自动加super()的功能是Java编译器实现的，它发现你没加，就自动给加上，发现你加错了，就报编译错误。但实际上，如果直接构造字节码，一个类的构造方法中，不一定非要调用super()。Spring使用CGLIB构造的Proxy类，是直接生成字节码，<strong>并没有源码-编译-字节码这个步骤</strong></li>
+<li><strong>总结</strong>: Spring通过CGLIB创建的代理类，不会初始化代理类自身继承的任何成员变量，包括final类型的成员变量！</li>
+</ol>
+</li>
+</ol>
+<blockquote>
+<ol>
+<li>来自教程评论区的一个评论；看了下cglib的源码，生成的代理类的构造方法里面是会去调用super()方法的了，现在的版本好像不存在这个问题。即便不是String类型的，也可以访问得到</li>
+<li>来自老师和其他人debug的解释：spring会先创建目标对象，再把目标对象注入到代理对象中，虽然代理对象继承了目标对象，但他们之间的关系本质还是组合。</li>
+</ol>
+</blockquote>
+</li>
+<li><p><em><strong>Q2: 为什么Spring刻意不初始化Proxy继承的字段？</strong></em></p>
+<ol>
+<li>A1: 老师的说法是spring无法在逻辑上正常初始化proxy的字段(有些是对象这样)，所以干脆不初始化，并通过NullPointerException直接暴露出来</li>
+<li>A2: 另外补充的说法，感觉有道理，OOP的思想：proxy类只承诺了要代理目标类的public方法，所以理论上一切的交互都应该被限制在被代理的方法集合里，<strong>不应该越过proxy的接口而直接交互</strong>。如果有新增的交互需求，都应该被统一到这个“被代理的方法集合”里去。</li>
+</ol>
+</li>
+<li><p><em><strong>Q3: 如果一个Bean不允许任何AOP代理，应该怎么做来“保护”自己在运行期不会被代理？</strong></em></p>
+<ol>
+<li>类设置为 final 的防止 cglib 创建Proxy，并且不继承接口防止 JDK 自带的动态代理</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="扫疑环节"><a href="#扫疑环节" class="headerlink" title="扫疑环节"></a>扫疑环节</h2><blockquote>
+<p>对重要的概念进行复习</p>
+</blockquote>
+<h3 id="Spring-Bean"><a href="#Spring-Bean" class="headerlink" title="Spring Bean"></a>Spring Bean</h3><h4 id="Bean比较"><a href="#Bean比较" class="headerlink" title="Bean比较"></a>Bean比较</h4><ol>
+<li>不同于java bean<ol>
+<li>JavaBean是一种遵循特定编码规范的Java类，它具有私有属性、公共无参构造函数以及公共的getter和setter方法。此外，JavaBean通常是可序列化的，即实现了Serializable接口。</li>
+<li>SpringBean是指由Spring容器管理的对象。这些对象可以是任何Java类的实例，例如数据库连接、业务逻辑类或控制器等。Spring容器负责创建和销毁这些Bean，并且通过依赖注入（Dependency Injection, DI）机制来配置它们之间的关系。这意味着应用程序不需要直接创建和管理这些对象，而是将这个责任委托给了Spring容器</li>
+</ol>
+</li>
+<li><strong>用途上</strong>：传统意义上的JavaBean主要用于表示数据，作为值对象传递参数，而Spring Bean几乎可以涵盖应用中的所有组件，从简单的POJO到复杂的业务服务层对象</li>
+<li><strong>生命周期上</strong>：JavaBean的生命周期完全由应用程序控制，通常使用new关键字实例化后即可使用，当不再需要时由JVM的垃圾回收机制处理。然而，Spring Bean的生命周期则由Spring容器负责，包括初始化前后的回调、销毁时的动作等，这使得Spring Bean拥有更复杂的生命周期管理</li>
+</ol>
+<h4 id="Component总结"><a href="#Component总结" class="headerlink" title="Component总结"></a>Component总结</h4><ol>
+<li>什么是组件？<ol>
+<li>组件（Component） 是指由Spring容器管理的类，<strong>这些类通常表示应用程序中的一个具体职责或功能模块</strong>。组件通过特定的注解被标记出来，使得Spring容器能够自动发现、实例化并管理它们的生命周期。组件可以是任何类型的Java对象，但最常见的是服务层、数据访问层和控制器层的对象</li>
+</ol>
+</li>
+<li><strong>组件的种类</strong><ol>
+<li>@Component：通用注解，适用于任何需要被Spring容器管理的类。</li>
+<li>@Service：用于标注业务逻辑层的服务类。</li>
+<li>@Repository：用于标注数据访问层的类，如DAO（Data Access Object）。</li>
+<li>@Controller：用于标注Web层的控制器类，通常与MVC模式一起使用。</li>
+<li>@RestController：结合了@Controller和@ResponseBody的功能，直接返回数据给客户端，常用于构建RESTful Web服务。</li>
+</ol>
+</li>
+<li>SpringBean和Component</li>
+</ol>
+<h4 id="Bean的作用域"><a href="#Bean的作用域" class="headerlink" title="Bean的作用域"></a>Bean的作用域</h4><h5 id="五种类型"><a href="#五种类型" class="headerlink" title="五种类型"></a>五种类型</h5><ol>
+<li>在Spring框架中，Bean 并不局限于只有一个实例。实际上，Spring容器可以管理多个不同类型的Bean，并且对于同一个类也可以创建多个实例，这取决于如何配置它们以及使用何种作用域（Scope）</li>
+<li>常见的几种作用域<ol>
+<li><p>Singleton（单例）：<strong>这是默认的作用域</strong>。在整个应用程序上下文中，Spring只会为每个被定义为singleton的Bean创建一个共享实例。这意味着无论何时何地从Spring容器中获取该Bean，得到的都是同一个对象实例。这种方式适用于无状态的服务组件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bookService 将被注册为一个单例Bean</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AppConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> BookService <span class="title function_">bookService</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">BookServiceImpl</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Prototype（原型）：每次通过Spring容器请求时都会创建一个新的Bean实例，这里的原型和js中的原型不一样</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 每一次返回一个新的实例</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AppConfig</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@Scope(&quot;prototype&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> BookSession <span class="title function_">bookSession</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">BookSession</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Application（应用程序）：在整个Servlet上下文内唯一，类似于singleton，但它的范围限于当前的应用程序上下文。</p>
+</li>
+<li><p>Request（请求）：在一个HTTP请求范围内有效，即每次HTTP请求都会创建新的Bean实例，但在同一个请求内共享同一个实例。主要用于Web应用中处理特定请求的数据。</p>
+</li>
+<li><p>Session（会话）：在一个HTTP会话范围内有效，意味着同一用户的多个请求之间共享同一个Bean实例。适用于需要跨多个请求保存用户状态的情况。</p>
+</li>
+</ol>
+</li>
+<li>可以使用<code>@Scope(&#39;prototype&#39;)</code>这样来修改作用域</li>
+</ol>
+<h5 id="关于singleton和applicaton"><a href="#关于singleton和applicaton" class="headerlink" title="关于singleton和applicaton"></a>关于singleton和applicaton</h5><h4 id="Bean和Component"><a href="#Bean和Component" class="headerlink" title="Bean和Component"></a>Bean和Component</h4><blockquote>
+<p>所有的组件都是Bean</p>
+</blockquote>
+<ol>
+<li>Bean是指由Spring容器管理的对象或实例。它可以是任何Java类的实例，只要这个类被Spring容器所管理</li>
+<li>组件是带有特定注解（如@Component, @Service, @Repository, @Controller等）的类，这些注解使得类能够被Spring容器自动检测并注册为Bean。因此，可以说所有被标记为组件的类本质上都是Bean<ol>
+<li>自动配置：通过组件扫描（Component Scanning），Spring容器会自动查找应用中的组件，并将它们注册为Bean，无需显式地在XML文件或配置类中声明</li>
+</ol>
+</li>
+<li>**默认单例模式(不使用Component也是)**：使用 @Component 注解（或其衍生注解如 @Service, @Repository, @Controller 等）并将其注册到Spring容器中时，默认情况下Spring会将这个Bean以 Singleton 作用域创建。这意味着在整个应用程序上下文中，Spring只会为该Bean创建一个共享实例，并且无论何时何地从Spring容器中获取该Bean，得到的都是同一个对象实例<ol>
+<li>可以通过在<code>@Componet</code>下追加<code>@Scope(&#39;xxx&#39;)</code>来修改作用域</li>
+</ol>
+</li>
+</ol>
+<h4 id="Bean与注入"><a href="#Bean与注入" class="headerlink" title="Bean与注入"></a>Bean与注入</h4><ol>
+<li>@Bean注解<ol>
+<li>@Bean 注解通常用于配置类的方法上，指示该方法返回的对象应该被注册为Spring容器中的一个Bean。这意味着每次调用这个方法时，Spring都会检查是否已经存在相应的Bean实例；如果存在，则直接返回现有的实例（对于单例作用域），否则将创建并初始化一个新的Bean实例。</li>
+</ol>
+</li>
+<li>@Autowired<ol>
+<li>构造函数注入：官方推荐</li>
+<li>字段注入</li>
+<li>setter注入</li>
+<li>结合使用@Autowired和@Qualifier注解来进行构造器注入，@Qualifier来指定具体的Bean名称</li>
+</ol>
+</li>
+</ol>
+<h3 id="配置类"><a href="#配置类" class="headerlink" title="配置类"></a>配置类</h3><h4 id="配置类而不是XML"><a href="#配置类而不是XML" class="headerlink" title="配置类而不是XML"></a>配置类而不是XML</h4><ol>
+<li>用于在Java代码中定义应用程序的配置。它们替代了传统的XML配置文件</li>
+<li>使用@Configuration注解来标识。这个注解告诉Spring容器，此类包含一个或多个用@Bean注解的方法，这些方法会返回一个对象，而该对象应该被注册为Spring应用上下文中的bean。配置类本身也可以被组件扫描发现并注册到Spring容器中，或者通过@Import注解显式导入。</li>
+</ol>
+<h4 id="配置类常用注解"><a href="#配置类常用注解" class="headerlink" title="配置类常用注解"></a>配置类常用注解</h4><ol>
+<li>@Configuration 注解<ol>
+<li>用来标记一个类作为Spring IoC容器中的bean定义的来源</li>
+<li>配置类内部可以有多个@Bean方法，每个方法定义了一个或多个bean。</li>
+</ol>
+</li>
+<li>@Bean 注解<ol>
+<li>用于标记配置类中的方法，表示该方法返回的对象应被注册为Spring应用上下文中的bean。</li>
+<li>可以指定bean的名称、作用域等属性。</li>
+</ol>
+</li>
+<li><strong>支持条件配置</strong>: 使用如@ConditionalOnProperty、@ConditionalOnClass等条件注解，可以让bean的创建基于某些条件，例如环境变量、类路径上的类存在与否等</li>
+<li><strong>静态与非静态@Bean方法</strong>: @Bean方法既可以是静态的也可以是非静态的。如果是一个静态方法，则不会参与依赖注入，因为没有实例化配置类；而非静态方法则可以。</li>
+</ol>
+<h4 id="代理机制"><a href="#代理机制" class="headerlink" title="代理机制"></a>代理机制</h4><blockquote>
+<p>廖雪峰有比较深入地进行探讨</p>
+</blockquote>
+<ol>
+<li>当配置类之间相互依赖时，Spring会使用CGLIB代理机制来确保即使是在同一个配置类内，不同的@Bean方法也能正确地互相引用</li>
+</ol>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li>[<a target="_blank" rel="noopener" href="https://liaoxuefeng.com/books/java/spring/index.html]">https://liaoxuefeng.com/books/java/spring/index.html]</a></li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#IoC"><span class="toc-number">1.</span> <span class="toc-text">IoC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOP"><span class="toc-number">2.</span> <span class="toc-text">AOP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AOP%E6%A6%82%E5%BF%B5%E5%8E%9F%E7%90%86%E4%B8%80%E4%BA%8C%E4%B8%89%E8%A7%A3"><span class="toc-number">2.1.</span> <span class="toc-text">AOP概念原理一二三解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8Spring%E5%BA%94%E7%94%A8AOP"><span class="toc-number">2.2.</span> <span class="toc-text">利用Spring应用AOP</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring%E8%83%8C%E5%90%8E%E7%9A%84AOP%E8%A3%85%E9%85%8D"><span class="toc-number">2.3.</span> <span class="toc-text">Spring背后的AOP装配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring-AOP%E9%81%BF%E5%9D%91"><span class="toc-number">2.4.</span> <span class="toc-text">Spring AOP避坑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%AB%E7%96%91%E7%8E%AF%E8%8A%82"><span class="toc-number">3.</span> <span class="toc-text">扫疑环节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring-Bean"><span class="toc-number">3.1.</span> <span class="toc-text">Spring Bean</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Bean%E6%AF%94%E8%BE%83"><span class="toc-number">3.1.1.</span> <span class="toc-text">Bean比较</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Component%E6%80%BB%E7%BB%93"><span class="toc-number">3.1.2.</span> <span class="toc-text">Component总结</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Bean%E7%9A%84%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="toc-number">3.1.3.</span> <span class="toc-text">Bean的作用域</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BA%94%E7%A7%8D%E7%B1%BB%E5%9E%8B"><span class="toc-number">3.1.3.1.</span> <span class="toc-text">五种类型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%B3%E4%BA%8Esingleton%E5%92%8Capplicaton"><span class="toc-number">3.1.3.2.</span> <span class="toc-text">关于singleton和applicaton</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Bean%E5%92%8CComponent"><span class="toc-number">3.1.4.</span> <span class="toc-text">Bean和Component</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Bean%E4%B8%8E%E6%B3%A8%E5%85%A5"><span class="toc-number">3.1.5.</span> <span class="toc-text">Bean与注入</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%B1%BB"><span class="toc-number">3.2.</span> <span class="toc-text">配置类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%B1%BB%E8%80%8C%E4%B8%8D%E6%98%AFXML"><span class="toc-number">3.2.1.</span> <span class="toc-text">配置类而不是XML</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E7%B1%BB%E5%B8%B8%E7%94%A8%E6%B3%A8%E8%A7%A3"><span class="toc-number">3.2.2.</span> <span class="toc-text">配置类常用注解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E6%9C%BA%E5%88%B6"><span class="toc-number">3.2.3.</span> <span class="toc-text">代理机制</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&text=JavaWeb1_Spring"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&is_video=false&description=JavaWeb1_Spring"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JavaWeb1_Spring&body=Check out this article: https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&title=JavaWeb1_Spring"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&name=JavaWeb1_Spring&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/08/JavaWeb1_Spring/&t=JavaWeb1_Spring"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

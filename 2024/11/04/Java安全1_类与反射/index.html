@@ -2,10 +2,13 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
     <meta name="description" content="java中的类宏观概念 java中的类是静态的，而php中的类是动态的  Final关键字 类似于cpp中的const   final 变量：值一旦被赋值就不能再改变。 final 方法：不能被子类重写。 final 类：不能被继承。 final 参数：在方法体内不能被修改。 final 和匿名内部类：匿名内部类中使用的外部类局部变量必须是 final 或 effectively final  J">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java安全1_类与反射">
@@ -13,35 +16,44 @@
 <meta property="og:site_name" content="KC1zs4&#39;s Blog">
 <meta property="og:description" content="java中的类宏观概念 java中的类是静态的，而php中的类是动态的  Final关键字 类似于cpp中的const   final 变量：值一旦被赋值就不能再改变。 final 方法：不能被子类重写。 final 类：不能被继承。 final 参数：在方法体内不能被修改。 final 和匿名内部类：匿名内部类中使用的外部类局部变量必须是 final 或 effectively final  J">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A81_%E7%B1%BB%E4%B8%8E%E5%8F%8D%E5%B0%84/%E5%8F%8D%E5%B0%84%E6%9C%BA%E7%90%86.png">
 <meta property="article:published_time" content="2024-11-04T14:32:47.341Z">
-<meta property="article:modified_time" content="2024-11-17T06:35:28.949Z">
+<meta property="article:modified_time" content="2024-11-22T01:32:12.846Z">
 <meta property="article:tag" content="Java安全">
 <meta name="twitter:card" content="summary">
-    
-    
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/Java%E5%AE%89%E5%85%A81_%E7%B1%BB%E4%B8%8E%E5%8F%8D%E5%B0%84/%E5%8F%8D%E5%B0%84%E6%9C%BA%E7%90%86.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>Java安全1_类与反射</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -51,10 +63,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -68,8 +79,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -85,7 +94,7 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="Previous post" href="/2024/11/05/%E5%88%9D%E8%A7%81Go/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/06/Platform_%E5%BC%BA%E7%BD%9124/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
         <li><a class="icon" aria-label="Next post" href="/2024/11/04/Spreader_%E5%BC%BA%E7%BD%91%E6%8B%9F%E6%80%8124/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
@@ -118,7 +127,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#java%E4%B8%AD%E7%9A%84%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">java中的类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8F%E8%A7%82%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">宏观概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Final%E5%85%B3%E9%94%AE%E5%AD%97"><span class="toc-number">1.2.</span> <span class="toc-text">Final关键字</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E6%B3%9B%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">Java泛型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E8%A6%81%E5%BC%95%E5%85%A5"><span class="toc-number">2.1.</span> <span class="toc-text">简要引入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E5%BA%94%E7%94%A8"><span class="toc-number">2.2.</span> <span class="toc-text">三种应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E7%B1%BB"><span class="toc-number">2.2.1.</span> <span class="toc-text">泛型类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.2.2.</span> <span class="toc-text">泛型接口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.3.</span> <span class="toc-text">泛型函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E7%9A%84%E4%B8%8A%E4%B8%8B%E8%BE%B9%E7%95%8C%E6%9C%BA%E5%88%B6"><span class="toc-number">2.3.</span> <span class="toc-text">泛型的上下边界机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%B7%E6%BA%90"><span class="toc-number">2.3.1.</span> <span class="toc-text">起源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8A%E7%95%8C"><span class="toc-number">2.3.2.</span> <span class="toc-text">上界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E7%95%8C"><span class="toc-number">2.3.3.</span> <span class="toc-text">下界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E5%BA%94%E7%94%A8%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-number">2.3.4.</span> <span class="toc-text">综合应用与最佳实践</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-A"><span class="toc-number">2.4.</span> <span class="toc-text">*Q&amp;A &lt;T&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Class%E5%92%8CClass"><span class="toc-number">2.4.1.</span> <span class="toc-text">1. Class和Class&lt;?&gt;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-ArrayList%E5%92%8CList"><span class="toc-number">2.4.2.</span> <span class="toc-text">2. ArrayList&lt;Integer&gt;和List&lt;Number&gt;</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84"><span class="toc-number">3.</span> <span class="toc-text">反射</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E5%BC%95%E5%85%A5"><span class="toc-number">3.1.</span> <span class="toc-text">反射引入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8F%8D%E5%B0%84%E8%BF%9B%E8%A1%8C%E6%93%8D%E4%BD%9C"><span class="toc-number">3.2.</span> <span class="toc-text">*利用反射进行操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96Class%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.2.1.</span> <span class="toc-text">获取Class对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">3.2.2.</span> <span class="toc-text">类构造函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%E6%96%B9%E6%B3%95"><span class="toc-number">3.2.3.</span> <span class="toc-text">类方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%88%90%E5%91%98%E5%8F%98%E9%87%8F"><span class="toc-number">3.2.4.</span> <span class="toc-text">成员变量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80-%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8Runtime"><span class="toc-number">3.3.</span> <span class="toc-text">小试牛刀: 反射调用Runtime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-A-%E5%8F%8D%E5%B0%84"><span class="toc-number">3.4.</span> <span class="toc-text">*Q&amp;A 反射</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E4%BD%BF%E7%94%A8try-catch"><span class="toc-number">3.4.1.</span> <span class="toc-text">1. 为什么必须使用try-catch?</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#java%E4%B8%AD%E7%9A%84%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">java中的类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8F%E8%A7%82%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">宏观概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Final%E5%85%B3%E9%94%AE%E5%AD%97"><span class="toc-number">1.2.</span> <span class="toc-text">Final关键字</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E6%B3%9B%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">Java泛型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E8%A6%81%E5%BC%95%E5%85%A5"><span class="toc-number">2.1.</span> <span class="toc-text">简要引入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E5%BA%94%E7%94%A8"><span class="toc-number">2.2.</span> <span class="toc-text">三种应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E7%B1%BB"><span class="toc-number">2.2.1.</span> <span class="toc-text">泛型类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.2.2.</span> <span class="toc-text">泛型接口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.3.</span> <span class="toc-text">泛型函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E7%9A%84%E4%B8%8A%E4%B8%8B%E8%BE%B9%E7%95%8C%E6%9C%BA%E5%88%B6"><span class="toc-number">2.3.</span> <span class="toc-text">泛型的上下边界机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%B7%E6%BA%90"><span class="toc-number">2.3.1.</span> <span class="toc-text">起源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8A%E7%95%8C"><span class="toc-number">2.3.2.</span> <span class="toc-text">上界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E7%95%8C"><span class="toc-number">2.3.3.</span> <span class="toc-text">下界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E5%BA%94%E7%94%A8%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-number">2.3.4.</span> <span class="toc-text">综合应用与最佳实践</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-A"><span class="toc-number">2.4.</span> <span class="toc-text">*Q&amp;A &lt;T&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Class%E5%92%8CClass"><span class="toc-number">2.4.1.</span> <span class="toc-text">1. Class和Class&lt;?&gt;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-ArrayList%E5%92%8CList"><span class="toc-number">2.4.2.</span> <span class="toc-text">2. ArrayList&lt;Integer&gt;和List&lt;Number&gt;</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84"><span class="toc-number">3.</span> <span class="toc-text">反射</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E5%BC%95%E5%85%A5"><span class="toc-number">3.1.</span> <span class="toc-text">反射引入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E5%8F%8D%E5%B0%84%E7%9A%84%E5%8E%9F%E7%90%86"><span class="toc-number">3.2.</span> <span class="toc-text">深入反射的原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8F%8D%E5%B0%84%E8%BF%9B%E8%A1%8C%E6%93%8D%E4%BD%9C"><span class="toc-number">3.3.</span> <span class="toc-text">*利用反射进行操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96Class%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.3.1.</span> <span class="toc-text">获取Class对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">3.3.2.</span> <span class="toc-text">类构造函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%E6%96%B9%E6%B3%95"><span class="toc-number">3.3.3.</span> <span class="toc-text">类方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%88%90%E5%91%98%E5%8F%98%E9%87%8F"><span class="toc-number">3.3.4.</span> <span class="toc-text">成员变量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80-%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8Runtime"><span class="toc-number">3.4.</span> <span class="toc-text">小试牛刀: 反射调用Runtime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-A-%E5%8F%8D%E5%B0%84"><span class="toc-number">3.5.</span> <span class="toc-text">*Q&amp;A 反射</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E4%BD%BF%E7%94%A8try-catch"><span class="toc-number">3.5.1.</span> <span class="toc-text">1. 为什么必须使用try-catch?</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
       </div>
     
   </span>
@@ -273,6 +282,10 @@
 </ol>
 </li>
 </ol>
+<h3 id="深入反射的原理"><a href="#深入反射的原理" class="headerlink" title="深入反射的原理"></a>深入反射的原理</h3><ol>
+<li>还是先上图<img src="/pic/Java%E5%AE%89%E5%85%A81_%E7%B1%BB%E4%B8%8E%E5%8F%8D%E5%B0%84/%E5%8F%8D%E5%B0%84%E6%9C%BA%E7%90%86.png" alt="flow"></li>
+<li>我们的反射机制本身不复杂，就是获取一个类的Class对象，然后在用Class对象中的获取成员变量Field，成员方法Method和构造方法Constructor等方法，再去动态获取一个类或者调用一个类的属性，变量，构造方法等方式</li>
+</ol>
 <h3 id="利用反射进行操作"><a href="#利用反射进行操作" class="headerlink" title="*利用反射进行操作"></a>*利用反射进行操作</h3><h4 id="获取Class对象"><a href="#获取Class对象" class="headerlink" title="获取Class对象"></a>获取Class对象</h4><ol>
 <li><p>一般有3中方式</p>
 <ol>
@@ -328,6 +341,7 @@
 </li>
 <li>反射<ol>
 <li><a target="_blank" rel="noopener" href="https://www.nenggz.com/md/java/basic/java-basic-x-reflection.html">详细解释</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9117?time__1311=n4+xnD0DuADtBrxBqooGkWDOiyexAIIQdx">挺细的一篇博客</a></li>
 <li>javasec</li>
 </ol>
 </li>
@@ -335,6 +349,12 @@
 
   </div>
 </article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
 
 
 
@@ -346,8 +366,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -363,7 +381,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#java%E4%B8%AD%E7%9A%84%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">java中的类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8F%E8%A7%82%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">宏观概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Final%E5%85%B3%E9%94%AE%E5%AD%97"><span class="toc-number">1.2.</span> <span class="toc-text">Final关键字</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E6%B3%9B%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">Java泛型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E8%A6%81%E5%BC%95%E5%85%A5"><span class="toc-number">2.1.</span> <span class="toc-text">简要引入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E5%BA%94%E7%94%A8"><span class="toc-number">2.2.</span> <span class="toc-text">三种应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E7%B1%BB"><span class="toc-number">2.2.1.</span> <span class="toc-text">泛型类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.2.2.</span> <span class="toc-text">泛型接口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.3.</span> <span class="toc-text">泛型函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E7%9A%84%E4%B8%8A%E4%B8%8B%E8%BE%B9%E7%95%8C%E6%9C%BA%E5%88%B6"><span class="toc-number">2.3.</span> <span class="toc-text">泛型的上下边界机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%B7%E6%BA%90"><span class="toc-number">2.3.1.</span> <span class="toc-text">起源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8A%E7%95%8C"><span class="toc-number">2.3.2.</span> <span class="toc-text">上界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E7%95%8C"><span class="toc-number">2.3.3.</span> <span class="toc-text">下界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E5%BA%94%E7%94%A8%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-number">2.3.4.</span> <span class="toc-text">综合应用与最佳实践</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-A"><span class="toc-number">2.4.</span> <span class="toc-text">*Q&amp;A &lt;T&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Class%E5%92%8CClass"><span class="toc-number">2.4.1.</span> <span class="toc-text">1. Class和Class&lt;?&gt;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-ArrayList%E5%92%8CList"><span class="toc-number">2.4.2.</span> <span class="toc-text">2. ArrayList&lt;Integer&gt;和List&lt;Number&gt;</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84"><span class="toc-number">3.</span> <span class="toc-text">反射</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E5%BC%95%E5%85%A5"><span class="toc-number">3.1.</span> <span class="toc-text">反射引入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8F%8D%E5%B0%84%E8%BF%9B%E8%A1%8C%E6%93%8D%E4%BD%9C"><span class="toc-number">3.2.</span> <span class="toc-text">*利用反射进行操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96Class%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.2.1.</span> <span class="toc-text">获取Class对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">3.2.2.</span> <span class="toc-text">类构造函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%E6%96%B9%E6%B3%95"><span class="toc-number">3.2.3.</span> <span class="toc-text">类方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%88%90%E5%91%98%E5%8F%98%E9%87%8F"><span class="toc-number">3.2.4.</span> <span class="toc-text">成员变量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80-%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8Runtime"><span class="toc-number">3.3.</span> <span class="toc-text">小试牛刀: 反射调用Runtime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-A-%E5%8F%8D%E5%B0%84"><span class="toc-number">3.4.</span> <span class="toc-text">*Q&amp;A 反射</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E4%BD%BF%E7%94%A8try-catch"><span class="toc-number">3.4.1.</span> <span class="toc-text">1. 为什么必须使用try-catch?</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#java%E4%B8%AD%E7%9A%84%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text">java中的类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%8F%E8%A7%82%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">宏观概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Final%E5%85%B3%E9%94%AE%E5%AD%97"><span class="toc-number">1.2.</span> <span class="toc-text">Final关键字</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java%E6%B3%9B%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">Java泛型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E8%A6%81%E5%BC%95%E5%85%A5"><span class="toc-number">2.1.</span> <span class="toc-text">简要引入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E5%BA%94%E7%94%A8"><span class="toc-number">2.2.</span> <span class="toc-text">三种应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E7%B1%BB"><span class="toc-number">2.2.1.</span> <span class="toc-text">泛型类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E6%8E%A5%E5%8F%A3"><span class="toc-number">2.2.2.</span> <span class="toc-text">泛型接口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.3.</span> <span class="toc-text">泛型函数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%9B%E5%9E%8B%E7%9A%84%E4%B8%8A%E4%B8%8B%E8%BE%B9%E7%95%8C%E6%9C%BA%E5%88%B6"><span class="toc-number">2.3.</span> <span class="toc-text">泛型的上下边界机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%B7%E6%BA%90"><span class="toc-number">2.3.1.</span> <span class="toc-text">起源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8A%E7%95%8C"><span class="toc-number">2.3.2.</span> <span class="toc-text">上界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E7%95%8C"><span class="toc-number">2.3.3.</span> <span class="toc-text">下界</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%BC%E5%90%88%E5%BA%94%E7%94%A8%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="toc-number">2.3.4.</span> <span class="toc-text">综合应用与最佳实践</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-A"><span class="toc-number">2.4.</span> <span class="toc-text">*Q&amp;A &lt;T&gt;</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Class%E5%92%8CClass"><span class="toc-number">2.4.1.</span> <span class="toc-text">1. Class和Class&lt;?&gt;</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-ArrayList%E5%92%8CList"><span class="toc-number">2.4.2.</span> <span class="toc-text">2. ArrayList&lt;Integer&gt;和List&lt;Number&gt;</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84"><span class="toc-number">3.</span> <span class="toc-text">反射</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%8D%E5%B0%84%E5%BC%95%E5%85%A5"><span class="toc-number">3.1.</span> <span class="toc-text">反射引入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E5%85%A5%E5%8F%8D%E5%B0%84%E7%9A%84%E5%8E%9F%E7%90%86"><span class="toc-number">3.2.</span> <span class="toc-text">深入反射的原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8F%8D%E5%B0%84%E8%BF%9B%E8%A1%8C%E6%93%8D%E4%BD%9C"><span class="toc-number">3.3.</span> <span class="toc-text">*利用反射进行操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96Class%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.3.1.</span> <span class="toc-text">获取Class对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">3.3.2.</span> <span class="toc-text">类构造函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B1%BB%E6%96%B9%E6%B3%95"><span class="toc-number">3.3.3.</span> <span class="toc-text">类方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%88%90%E5%91%98%E5%8F%98%E9%87%8F"><span class="toc-number">3.3.4.</span> <span class="toc-text">成员变量</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80-%E5%8F%8D%E5%B0%84%E8%B0%83%E7%94%A8Runtime"><span class="toc-number">3.4.</span> <span class="toc-text">小试牛刀: 反射调用Runtime</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Q-A-%E5%8F%8D%E5%B0%84"><span class="toc-number">3.5.</span> <span class="toc-text">*Q&amp;A 反射</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%85%E9%A1%BB%E4%BD%BF%E7%94%A8try-catch"><span class="toc-number">3.5.1.</span> <span class="toc-text">1. 为什么必须使用try-catch?</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">4.</span> <span class="toc-text">Ref</span></a></li></ol>
       </div>
     
 
@@ -402,7 +420,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -410,8 +428,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -515,6 +531,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

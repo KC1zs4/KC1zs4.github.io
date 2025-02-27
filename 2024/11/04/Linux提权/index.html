@@ -2,10 +2,13 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
     <meta name="description" content="*Ref 特权教程 多种提权姿势都有讲到 很好的文章！数据库等提权   linux命令手册 官方 民间教程   T00ls 终极大杀器GTFOBins GTFOBins是一个精心策划的Unix二进制文件列表，可以用来绕过错误配置系统中的本地安全限制 该项目收集了Unix二进制文件的合法函数，这些函数可能被滥用，以打破受限制的shell，升级或维护提升的特权，传输文件，生成绑定和反向shell，并为">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux提权">
@@ -14,35 +17,41 @@
 <meta property="og:description" content="*Ref 特权教程 多种提权姿势都有讲到 很好的文章！数据库等提权   linux命令手册 官方 民间教程   T00ls 终极大杀器GTFOBins GTFOBins是一个精心策划的Unix二进制文件列表，可以用来绕过错误配置系统中的本地安全限制 该项目收集了Unix二进制文件的合法函数，这些函数可能被滥用，以打破受限制的shell，升级或维护提升的特权，传输文件，生成绑定和反向shell，并为">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-11-04T01:09:01.498Z">
-<meta property="article:modified_time" content="2024-11-04T04:00:42.131Z">
-<meta property="article:tag" content="all in one">
-<meta property="article:tag" content="root">
-<meta name="twitter:card" content="summary">
-    
-    
+<meta property="article:modified_time" content="2025-02-26T11:48:42.929Z">
+<meta property="article:tag" content="Linux安全">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>Linux提权</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -52,10 +61,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -69,8 +77,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -119,7 +125,7 @@
     
     
       <div id="toc">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">*Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9D%83%E9%99%90%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">Linux权限基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%B8%8E%E7%94%A8%E6%88%B7%E7%BB%84"><span class="toc-number">2.1.</span> <span class="toc-text">用户与用户组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E7%BB%A7%E6%89%BF"><span class="toc-number">2.2.</span> <span class="toc-text">进程权限继承</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.</span> <span class="toc-text">suid提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#suid-ref"><span class="toc-number">3.1.</span> <span class="toc-text">*suid ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFsuid"><span class="toc-number">3.2.</span> <span class="toc-text">什么是suid?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">suid提权实战注意点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98"><span class="toc-number">3.4.</span> <span class="toc-text">*suid提权实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%8F%90%E6%9D%83"><span class="toc-number">4.</span> <span class="toc-text">环境变量提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8Fref"><span class="toc-number">4.1.</span> <span class="toc-text">*环境变量ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">4.2.</span> <span class="toc-text">什么是环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">4.3.</span> <span class="toc-text">$PATH的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86%E4%B8%8E%E5%A4%A7%E5%A4%A7%E5%A4%A7%E5%89%8D%E6%8F%90"><span class="toc-number">4.4.</span> <span class="toc-text">利用原理与大大大前提</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E5%AE%9E%E6%88%98"><span class="toc-number">4.5.</span> <span class="toc-text">*$PATH实战</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">*Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9D%83%E9%99%90%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">Linux权限基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%B8%8E%E7%94%A8%E6%88%B7%E7%BB%84"><span class="toc-number">2.1.</span> <span class="toc-text">用户与用户组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E7%BB%A7%E6%89%BF"><span class="toc-number">2.2.</span> <span class="toc-text">进程权限继承</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.</span> <span class="toc-text">suid提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#suid-ref"><span class="toc-number">3.1.</span> <span class="toc-text">*suid ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFsuid"><span class="toc-number">3.2.</span> <span class="toc-text">什么是suid?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">suid提权实战注意点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98"><span class="toc-number">3.4.</span> <span class="toc-text">*suid提权实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%8F%90%E6%9D%83"><span class="toc-number">4.</span> <span class="toc-text">环境变量提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8Fref"><span class="toc-number">4.1.</span> <span class="toc-text">*环境变量ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">4.2.</span> <span class="toc-text">什么是环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">4.3.</span> <span class="toc-text">$PATH的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86%E4%B8%8E%E5%A4%A7%E5%A4%A7%E5%A4%A7%E5%89%8D%E6%8F%90"><span class="toc-number">4.4.</span> <span class="toc-text">利用原理与大大大前提</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E5%AE%9E%E6%88%98"><span class="toc-number">4.5.</span> <span class="toc-text">*$PATH实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E9%85%8D%E7%AC%A6%E6%8F%90%E6%9D%83"><span class="toc-number">5.</span> <span class="toc-text">通配符提权</span></a></li></ol>
       </div>
     
   </span>
@@ -160,7 +166,7 @@
       
     <div class="article-tag">
         <i class="fa-solid fa-tag"></i>
-        <a class="p-category" href="/tags/all-in-one/" rel="tag">all in one</a>, <a class="p-category" href="/tags/root/" rel="tag">root</a>
+        <a class="p-category" href="/tags/Linux%E5%AE%89%E5%85%A8/" rel="tag">Linux安全</a>
     </div>
 
 
@@ -275,7 +281,7 @@
 </blockquote>
 <ol>
 <li><p>先查查文件</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 直接查找</span></span><br><span class="line">   <span class="comment"># 建议-user root，之后还要 ls -al 进一步查看是否当前用户可以执行</span></span><br><span class="line">   find ／ ﹣user root ﹣perm ﹣4000</span><br><span class="line">       <span class="comment"># -user root：查找属于 root 用户的文件。</span></span><br><span class="line">       <span class="comment"># -perm -4000：查找具有 SUID 权限位的文件。-4000 表示文件的权限位中包含 SUID 位。如果是 4000 则是指准确位4000的权限位。+4000 现在可以先不管</span></span><br><span class="line">   find / -perm -4000 2&gt; /dev/null</span><br><span class="line">   find / -perm -u=s -<span class="built_in">type</span> f 2&gt;/dev/null</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 一套带走</span></span><br><span class="line">   find / -perm -4000 2&gt; /dev/null | <span class="keyword">while</span> <span class="built_in">read</span> file; <span class="keyword">do</span> <span class="built_in">ls</span> -l <span class="string">&quot;<span class="variable">$file</span>&quot;</span>; <span class="keyword">done</span></span><br><span class="line">      <span class="comment"># 无法直接 find / -perm -4000 2&gt; /dev/null | ls -l，原因是 ls -l 期望接收的是文件名参数，而不是标准输入。find 命令的输出通过管道传递给 ls -l，但 ls -l 并不会从标准输入读取文件名，而是将整个输入视为一个字符串</span></span><br><span class="line">      <span class="comment"># find 也会查找隐藏文件</span></span><br><span class="line">   find / -perm -4000 2&gt; /dev/null | xargs <span class="built_in">ls</span> -l</span><br><span class="line">   find / -perm -4000 -print0 2&gt; /dev/null | xargs -0 <span class="built_in">ls</span> -l</span><br><span class="line">      <span class="comment"># 需要 xargs，但是没有试成功，应该是一次性输出这样的，文件少可以马上</span></span><br><span class="line">   find / -perm -4000 -<span class="built_in">exec</span> <span class="built_in">ls</span> -l &#123;&#125; \; 2&gt; /dev/null</span><br><span class="line">      <span class="comment"># -exec command &#123;&#125; \;</span></span><br><span class="line">      <span class="comment"># &#123;&#125;：一个占位符，表示 find 命令找到的每个文件。</span></span><br><span class="line">      <span class="comment"># \;：表示 -exec 选项的结束。</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 直接查找</span></span><br><span class="line">   <span class="comment"># 建议-user root，之后还要 ls -al 进一步查看是否当前用户可以执行</span></span><br><span class="line">   find / -user root -perm -4000</span><br><span class="line">       <span class="comment"># -user root：查找属于 root 用户的文件。</span></span><br><span class="line">       <span class="comment"># -perm -4000：查找具有 SUID 权限位的文件。-4000 表示文件的权限位中包含 SUID 位。如果是 4000 则是指准确位4000的权限位。+4000 现在可以先不管</span></span><br><span class="line">   find / -perm -4000 2&gt; /dev/null</span><br><span class="line">   find / -perm -u=s -<span class="built_in">type</span> f 2&gt;/dev/null</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 一套带走</span></span><br><span class="line">   find / -perm -4000 2&gt; /dev/null | <span class="keyword">while</span> <span class="built_in">read</span> file; <span class="keyword">do</span> <span class="built_in">ls</span> -l <span class="string">&quot;<span class="variable">$file</span>&quot;</span>; <span class="keyword">done</span></span><br><span class="line">      <span class="comment"># 无法直接 find / -perm -4000 2&gt; /dev/null | ls -l，原因是 ls -l 期望接收的是文件名参数，而不是标准输入。find 命令的输出通过管道传递给 ls -l，但 ls -l 并不会从标准输入读取文件名，而是将整个输入视为一个字符串</span></span><br><span class="line">      <span class="comment"># find 也会查找隐藏文件</span></span><br><span class="line">   find / -perm -4000 2&gt; /dev/null | xargs <span class="built_in">ls</span> -l</span><br><span class="line">   find / -perm -4000 -print0 2&gt; /dev/null | xargs -0 <span class="built_in">ls</span> -l</span><br><span class="line">      <span class="comment"># 需要 xargs，但是没有试成功，应该是一次性输出这样的，文件少可以马上</span></span><br><span class="line">   find / -perm -4000 -<span class="built_in">exec</span> <span class="built_in">ls</span> -l &#123;&#125; \; 2&gt; /dev/null</span><br><span class="line">      <span class="comment"># -exec command &#123;&#125; \;</span></span><br><span class="line">      <span class="comment"># &#123;&#125;：一个占位符，表示 find 命令找到的每个文件。</span></span><br><span class="line">      <span class="comment"># \;：表示 -exec 选项的结束。</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 </li>
 <li><p><strong>通过语言运行开shell</strong>，如使用gdb进行命令执行(新开一个有root的shell): <code>gdb -nx -ex &#39;python import os; os.execl(&quot;/bin/sh&quot;, &quot;sh&quot;, &quot;-p&quot;)&#39; -ex quit</code></p>
 </li>
@@ -353,9 +359,16 @@
 <li><p><strong>使用xxd&#x2F;运行(利用报错信息)查看shell参数</strong>: 我们会遇到一种情况是给定的shell文件是已经编译好的文件，此时可以使用xxd来获取参数<code>xxd /shell</code></p>
 </li>
 </ol>
+<h2 id="通配符提权"><a href="#通配符提权" class="headerlink" title="通配符提权"></a>通配符提权</h2><p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/176255.html">https://www.freebuf.com/articles/system/176255.html</a></p>
 
   </div>
 </article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
 
 
 
@@ -367,8 +380,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -384,7 +395,7 @@
     
     
       <div id="toc-footer" style="display: none">
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">*Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9D%83%E9%99%90%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">Linux权限基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%B8%8E%E7%94%A8%E6%88%B7%E7%BB%84"><span class="toc-number">2.1.</span> <span class="toc-text">用户与用户组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E7%BB%A7%E6%89%BF"><span class="toc-number">2.2.</span> <span class="toc-text">进程权限继承</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.</span> <span class="toc-text">suid提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#suid-ref"><span class="toc-number">3.1.</span> <span class="toc-text">*suid ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFsuid"><span class="toc-number">3.2.</span> <span class="toc-text">什么是suid?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">suid提权实战注意点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98"><span class="toc-number">3.4.</span> <span class="toc-text">*suid提权实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%8F%90%E6%9D%83"><span class="toc-number">4.</span> <span class="toc-text">环境变量提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8Fref"><span class="toc-number">4.1.</span> <span class="toc-text">*环境变量ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">4.2.</span> <span class="toc-text">什么是环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">4.3.</span> <span class="toc-text">$PATH的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86%E4%B8%8E%E5%A4%A7%E5%A4%A7%E5%A4%A7%E5%89%8D%E6%8F%90"><span class="toc-number">4.4.</span> <span class="toc-text">利用原理与大大大前提</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E5%AE%9E%E6%88%98"><span class="toc-number">4.5.</span> <span class="toc-text">*$PATH实战</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">1.</span> <span class="toc-text">*Ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux%E6%9D%83%E9%99%90%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">Linux权限基本概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E4%B8%8E%E7%94%A8%E6%88%B7%E7%BB%84"><span class="toc-number">2.1.</span> <span class="toc-text">用户与用户组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E6%9D%83%E9%99%90%E7%BB%A7%E6%89%BF"><span class="toc-number">2.2.</span> <span class="toc-text">进程权限继承</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83"><span class="toc-number">3.</span> <span class="toc-text">suid提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#suid-ref"><span class="toc-number">3.1.</span> <span class="toc-text">*suid ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFsuid"><span class="toc-number">3.2.</span> <span class="toc-text">什么是suid?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">suid提权实战注意点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#suid%E6%8F%90%E6%9D%83%E5%AE%9E%E6%88%98"><span class="toc-number">3.4.</span> <span class="toc-text">*suid提权实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F%E6%8F%90%E6%9D%83"><span class="toc-number">4.</span> <span class="toc-text">环境变量提权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8Fref"><span class="toc-number">4.1.</span> <span class="toc-text">*环境变量ref</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">4.2.</span> <span class="toc-text">什么是环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">4.3.</span> <span class="toc-text">$PATH的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86%E4%B8%8E%E5%A4%A7%E5%A4%A7%E5%A4%A7%E5%89%8D%E6%8F%90"><span class="toc-number">4.4.</span> <span class="toc-text">利用原理与大大大前提</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PATH%E5%AE%9E%E6%88%98"><span class="toc-number">4.5.</span> <span class="toc-text">*$PATH实战</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%80%9A%E9%85%8D%E7%AC%A6%E6%8F%90%E6%9D%83"><span class="toc-number">5.</span> <span class="toc-text">通配符提权</span></a></li></ol>
       </div>
     
 
@@ -423,7 +434,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -431,8 +442,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -536,6 +545,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

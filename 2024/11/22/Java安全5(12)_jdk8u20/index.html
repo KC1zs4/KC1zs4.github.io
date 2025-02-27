@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="吐然发现期末了课内都还没学得来速通，学了一下午和一上午电工(不是走软件要学什么电工，真是折磨，还是回归java链好玩很不好玩，瞄了一眼，jdk8u20比较底层有点难度，后面再来补，先跑去shiro  jdk7u21还在发力 其实jdk8u20只是jdk7u21的绕过版本   在jdk7u21篇最后有讲到是它的修改导致了后续有jdk8u20，也就是jdk7u21的修改没有去除风险，修复源码变动，这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java安全5(12)_jdk8u20">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="吐然发现期末了课内都还没学得来速通，学了一下午和一上午电工(不是走软件要学什么电工，真是折磨，还是回归java链好玩很不好玩，瞄了一眼，jdk8u20比较底层有点难度，后面再来补，先跑去shiro  jdk7u21还在发力 其实jdk8u20只是jdk7u21的绕过版本   在jdk7u21篇最后有讲到是它的修改导致了后续有jdk8u20，也就是jdk7u21的修改没有去除风险，修复源码变动，这">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-22T13:07:13.439Z">
+<meta property="article:modified_time" content="2024-11-25T15:36:06.554Z">
+<meta property="article:tag" content="Java安全">
+<meta property="article:tag" content="java反序列化">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>Java安全5(12)_jdk8u20</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/22/Java%E5%AE%89%E5%85%A80_%E8%B0%83%E8%AF%95%E4%B8%8E%E5%88%86%E6%9E%90/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/22/Java%E5%AE%89%E5%85%A85(11)_CommonsBeanutils1/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&text=Java安全5(12)_jdk8u20"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&is_video=false&description=Java安全5(12)_jdk8u20"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(12)_jdk8u20&body=Check out this article: https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&name=Java安全5(12)_jdk8u20&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&t=Java安全5(12)_jdk8u20"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jdk7u21%E8%BF%98%E5%9C%A8%E5%8F%91%E5%8A%9B"><span class="toc-number">1.</span> <span class="toc-text">jdk7u21还在发力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">2.</span> <span class="toc-text">前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#try-catch"><span class="toc-number">2.1.</span> <span class="toc-text">try-catch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java%E5%AF%B9%E8%B1%A1%E5%BA%8F%E5%88%97%E5%8C%96%E6%B5%81%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.2.</span> <span class="toc-text">Java对象序列化流协议</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%AD%E7%9A%84%E4%B8%A4%E4%B8%AA%E5%AE%8F%E8%A7%82%E6%9C%BA%E5%88%B6"><span class="toc-number">2.2.1.</span> <span class="toc-text">序列化中的两个宏观机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E5%B7%A5%E5%85%B7%EF%BC%9ASerializationDumper"><span class="toc-number">2.2.2.</span> <span class="toc-text">操作工具：SerializationDumper</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E5%BA%8F%E5%88%97%E5%8C%96%E6%B5%81%E5%9F%BA%E7%A1%80Grammar"><span class="toc-number">2.3.</span> <span class="toc-text">对象序列化流基础Grammar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8D%E5%8A%A0%E6%B3%A8%E6%84%8F%E7%9A%84%E8%AF%AD%E6%B3%95%E8%A7%84%E5%88%99"><span class="toc-number">2.4.</span> <span class="toc-text">稍加注意的语法规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nop"><span class="toc-number">2.5.</span> <span class="toc-text">Nop</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">3.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java安全5(12)_jdk8u20
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-22T13:07:13.439Z" class="dt-published" itemprop="datePublished">2024-11-22</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Java%E5%AE%89%E5%85%A8/" rel="tag">Java安全</a>, <a class="p-category" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">java反序列化</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>吐然发现期末了课内都还没学得来速通，学了一下午和一上午电工(不是走软件要学什么电工，真是折磨，还是回归java链好玩<br>很不好玩，瞄了一眼，jdk8u20比较底层有点难度，后面再来补，先跑去shiro</p>
+</blockquote>
+<h2 id="jdk7u21还在发力"><a href="#jdk7u21还在发力" class="headerlink" title="jdk7u21还在发力"></a>jdk7u21还在发力</h2><blockquote>
+<p>其实jdk8u20只是jdk7u21的绕过版本</p>
+</blockquote>
+<ol>
+<li><p>在jdk7u21篇最后有讲到是它的修改导致了后续有jdk8u20，也就是jdk7u21的修改没有去除风险，<a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk7u/commit/b3dd6104b67d2a03b94a4a061f7a473bb0d2dc4e">修复源码变动</a>，这里的处理方式是在getInstance()抛出异常而我们在这里的type并不是Anntation</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">      annotationType = AnnotationType.getInstance(type);</span><br><span class="line">  &#125; <span class="keyword">catch</span>(IllegalArgumentException e) &#123;</span><br><span class="line">      <span class="comment">// ---</span></span><br><span class="line">      <span class="comment">// Class is no longer an annotation type; all bets are off</span></span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">      <span class="comment">// +++</span></span><br><span class="line">      <span class="comment">// Class is no longer an annotation type; time to punch out</span></span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">java</span>.io.InvalidObjectException(<span class="string">&quot;Non-annotation type in annotation serial stream&quot;</span>);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>再看到修复后第一次的AnnotationInvocationHandler的readObject方法</p>
+<ol>
+<li>该类内部的readObject方法第一行就调用了defaultReadObject()方法，该方法主要用来从字节流中读取对象的字段值，它可以从字节流中按照定义对象的类描述符以及定义的顺序读取字段的名称和类型信息</li>
+<li>我们可以看到: <strong>传入的AnnotationInvocationHandler对象在异常被抛出前，已经从序列化数据中被还原出来</strong>。换句话说就是我们把恶意的种子种到了运行对象中，但是因为出现异常导致该种子没法生长</li>
+<li><strong>应对思路</strong>: 绕过异常处理</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(java.io.ObjectInputStream s)</span> <span class="keyword">throws</span> java.io.IOException, ClassNotFoundException &#123;</span><br><span class="line">     s.defaultReadObject();</span><br><span class="line">     <span class="comment">// Check to make sure that types have not evolved incompatibly</span></span><br><span class="line">     <span class="type">AnnotationType</span> <span class="variable">annotationType</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">         annotationType = AnnotationType.getInstance(type);</span><br><span class="line">     &#125; <span class="keyword">catch</span>(IllegalArgumentException e) &#123;</span><br><span class="line">         <span class="comment">// Class is no longer an annotation type; time to punch out</span></span><br><span class="line">         <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">java</span>.io.InvalidObjectException(<span class="string">&quot;Non-annotation type in annotation serial stream&quot;</span>);</span><br><span class="line">     &#125;</span><br><span class="line">     Map&lt;String, Class&lt;?&gt;&gt; memberTypes = annotationType.memberTypes();</span><br><span class="line">     <span class="comment">// If there are annotation members without values, that</span></span><br><span class="line">     <span class="comment">// situation is handled by the invoke method.</span></span><br><span class="line">     <span class="keyword">for</span> (Map.Entry&lt;String, Object&gt; memberValue : memberValues.entrySet()) &#123;</span><br><span class="line">         <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> memberValue.getKey();</span><br><span class="line">         Class&lt;?&gt; memberType = memberTypes.get(name);</span><br><span class="line">         <span class="keyword">if</span> (memberType != <span class="literal">null</span>) &#123;  <span class="comment">// i.e. member still exists</span></span><br><span class="line">             <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> memberValue.getValue();</span><br><span class="line">             <span class="keyword">if</span> (!(memberType.isInstance(value) ||</span><br><span class="line">                   value <span class="keyword">instanceof</span> ExceptionProxy)) &#123;</span><br><span class="line">                 memberValue.setValue(</span><br><span class="line">                     <span class="keyword">new</span> <span class="title class_">AnnotationTypeMismatchExceptionProxy</span>(</span><br><span class="line">                         value.getClass() + <span class="string">&quot;[&quot;</span> + value + <span class="string">&quot;]&quot;</span>).setMember(</span><br><span class="line">                             annotationType.members().get(name)));</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><h3 id="try-catch"><a href="#try-catch" class="headerlink" title="try-catch"></a>try-catch</h3><blockquote>
+<p>前文说到：我们现在要绕过异常，那肯定先熟悉一下异常</p>
+</blockquote>
+<ol>
+<li>这里主要考虑嵌套包裹的情形，差不多有两种，这里直接上结论<ol>
+<li><strong>有异常抛出调用无异常抛出: 外部不会被中断</strong><ol>
+<li>在一个存在try … catch块的方法（有异常抛出）中去调用另一个存在try … catch块的方法（无异常抛出），如果被调用的方法（无异常抛出）出错，那么会继续执行完调用方法的代码逻辑，但是若调用方法也出错，那么会终止代码运行的进程</li>
+</ol>
+</li>
+<li>无异常抛出调用有异常抛出: 外部会被中断<ol>
+<li>在一个存在try … catch块的方法（无异常抛出）中去调用另一个存在try … catch块的方法（有异常抛出），如果被调用的方法（有异常抛出）出错，那么会导致调用方法出错且不会继续执行完调用方法的代码逻辑，但是不会终止代码运行的进程</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="Java对象序列化流协议"><a href="#Java对象序列化流协议" class="headerlink" title="Java对象序列化流协议"></a>Java对象序列化流协议</h3><h4 id="序列化中的两个宏观机制"><a href="#序列化中的两个宏观机制" class="headerlink" title="序列化中的两个宏观机制"></a>序列化中的两个宏观机制</h4><ol>
+<li><em><strong>引用机制</strong></em><ol>
+<li>在序列化流程中，对象所属类、对象成员属性等数据都会被使用固定的语法写入到序列化数据，并且会被特定的方法读取；在序列化数据中，存在的对象有null、new objects、classes、arrays、strings、back references等，这些对象在序列化结构中都有对应的描述信息，并且<strong>每一个写入字节流的对象都会被赋予引用Handle，并且这个引用Handle可以反向引用该对象（使用TC_REFERENCE结构，引用前面handle的值）</strong>，引用Handle会从0x7E0000开始进行顺序赋值并且自动自增，一旦字节流发生了重置则该引用Handle会重新从0x7E0000开始</li>
+</ol>
+</li>
+<li><em><strong>成员抛弃</strong></em><ol>
+<li>在反序列化中，如果当前这个对象中的某个字段并没有在字节流中出现，则这些字段会使用类中定义的默认值，如果这个值出现在字节流中，但是并<strong>不属于对象，则抛弃该值</strong>，但是如果这个值是一个对象的话，那么会为这个值分配一个 Handle</li>
+</ol>
+</li>
+</ol>
+<h4 id="操作工具：SerializationDumper"><a href="#操作工具：SerializationDumper" class="headerlink" title="操作工具：SerializationDumper"></a>操作工具：SerializationDumper</h4><blockquote>
+<p>当前为SerializationDumper-v1.14.jar</p>
+</blockquote>
+<ol>
+<li><p><strong>一：从hex&#x2F;raw.bin输入查看对象流</strong></p>
+<ol>
+<li>-f</li>
+<li>-r</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 字面量中的十六进制asynchronous编码</span></span><br><span class="line">java -jar [jarb包] aced0005740004414243447071007e0000</span><br><span class="line">   <span class="comment">// 输出</span></span><br><span class="line">   STREAM_MAGIC - <span class="number">0xac</span> ed</span><br><span class="line">   STREAM_VERSION - <span class="number">0x00</span> <span class="number">05</span></span><br><span class="line">   Contents</span><br><span class="line">     TC_STRING - <span class="number">0x74</span></span><br><span class="line">       newHandle <span class="number">0x00</span> 7e <span class="number">00</span> <span class="number">00</span></span><br><span class="line">       Length - <span class="number">4</span> - <span class="number">0x00</span> <span class="number">04</span></span><br><span class="line">       Value - ABCD - <span class="number">0x41424344</span></span><br><span class="line">     TC_NULL - <span class="number">0x70</span></span><br><span class="line">     TC_REFERENCE - <span class="number">0x71</span></span><br><span class="line">       Handle - <span class="number">8257536</span> - <span class="number">0x00</span> 7e <span class="number">00</span> <span class="number">00</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 文本文件中的十六进制asynchronous编码</span></span><br><span class="line">java -jar [jarb包] -f hex-ascii-input-file.txt</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 含原始序列化数据的文件</span></span><br><span class="line">java -jar SerializationDumper-v1<span class="number">.14</span>.jar -r raw-input-file.bin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><em><strong>二：重建序列化流</strong></em></p>
+<ol>
+<li>将转储的序列化流转换回原始字节流</li>
+<li><strong>一般工作流如下</strong><ol>
+<li>注意事项<ol>
+<li>流重建模式当前仅对转储数据中的十六进制编码字节进行操作。因此，将字符串“ABCD”更改为“AAAABBBB”不会在输出文件中产生字节0x 4141414142424242的预期效果</li>
+<li>长度字段在流重建期间不会自动更新。这可能是可取的或不可取的，但如果你修改一个字符串值的方式，改变长度只是要注意，你可能还需要相应地修改长度（十六进制）字段。这同样适用于数组</li>
+<li><strong>引用句柄&#x2F;ID是递增的</strong>，从0x 7 e0000开始，因此第一个newHandle字段由0x 7 e0000引用，第二个由0x 7 e0001引用，如果流包含任何TC_REFERENCE元素，并且您修改它以删除包含newHandle字段的元素，那么您可能会中断流中的引用，除非您手动更新它们</li>
+</ol>
+</li>
+<li>-b</li>
+</ol>
+</li>
+</ol>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 获取序列化流</span></span><br><span class="line">java -jar %SDumper% aced0005740004414243447071007e0000</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 获取内容存入文件temp.txt</span></span><br><span class="line">STREAM_MAGIC - <span class="number">0xac</span> ed</span><br><span class="line">STREAM_VERSION - <span class="number">0x00</span> <span class="number">05</span></span><br><span class="line">Contents</span><br><span class="line">  TC_STRING - <span class="number">0x74</span></span><br><span class="line">    newHandle <span class="number">0x00</span> 7e <span class="number">00</span> <span class="number">00</span></span><br><span class="line">    <span class="comment">// Length - 4 - 0x00 04</span></span><br><span class="line">    <span class="comment">// Value - ABCD - 0x41424344  // 将字符串值从ABCD修改为AAAABBBB，</span></span><br><span class="line">    Length - <span class="number">8</span> - <span class="number">0x00</span> 08</span><br><span class="line">    Value - AAAABBBB - <span class="number">0x4141414142424242</span></span><br><span class="line">  TC_NULL - <span class="number">0x70</span></span><br><span class="line">  TC_REFERENCE - <span class="number">0x71</span></span><br><span class="line">    Handle - <span class="number">8257536</span> - <span class="number">0x00</span> 7e <span class="number">00</span> <span class="number">00</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 重建流并输入到rebuilt.bin</span></span><br><span class="line">java -jar %SDumper% -b dumped.txt rebuilt.bin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/NickstaDB/SerializationDumper?tab=readme-ov-file#limitations">局限</a></p>
+<ol>
+<li>情况一：如果流包含使用序列化协议版本1编写的externalContents元素，则无法在不使用原始类的情况下将其序列</li>
+</ol>
+</li>
+</ol>
+<h3 id="对象序列化流基础Grammar"><a href="#对象序列化流基础Grammar" class="headerlink" title="对象序列化流基础Grammar"></a>对象序列化流基础Grammar</h3><ol>
+<li><p>贴上官方文档的说明，然后逐个击破，一些先进行省略</p>
+</li>
+<li><p>stream就是指完整的序列化协议流，它是有三部分组成：magic、version和contents。有两个流常数需要进行注意</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 流常数</span></span><br><span class="line"><span class="keyword">final</span> <span class="keyword">static</span> <span class="type">short</span> <span class="variable">STREAM_MAGIC</span> <span class="operator">=</span> (<span class="type">short</span>)<span class="number">0xaced</span>;</span><br><span class="line"><span class="keyword">final</span> <span class="keyword">static</span> <span class="type">short</span> <span class="variable">STREAM_VERSION</span> <span class="operator">=</span> <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 语法</span></span><br><span class="line">stream:</span><br><span class="line">  magic version contents</span><br><span class="line"></span><br><span class="line">contents:</span><br><span class="line">  content</span><br><span class="line">  contents content</span><br><span class="line"></span><br><span class="line">content:</span><br><span class="line">  object</span><br><span class="line">  blockdata</span><br><span class="line"></span><br><span class="line">object:</span><br><span class="line">  newObject</span><br><span class="line">  newClass</span><br><span class="line">  newArray</span><br><span class="line">  newString</span><br><span class="line">  newEnum</span><br><span class="line">  newClassDesc</span><br><span class="line">  prevObject</span><br><span class="line">  nullReference</span><br><span class="line">  exception</span><br><span class="line">  TC_RESET</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="稍加注意的语法规则"><a href="#稍加注意的语法规则" class="headerlink" title="稍加注意的语法规则"></a>稍加注意的语法规则</h3><h3 id="Nop"><a href="#Nop" class="headerlink" title="Nop"></a>Nop</h3><ol start="3">
+<li>不同flag之间的关系</li>
+<li>套了两层readObject，两次包裹</li>
+</ol>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/platform/serialization/spec/protocol.html">对象流协议官方版</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9765?time__1311=n4+xnD0DuDRDB0DyAD9DBqOoTKAKmqitKeWI84D">信息量很多</a></li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jdk7u21%E8%BF%98%E5%9C%A8%E5%8F%91%E5%8A%9B"><span class="toc-number">1.</span> <span class="toc-text">jdk7u21还在发力</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">2.</span> <span class="toc-text">前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#try-catch"><span class="toc-number">2.1.</span> <span class="toc-text">try-catch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Java%E5%AF%B9%E8%B1%A1%E5%BA%8F%E5%88%97%E5%8C%96%E6%B5%81%E5%8D%8F%E8%AE%AE"><span class="toc-number">2.2.</span> <span class="toc-text">Java对象序列化流协议</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%AD%E7%9A%84%E4%B8%A4%E4%B8%AA%E5%AE%8F%E8%A7%82%E6%9C%BA%E5%88%B6"><span class="toc-number">2.2.1.</span> <span class="toc-text">序列化中的两个宏观机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E5%B7%A5%E5%85%B7%EF%BC%9ASerializationDumper"><span class="toc-number">2.2.2.</span> <span class="toc-text">操作工具：SerializationDumper</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E5%BA%8F%E5%88%97%E5%8C%96%E6%B5%81%E5%9F%BA%E7%A1%80Grammar"><span class="toc-number">2.3.</span> <span class="toc-text">对象序列化流基础Grammar</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8D%E5%8A%A0%E6%B3%A8%E6%84%8F%E7%9A%84%E8%AF%AD%E6%B3%95%E8%A7%84%E5%88%99"><span class="toc-number">2.4.</span> <span class="toc-text">稍加注意的语法规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nop"><span class="toc-number">2.5.</span> <span class="toc-text">Nop</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">3.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&text=Java安全5(12)_jdk8u20"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&is_video=false&description=Java安全5(12)_jdk8u20"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java安全5(12)_jdk8u20&body=Check out this article: https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&title=Java安全5(12)_jdk8u20"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&name=Java安全5(12)_jdk8u20&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/22/Java%E5%AE%89%E5%85%A85(12)_jdk8u20/&t=Java安全5(12)_jdk8u20"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

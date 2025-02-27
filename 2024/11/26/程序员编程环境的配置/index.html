@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="HandheldFriendly" content="True" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+    <meta name="description" content="jetbrains是真好用，还有生态同步  pythonide windows: pycharm wsl: vscode 包管理: conda + pip  pycharm中使用conda 注意到是conda再windows下可执行文件的路径在...\Anaconda\Scirpts\conda.exe 中途切换，官方文档 创建项目，官方文档  conda与pip的包管理 在conda中下载pi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="程序员编程环境的配置">
+<meta property="og:url" content="https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:site_name" content="KC1zs4&#39;s Blog">
+<meta property="og:description" content="jetbrains是真好用，还有生态同步  pythonide windows: pycharm wsl: vscode 包管理: conda + pip  pycharm中使用conda 注意到是conda再windows下可执行文件的路径在...\Anaconda\Scirpts\conda.exe 中途切换，官方文档 创建项目，官方文档  conda与pip的包管理 在conda中下载pi">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-11-26T11:54:02.201Z">
+<meta property="article:modified_time" content="2024-11-28T01:47:52.220Z">
+<meta name="twitter:card" content="summary">    
+    <link
+        rel="shortcut icon"
+        href="/images/favicon.ico"
+    />
+       
+    <link
+        rel="icon"
+        type="image/png"
+        href="/images/favicon-192x192.png"
+        sizes="192x192"
+    />
+       
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="/images/apple-touch-icon.png"
+    />
+      
+    <!-- title -->
+    <title>程序员编程环境的配置</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z6JGRC9FT2"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-Z6JGRC9FT2');
+  </script>
+
+ <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+     
+    <!-- mathjax -->
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2024/11/28/python%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%962_%E7%BB%95%E8%BF%87%E6%89%8B%E6%B3%95/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2024/11/25/windows%E5%8D%8A%E5%85%A8%E9%94%AE%E7%9B%98%E9%85%8D%E7%BD%AE/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&text=程序员编程环境的配置"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&is_video=false&description=程序员编程环境的配置"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=程序员编程环境的配置&body=Check out this article: https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&name=程序员编程环境的配置&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&t=程序员编程环境的配置"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#python"><span class="toc-number">1.</span> <span class="toc-text">python</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ide"><span class="toc-number">1.1.</span> <span class="toc-text">ide</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pycharm%E4%B8%AD%E4%BD%BF%E7%94%A8conda"><span class="toc-number">1.2.</span> <span class="toc-text">pycharm中使用conda</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#conda%E4%B8%8Epip%E7%9A%84%E5%8C%85%E7%AE%A1%E7%90%86"><span class="toc-number">1.3.</span> <span class="toc-text">conda与pip的包管理</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        程序员编程环境的配置
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name"></span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-11-26T11:54:02.201Z" class="dt-published" itemprop="datePublished">2024-11-26</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E9%85%8D%E7%BD%AE/">配置</a>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>jetbrains是真好用，还有<a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/idea/sharing-your-ide-settings.html">生态同步</a></p>
+</blockquote>
+<h2 id="python"><a href="#python" class="headerlink" title="python"></a>python</h2><h3 id="ide"><a href="#ide" class="headerlink" title="ide"></a>ide</h3><ol>
+<li>windows: pycharm</li>
+<li>wsl: vscode</li>
+<li>包管理: conda + pip</li>
+</ol>
+<h3 id="pycharm中使用conda"><a href="#pycharm中使用conda" class="headerlink" title="pycharm中使用conda"></a>pycharm中使用conda</h3><ol>
+<li>注意到是conda再windows下可执行文件的路径在<code>...\Anaconda\Scirpts\conda.exe</code></li>
+<li><a target="_blank" rel="noopener" href="https://www.jetbrains.com/help/pycharm/conda-support-creating-conda-virtual-environment.html#conda-requirements">中途切换，官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.anaconda.com/working-with-conda/ide-tutorials/pycharm/">创建项目，官方文档</a></li>
+</ol>
+<h3 id="conda与pip的包管理"><a href="#conda与pip的包管理" class="headerlink" title="conda与pip的包管理"></a>conda与pip的包管理</h3><ol>
+<li><p>在conda中下载pip，主conda辅pip就ok</p>
+<ol>
+<li>pip可以换下清华源（清华源里有操作的）</li>
+<li>pip安装的包将存储在Conda环境的envs&#x2F;your_env_name&#x2F;lib&#x2F;pythonX.X&#x2F;site-packages目录下</li>
+<li>pip的依赖问题: 使用conda解决<code>conda install numpy --force</code></li>
+</ol>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment"># 1. 下载pip</span></span><br><span class="line">conda activate you_env</span><br><span class="line">conda install pip</span><br><span class="line"></span><br><span class="line"> <span class="comment"># 2. 包更新</span></span><br><span class="line">conda update pip</span><br><span class="line">conda update numpy</span><br><span class="line">pip install --upgrade numpy</span><br><span class="line"></span><br><span class="line"> <span class="comment"># 3. 包卸载</span></span><br><span class="line"> conda remove numpy</span><br><span class="line"> conda clean --all</span><br><span class="line"> pip uninstall numpy</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>常见Q&amp;A</p>
+<ol>
+<li>如果在一个环境env_a中用pip安装了某包，在env_b中可用吗？<ol>
+<li>不可用</li>
+</ol>
+</li>
+<li>如果在base中用pip安装安装了某包，在其他环境中可用吗？<ol>
+<li>conda似乎只是以类似文件链接方式在子环境中实现base已安装包复用，实际如果子环境中不安装同版本是完全隔离的。pip实测更是完全隔离的</li>
+</ol>
+</li>
+<li>如何判断conda中某个包是通过conda还是pip安装的<ol>
+<li>conda list ，用pip安装的包显示的build项目为pypi</li>
+</ol>
+</li>
+<li>如何使用Conda和pip进行环境复制<ol>
+<li>可以复制一个环境，并在新环境中使用pip安装额外的包。</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+    </div>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/tags/">Tag</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/search/">Search</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#python"><span class="toc-number">1.</span> <span class="toc-text">python</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ide"><span class="toc-number">1.1.</span> <span class="toc-text">ide</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pycharm%E4%B8%AD%E4%BD%BF%E7%94%A8conda"><span class="toc-number">1.2.</span> <span class="toc-text">pycharm中使用conda</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#conda%E4%B8%8Epip%E7%9A%84%E5%8C%85%E7%AE%A1%E7%90%86"><span class="toc-number">1.3.</span> <span class="toc-text">conda与pip的包管理</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&text=程序员编程环境的配置"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&is_video=false&description=程序员编程环境的配置"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=程序员编程环境的配置&body=Check out this article: https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&title=程序员编程环境的配置"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&name=程序员编程环境的配置&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://kc1zs4.github.io/2024/11/26/%E7%A8%8B%E5%BA%8F%E5%91%98%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83%E7%9A%84%E9%85%8D%E7%BD%AE/&t=程序员编程环境的配置"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2023-2025
+    KC1zs4&#39;s Blog
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/tags/">Tag</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/search/">Search</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+  $(function() {
+
+    var $inputArea = $("input#search-input");
+    var $resultArea = document.querySelector("div#search-result");
+
+    $inputArea.focus(function() {
+      var search_path = "search.xml";
+      if (search_path.length == 0) {
+        search_path = "search.xml";
+      }
+      var path = "/" + search_path;
+      searchFunc(path, 'search-input', 'search-result');
+    });
+
+    $inputArea.keydown(function(e) {
+      if (e.which == 13) {
+        e.preventDefault();
+      }
+    });
+
+    var observer = new MutationObserver(function(mutationsList, observer) {
+      if (mutationsList.length == 1) {
+        if (mutationsList[0].addedNodes.length) {
+          $(".search-no-result").hide();
+        } else if (mutationsList[0].removedNodes.length) {
+          $(".search-no-result").show(200);
+        }
+      }
+    });
+
+    observer.observe($resultArea, { childList: true });
+
+  });
+  </script>
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'kc1zs4-github-io';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+</body>
+</html>
